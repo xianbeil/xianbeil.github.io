@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>rmi代码分析 |  Hexo</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-rmi代码分析"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  rmi代码分析
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/" class="article-date">
+  <time datetime="2022-05-01T17:50:20.000Z" itemprop="datePublished">2022-05-02</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/javaSec/">javaSec</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="简介前的简介"><a href="#简介前的简介" class="headerlink" title="简介前的简介"></a>简介前的简介</h1><p>额，一直以来貌似养成了不好的习惯，在写完这一篇之后发现，我为什么要写文章啊。。</p>
+<p>博客是放笔记的，对吧，写的自己看懂就行了。还指望给别人看呢。</p>
+<p>所以这是本博客最后一篇可能有可能别人能看懂的文章。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430094406-ku9mt1b.png" alt="image.png"></p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>在处理rmi的时候发现当时学的比较早导致一些东西没有分析的很清楚，今天把他其中的一些过程重新分析一下，rmi还是很重要的一部分。</p>
+<p>对rmi其中的各种流程的代码部分进行简单的调试和分析。</p>
+<p>简单写一个rmi本地调用的project即可开始调试。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.demo02;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.Naming;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.UnicastRemoteObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMIServer</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMIHello</span> <span class="keyword">extends</span> <span class="title class_">UnicastRemoteObject</span> <span class="keyword">implements</span> <span class="title class_">IHello</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">protected</span> <span class="title function_">RMIHello</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException &#123;</span><br><span class="line">            <span class="built_in">super</span>();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> String <span class="title function_">sayHello</span><span class="params">(String name)</span> <span class="keyword">throws</span> RemoteException &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Hello&quot;</span>+name);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">register</span><span class="params">()</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        RMIHello rmiHello=<span class="keyword">new</span> <span class="title class_">RMIHello</span>();</span><br><span class="line">        LocateRegistry.createRegistry(<span class="number">1099</span>);</span><br><span class="line">        Naming.bind(<span class="string">&quot;rmi://127.0.0.1:1099/hello&quot;</span>,rmiHello);</span><br><span class="line">        System.out.println(<span class="string">&quot;Registry运行中......&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">RMIServer</span>().register();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h1><h2 id="服务端创建远程对象"><a href="#服务端创建远程对象" class="headerlink" title="服务端创建远程对象"></a>服务端创建远程对象</h2><p>rmi中的远程对象都继承了<code>UnicastRemoteObject</code>类，然后实现远程接口，<code>IHello</code>接口也继承了<code>Remote</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMIHello</span> <span class="keyword">extends</span> <span class="title class_">UnicastRemoteObject</span> <span class="keyword">implements</span> <span class="title class_">IHello</span>&#123;</span><br></pre></td></tr></table></figure>
+
+<p>所以我们要看的就是他的构造方法</p>
+<hr>
+<h3 id="UnicastRemoteObject-exportObject"><a href="#UnicastRemoteObject-exportObject" class="headerlink" title="UnicastRemoteObject.exportObject"></a>UnicastRemoteObject.exportObject</h3><p>会先进入父类<code>UnicastRemoteObject</code>的构造方法，在<code>UnicastRemoteObject</code>构造方法中会进入<code>java.rmi.server.UnicastRemoteObject#exportObject(java.rmi.Remote, int)</code>方法</p>
+<p>其中传入的默认的port为0</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115251-c5b84n3.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115509-aev0l0d.png" alt="image.png"></p>
+<p>所以首先会创建一个<code>UnicastServerRef</code>对象，</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115710-j5yzzyy.png" alt="image.png"></p>
+<p>在创建这个对象的时候，首先又会封装一个<code>LiveRef</code>对象进去</p>
+<h4 id="LiveRef"><a href="#LiveRef" class="headerlink" title="LiveRef"></a>LiveRef</h4><p>下面多次封装同一个LiveRef对象，就是为了客户端和服务端的通信</p>
+<p><code>sun.rmi.transport.LiveRef</code>对象会封装进三个属性，其中包含了本地ip，它实际上是负责网络通信的一个对象</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115835-oq6cuos.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115939-1c3x3vb.png" alt="image.png"></p>
+<h4 id="UnicastServerRef"><a href="#UnicastServerRef" class="headerlink" title="UnicastServerRef"></a>UnicastServerRef</h4><p>UnicastServerRef类继承自UnicastRef类，其实也就是简单的把liveRef对象封装进去。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501232936-sihubqs.png" alt="image.png"></p>
+<p>当我们封装好了<code>UnicastServerRef</code>对象的时候，再进入<code>java.rmi.server.UnicastRemoteObject#exportObject</code>方法中</p>
+<p>封装好的<code>UnicastServerRef</code>对象：</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501233118-qdzrbvb.png" alt="image.png"></p>
+<p>其实又是一个封装的过程，把<code>UnicastServerRef</code>对象封装到一开始的<em>远程对象</em>中，也就是<code>RMIHello</code>这个远程对象</p>
+<p>此时我们的远程对象已经创建好了</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501233256-skki01h.png" alt="image.png"></p>
+<h4 id="UnicastServerRef-exportObject"><a href="#UnicastServerRef-exportObject" class="headerlink" title="UnicastServerRef.exportObject"></a>UnicastServerRef.exportObject</h4><p>接着会进入<code>sun.rmi.server.UnicastServerRef#exportObject(java.rmi.Remote, java.lang.Object, boolean)</code>方法中</p>
+<p>先用创建动态代理的方式创建了一个存根stub，他就是RMIHello的动态代理类</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430221912-74xoh8s.png" alt="image.png"></p>
+<h5 id="Util-createProxy"><a href="#Util-createProxy" class="headerlink" title="Util.createProxy"></a>Util.createProxy</h5><p>稍微跟进一下<code>sun.rmi.server.Util#createProxy</code>方法，他是一个创建动态代理的方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501233821-g4uvmgu.png" alt="image.png"></p>
+<p>getRemoteClass方法会对传入的远程对象进行一下验证然后返回它的class</p>
+<p>接着就是创建动态代理，classloader,handler</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501235123-nrespux.png" alt="image.png"></p>
+<p>创建动态代理</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501235230-gcj2jfi.png" alt="image.png"></p>
+<p>可以看到返回的Proxy0动态代理对象，里面也封装了LiveRef这个对象</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501235538-uyrd9be.png" alt="image.png"></p>
+<hr>
+<p>接着新建一个Target对象，把刚刚的一系列东西都封装进去</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501235855-e4tx6on.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502000100-2r10ra9.png" alt="image.png"></p>
+<hr>
+<p>接下来进到<code>sun.rmi.transport.LiveRef#exportObject</code>方法中，也就是哪里都封装了的LiveRef对象</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501154724-2c6h00x.png" alt="image.png"></p>
+<p>这个方法进到<code>sun.rmi.transport.tcp.TCPTransport#exportObject</code>方法，实际上他就是开一个端口，然后把Target对象放上去</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501154757-z6sxyy5.png" alt="image.png"></p>
+<p>接着下面还会exportObject一次target，是进到<code>sun.rmi.transport.Transport#exportObject</code>方法中</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502000458-yjwv6vo.png" alt="image.png"></p>
+<p>根据注释理解一下，这个方法就是把远程对象放在服务端，等待客户端来的请求</p>
+<p>下面的<code>sun.rmi.transport.ObjectTable#putTarget</code>也就是一个表put的操作，把target装入</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502000701-3zyzueu.png" alt="image.png"></p>
+<hr>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502000834-bipeju0.png" alt="image.png"></p>
+<p>最后返回的是这个对象，至此远程对象创建完毕</p>
+<h2 id="注册中心创建逻辑"><a href="#注册中心创建逻辑" class="headerlink" title="注册中心创建逻辑"></a>注册中心创建逻辑</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501155207-0ldmwfw.png" alt="image.png"></p>
+<p>其实就是新建一个RegistryImpl对象，传入的参数值是默认的1099端口</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160056-0ww1bzu.png" alt="image.png"></p>
+<p>首先会创建一个LiveRef作用于通讯</p>
+<p>又创建一个UnicastServerRef类，在服务端创建的时候我们已经遇到过了一次这个构造方法，再一次进入</p>
+<p>可以看到也就只是封装了一个ref对象用于网络通讯</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160253-ih82ny6.png" alt="image.png"></p>
+<p>接着进入setup方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160343-xnzpcbm.png" alt="image.png"></p>
+<p>在其中我们又看到了熟悉的<code>sun.rmi.server.UnicastServerRef#exportObject(java.rmi.Remote, java.lang.Object, boolean)</code>方法，在上面创建服务端对象的时候也遇到过</p>
+<p>不过这里参数有所不同</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160423-3kbzmw2.png" alt="image.png"></p>
+<p>这里创建的代理是这个注册中心的代理类，也就是RegistryImpl类</p>
+<p>他还会进入setSeleton方法中</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160554-dh8g271.png" alt="image.png"></p>
+<blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160652-5o58gzz.png" alt="image.png"></p>
+<p>可以看到createSelection方法接受一个Remote对象</p>
+<p>然后加载它后缀加上Skel的class对象来获取Skeleton</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160903-459f9if.png" alt="image.png"></p>
+</blockquote>
+<p>这个方法过后，skeleton类被加载到这个UnicastServerRef中</p>
+<p>skeleton和stub就是分别对应服务端和客户端的网络代理</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501161058-si3jzgl.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501162044-z7izfgz.png" alt="image.png"></p>
+<p>注册中心同时提供了skl和stub，因为要和服务端和客户端两端通讯</p>
+<p>因此最终<code>createRegistry()</code>的结果就是返回了一个<code>RegistryImpl</code>对象，并且赋值<code>this.skel=RegistryImpl_Skel</code>。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502010214-ppg0qgx.png" alt="image.png"></p>
+<h2 id="注册中心绑定逻辑"><a href="#注册中心绑定逻辑" class="headerlink" title="注册中心绑定逻辑"></a>注册中心绑定逻辑</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501162342-he8el2h.png" alt="image.png"></p>
+<p>先获取到注册中心</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501162405-yfa99q0.png" alt="image.png"></p>
+<p>然后调用<code>sun.rmi.registry.RegistryImpl_Stub#bind</code>把UnicastServerRef对象绑定上去</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501183232-uz4rh5e.png" alt="image.png"></p>
+<h1 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h1><p>同样的先获取到注册中心</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501194145-mayrxs7.png" alt="image.png"></p>
+<p>返回的是注册中心的stub对象</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501194221-vfdvky0.png" alt="image.png"></p>
+<p>然后进到<code>sun.rmi.registry.RegistryImpl_Stub#lookup</code>方法中，也就是我们根据注册的名称来查找类</p>
+<p>先会对我们查找的这个远程类名称字符串序列化进去</p>
+<p>newCall方法就是一个网络请求的操作，这也和之前我们分析的流量对应了起来</p>
+<p>说明注册中心也会有一个反序列化的操作</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501194919-s6b9di5.png" alt="image.png"></p>
+<p>然后在下面的invoke方法中实现网络请求</p>
+<p>也就是这个executeCall方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501195240-oqvfrmb.png" alt="image.png"></p>
+<p>然后就通过反序列化得到返回来的远程对象代理</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501195429-rkco705.png" alt="image.png"></p>
+<p>这里有2个反序列化点，都是反序列化注册中心返回来的代理对象，如果我们创建一个恶意注册中心返回恶意stub就可能实现对客户端的反序列化攻击，分别是这两个地方（上面提了一个地方）</p>
+<h2 id="UnicastRef-invoke"><a href="#UnicastRef-invoke" class="headerlink" title="UnicastRef.invoke"></a>UnicastRef.invoke</h2><p><code>sun.rmi.server.UnicastRef#invoke(java.rmi.server.RemoteCall)</code></p>
+<p>第一个地方就是在invoke方法中的<code>sun.rmi.transport.StreamRemoteCall#executeCall</code>方法中</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501195911-qumij3j.png" alt="image.png"></p>
+<p>在处理异常的地方里面有一个反序列化的操作</p>
+<p>如果是这个异常的话，就会触发反序列化</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501200834-nyhcu1a.png" alt="image.png"></p>
+<p>并且这个<code>sun.rmi.server.UnicastRef#invoke</code>方法在很多地方都会被调用</p>
+<h2 id="RegistryImpl-Stub-lookup"><a href="#RegistryImpl-Stub-lookup" class="headerlink" title="RegistryImpl_Stub.lookup"></a>RegistryImpl_Stub.lookup</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501201220-dnkf9y3.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501201542-ngvl28l.png" alt="image.png"></p>
+<p>最后就会获得之前我们创建的服务端对象的远程代理，可以看到里面封装的LiveRef对象</p>
+<h1 id="远程方法调用"><a href="#远程方法调用" class="headerlink" title="远程方法调用"></a>远程方法调用</h1><p>因为我们获取hello对象是远程对象的动态代理，所以对他调用任意方法的时候就会进入handler（调用处理器）的invoke方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501201937-eief2vw.png" alt="image.png"></p>
+<p>首先会对这个方法是否属于该远程对象进行一个判断</p>
+<p>然后这里又会调用<code>sun.rmi.server.UnicastRef#invoke(java.rmi.Remote, java.lang.reflect.Method, java.lang.Object[], long)</code>这个方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202434-haixi7n.png" alt="image.png"></p>
+<p>接着<code>sun.rmi.server.UnicastRef#marshalValue</code>方法中会把参数值序列化进去</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202704-t2kqyd0.png" alt="image.png"></p>
+<p>接下来又会调用到executeCall方法，所有的客户端的请求都会用到这个方法</p>
+<blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501203015-frla00p.png" alt="image.png"></p>
+<p>这里建立的连接就是和服务端直接建立连接了</p>
+</blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202615-nkk2aoo.png" alt="image.png"></p>
+<p>接着就是获取方法调用结果</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202903-yeujj15.png" alt="image.png"></p>
+<p>和上面的marshaValue对应，unmarshalValue方法中对返回的数据进行了反序列化处理</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202930-tierni1.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502010732-6uc4aqf.png" alt="image.png"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>引用自<a target="_blank" rel="noopener" href="https://zhishihezi.net/endpoint/richtext/6afc74481673af6429d96f73c340f7bc?event=436b34f44b9f95fd3aa8667f1ad451b173526ab5441d9f64bd62d183bed109b0ea1aaaa23c5207a446fa6de9f588db3958e8cd5c825d7d5216199d64338d9d00571152a420cac6258bd33ad949557d182c6ff5f5474f62c9815a8cca721c910502a64422f5bb96989f53cef2ae22d07a1ce71282863f5769d1661fd52e3b1970c1dba0b488dc02b9a345ec36cad6c7cd53afd7f10083e357f268fd3248ccfd7d5b11e47226e96d2f2a3033ee546b961d6cd75285ec2ae0f06ba0573b5d9fb4f11819d3dfd64d4cff04450762cdecfd051e990a1419cb198b787b39ec8f4d81c26ab3b7c18b2aa0744c225e3c03a3e5de2350bd5108c5814e14edcc23414a7153#0">Javasec</a></p>
+<p>RMI 底层通讯采用了Stub (运行在客户端) 和 Skeleton (运行在服务端) 机制，RMI 调用远程方法的大致如下：</p>
+<ol>
+<li>RMI 客户端在调用远程方法时会先创建 Stub ( <code>sun.rmi.registry.RegistryImpl_Stub</code> )。</li>
+<li>Stub 会将 Remote 对象传递给远程引用层 ( <code>java.rmi.server.RemoteRef</code> ) 并创建 <code>java.rmi.server.RemoteCall</code>( 远程调用 )对象。</li>
+<li>RemoteCall 序列化 RMI 服务名称、Remote 对象。</li>
+<li>RMI 客户端的远程引用层传输 RemoteCall 序列化后的请求信息通过 Socket 连接的方式传输到 RMI 服务端的远程引用层。</li>
+<li>RMI服务端的远程引用层( <code>sun.rmi.server.UnicastServerRef</code> )收到请求会请求传递给 Skeleton ( <code>sun.rmi.registry.RegistryImpl_Skel#dispatch</code> )。</li>
+<li>Skeleton 调用 RemoteCall 反序列化 RMI 客户端传过来的序列化。</li>
+<li>Skeleton 处理客户端请求：bind、list、lookup、rebind、unbind，如果是 lookup 则查找 RMI 服务名绑定的接口对象，序列化该对象并通过 RemoteCall 传输到客户端。</li>
+<li>RMI 客户端反序列化服务端结果，获取远程对象的引用。</li>
+<li>RMI 客户端调用远程方法，RMI服务端反射调用RMI服务实现类的对应方法并序列化执行结果返回给客户端。</li>
+<li>RMI 客户端反序列化 RMI 远程方法调用结果。</li>
+</ol>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rmi/" rel="tag">rmi</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/03/rmi%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            RMI反序列化攻击1
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/04/27/pwnhub2022%E6%98%A5%E5%AD%A3%E8%B5%9B/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">pwnhub2022春季赛</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> John Doe
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Hexo"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeba4nlj208c08c3z9.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeo49ywj208c08cgmz.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

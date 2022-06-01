@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>探索Ysoserial中的CC1 |  Hexo</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-cc1study2"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  探索Ysoserial中的CC1
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/03/15/cc1study2/" class="article-date">
+  <time datetime="2022-03-14T18:21:24.000Z" itemprop="datePublished">2022-03-15</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/javaSec/">javaSec</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">3 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>之前其实分析过一次，但经过一段时间调试，打算再做一次。</p>
+<h1 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h1><p>用ysoserial生成payload然后发送，webserver环境就是之前搭建的</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314202817-1qr5nnn.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314202933-vw945je.png" alt="image.png"></p>
+<p>测试成功</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p><a target="_blank" rel="noopener" href="https://xianbei.top/2022/03/08/javacc31study/">之前一开始分析的链子</a>也是CC，但是没有调试，为了进一步学习，再分析一遍Ysoserial中的链子构造原理</p>
+<h2 id="反序列化链总览"><a href="#反序列化链总览" class="headerlink" title="反序列化链总览"></a>反序列化链总览</h2><p>Ysoserial中的利用链，能够发现使用的是LazyMap利用链。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	Gadget chain:</span></span><br><span class="line"><span class="comment">		ObjectInputStream.readObject()</span></span><br><span class="line"><span class="comment">			AnnotationInvocationHandler.readObject()</span></span><br><span class="line"><span class="comment">				Map(Proxy).entrySet()</span></span><br><span class="line"><span class="comment">					AnnotationInvocationHandler.invoke()</span></span><br><span class="line"><span class="comment">						LazyMap.get()</span></span><br><span class="line"><span class="comment">							ChainedTransformer.transform()</span></span><br><span class="line"><span class="comment">								ConstantTransformer.transform()</span></span><br><span class="line"><span class="comment">								InvokerTransformer.transform()</span></span><br><span class="line"><span class="comment">									Method.invoke()</span></span><br><span class="line"><span class="comment">										Class.getMethod()</span></span><br><span class="line"><span class="comment">								InvokerTransformer.transform()</span></span><br><span class="line"><span class="comment">									Method.invoke()</span></span><br><span class="line"><span class="comment">										Runtime.getRuntime()</span></span><br><span class="line"><span class="comment">								InvokerTransformer.transform()</span></span><br><span class="line"><span class="comment">									Method.invoke()</span></span><br><span class="line"><span class="comment">										Runtime.exec()</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">	Requires:</span></span><br><span class="line"><span class="comment">		commons-collections</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="transformerChain"><a href="#transformerChain" class="headerlink" title="transformerChain"></a>transformerChain</h2><p>50行：初始化了一个命令数组，用来获取命令参数</p>
+<p>52行：初始化了一条transformerChain，通过下文看应该是用来存放Transformer对象的链子</p>
+<p>55行：很熟悉，构建的调用反射方法链子，在上一篇文章里讲的很清楚，不同的是最后65行加入了一个<code>new ConstantTransformer(1);</code></p>
+<p>所以最后返回值是一个1。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314224552-sry5i1x.png" alt="image.png"></p>
+<p>接着开始构建HashMap攻击链</p>
+<p>初始化了一个<code>HashMap</code></p>
+<p>通过<code>LazyMap</code>的<code>decorate</code>方法返回了一个<code>LazyMap</code>实例</p>
+<p>其中第二个参数传入的是一个目前还是空的transformerChain实例对象</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314230043-jz988gm.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314230704-6yt7oor.png" alt="image.png"></p>
+<h2 id="Gadgets-createMemoitizedProxy-lazyMap-Map-class"><a href="#Gadgets-createMemoitizedProxy-lazyMap-Map-class" class="headerlink" title="Gadgets.createMemoitizedProxy(lazyMap, Map.class)"></a>Gadgets.createMemoitizedProxy(lazyMap, Map.class)</h2><p>可以看到接下来Ysoserial调用了Gadgets类的一个方法来初始化代理，Gadgets类是Ysoserial中的核心类，我们跟进代码看这个方法究竟干了啥</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314230222-mc4g3gu.png" alt="image.png"></p>
+<p>要求传入一个Map类型的对象和任意多个接口类型</p>
+<p>这里我们传入了lazyMap实例对象和Map接口类型</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314232105-0trkgio.png" alt="image.png"></p>
+<h3 id="ysoserial-payloads-util-Gadgets-createMemoizedInvocationHandler"><a href="#ysoserial-payloads-util-Gadgets-createMemoizedInvocationHandler" class="headerlink" title="ysoserial.payloads.util.Gadgets.createMemoizedInvocationHandler"></a>ysoserial.payloads.util.Gadgets.createMemoizedInvocationHandler</h3><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314232329-0hggdy6.png" alt="image.png"></p>
+<p>通过反射拿到了<code>sun.reflect.annotation.AnnotationInvocationHandler</code>类的第一个构造器</p>
+<blockquote>
+<p>参数 ANN_INV_HANDLER_CLASS 值为 sun.reflect.annotation.AnnotationInvocationHandler. 该类是 Java 中专门用来处理注解的调用处理器 , 但 Java 中不允许直接获取该类 , 所以必须要通过反射( Reflection ) 才能拿到该类.</p>
+</blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314232953-uoj1926.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314232913-i5rb6ox.png" alt="image.png"></p>
+<p>然后通过反射实例化这个控制器并返回到上面的方法中</p>
+<blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315000429-pu02eik.png" alt="image.png"></p>
+</blockquote>
+<p>这里传入的var1是<code>Override.class</code>，是java 中自带的 Annotation 的实现类之一，此处只要传一个Annotation的实现类就行，对<code>Override.class</code>没有特别要求<img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315000701-u9w0191.png" alt="image.png"></p>
+<blockquote>
+<p>（关于注解的知识会单独写一章学习，这里看别人文章真不如自己看源码。。</p>
+</blockquote>
+<p>继续继续–</p>
+<h3 id="ysoserial-payloads-util-Gadgets-createProxy"><a href="#ysoserial-payloads-util-Gadgets-createProxy" class="headerlink" title="ysoserial.payloads.util.Gadgets.createProxy"></a>ysoserial.payloads.util.Gadgets.createProxy</h3><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315000947-tu71bao.png" alt="image.png"></p>
+<p>通过反射新建了一个Class类型的数组<code>allIfaces</code>存放接口，长度是传入的接口类型数</p>
+<p>然后将传入的接口类型都装到数组里</p>
+<p>最后返回了一个jdk动态代理</p>
+<blockquote>
+<p><strong>java.lang.reflect.Proxy</strong>的newProxyInstance方法来构造一个<strong>指定接口</strong>的代理类的一个新实例，所有方法会调用给定处理器（也就是AnnotationInvocationHandler）的invoke方法</p>
+</blockquote>
+<p>回到，这里mapProxy很明确了，creatMemoitizedProxy方法也明确了</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315001625-t0xjg98.png" alt="image.png"></p>
+<p>他返回了一个动态代理实例，其指定的接口是<code>Map</code>，其处理器是<code>AnnotationInvocationHandler</code></p>
+<h2 id="Gadgets-createMemoizedInvocationHandler-mapProxy"><a href="#Gadgets-createMemoizedInvocationHandler-mapProxy" class="headerlink" title="Gadgets.createMemoizedInvocationHandler(mapProxy)"></a>Gadgets.createMemoizedInvocationHandler(mapProxy)</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315002139-i5yysn4.png" alt="image.png"></p>
+<p>这个方法就是上面刚刚分析过的方法，传入我们刚刚创建的动态代理</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315002303-1d5v3er.png" alt="image.png"></p>
+<p>把刚刚创建的动态代理赋值到memberValues里</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315003113-6hn0q2t.png" alt="image.png"></p>
+<p>参考Epicccal师傅的说法：</p>
+<blockquote>
+<p><strong>这一步操作是为了目标服务器在反序列化时会调用 <code>AnnotationInvocationHandler.readObject()</code> 方法 , 从而调用动态代理对象的方法( 被代理的方法 ) , 从而触发拦截与转发 , 从而执行 <code>AnnotationInvocationHandler.invoke()</code> 方法.</strong></p>
+</blockquote>
+<p>稍后看readObject方法</p>
+<p>最后</p>
+<p>通过反射赋值，把真正的恶意代码数组加入到<code>transformerChain</code>中</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315002629-odkalvr.png" alt="image.png"></p>
+<p>这条LazyMap调用链和我上一篇文章看的不大一样，但是最后原理都是相同的，那就是调用LazyMap的get方法从而触发transform</p>
+<h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><p>调试是要结合前面的分析看的</p>
+<p>我们传入的对象是<code>AnnotationInvocationHandler</code>对象，他会触发<code>AnnotationInvocationHandler.readObject()</code>方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315012506-86htoxo.png" alt="image.png"></p>
+<p>而通过ysoserial中的生成的动态代理</p>
+<p>AnnotationInvocationHandler.invoke()会被调用<br /></p>
+<p>最终完成调用LazyMap.get()，从而完成LazyMap攻击链</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315015649-2ozypie.png" alt="image.png"></p>
+<h1 id="小总结"><a href="#小总结" class="headerlink" title="小总结"></a>小总结</h1><ul>
+<li><p>进一步学习注解和反射</p>
+</li>
+<li><p>再理解一次JAVA动态代理机制和设计模式</p>
+</li>
+<li><p>反序列化的原理。。</p>
+</li>
+<li><p>再看文章，再看文章</p>
+</li>
+<li><p>明天写一下此文补充点和知识</p>
+</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://xianbeil.github.io/2022/03/15/cc1study2/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">java反序列化</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/03/15/javaProxyStudy/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            【基础】-JAVA代理模式学习
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/03/14/undefsafeStudy/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Undefsafe模块原型链污染(CVE-2019-10795)</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> John Doe
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Hexo"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeba4nlj208c08c3z9.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeo49ywj208c08cgmz.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

