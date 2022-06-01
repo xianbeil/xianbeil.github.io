@@ -109,7 +109,7 @@
     <div class="notice-content" id="broad"></div>
 </div>
 <script type="text/javascript">
-    fetch('https://v1.hitokoto.cn')
+    fetch('https://v1.hitokoto.cn/?c=i')
         .then(response => response.json())
         .then(data => {
             document.getElementById("broad").innerHTML = data.hitokoto;
