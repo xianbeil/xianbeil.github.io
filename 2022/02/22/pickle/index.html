@@ -1,113 +1,108 @@
 <!DOCTYPE html>
-
-
 <html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="Liyc" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      pickle反序列化学习 
+      
+      
+    
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.svg">
+    <link rel="icon" href="/images/favicon.svg">
   
 
-    <head>
-      <meta charset="utf-8" />
-        
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1"
-      />
-      <title>pickle反序列化学习 |  看我博客的杨伟</title>
-  <meta name="generator" content="hexo-theme-ayer">
-      
-      <link rel="shortcut icon" href="/images/archlinux.svg" />
-       
-<link rel="stylesheet" href="/dist/main.css">
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
 
-      
-<link rel="stylesheet" href="/css/fonts/remixicon.css">
-
-      
-<link rel="stylesheet" href="/css/custom.css">
+  <!-- hexo site css -->
   
- 
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
 
-      <!-- mermaid -->
-      
-      <style>
-        .swal2-styled.swal2-confirm {
-          font-size: 1.6rem;
-        }
-      </style>
-    <link rel="alternate" href="/atom.xml" title="看我博客的杨伟" type="application/atom+xml">
+  
+
+  
+    
+<link rel="stylesheet" href="/css/post.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="xianbei's blog" type="application/atom+xml">
 </head>
-  </html>
-</html>
 
 
-<body>
-  <div id="app">
-    
-      
-    <main class="content on">
-      <section class="outer">
-  <article
-  id="post-pickle"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  pickle反序列化学习
-</h1>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/02/22/pickle/" class="article-date">
-  <time datetime="2022-02-22T10:04:17.000Z" itemprop="datePublished">2022-02-22</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/pythonSec/">pythonSec</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">5.9k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">28 分钟</span>
-        </span>
-    </span>
+  <body>
+    <div id="app">
+      <div class="header">
+  <a href="/">xianbei</a>
 </div>
- 
-    </div>
-      
-    <div class="tocbot"></div>
 
 
-
-
+      <p class="links">
   
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>自己学习pickle反序列化整理的笔记（个人向</p>
+    <a title="archives" target="" href="/archives/">
+      <i class="iconfont icon-bookmark"></i>
+    </a>
+  
+    <a title="github" target="_blank" href="https://github.com/xianbeil">
+      <i class="iconfont icon-github"></i>
+    </a>
+  
+    <a title="twitter" target="" href="https://twitter.com/aeqaq0">
+      <i class="iconfont icon-twitter"></i>
+    </a>
+  
+</p>
+
+
+      <div class="main">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+
+<div class="post">
+  <h3 class="date">
+    Feb 22, 2022
+  </h3>
+  <h1>
+    pickle反序列化学习
+  </h1>
+  <div class="content markdown-body">
+    <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>自己学习pickle反序列化整理的笔记（个人向</p>
 <h1 id="pickle库"><a href="#pickle库" class="headerlink" title="pickle库"></a>pickle库</h1><p>pickle 序列化就是将一个 python 对象变成可以持久化储存的二进制数据，反序列化即为相反的操作，将二进制数据转回 python 对象。</p>
 <h2 id="学习基础的pickle-opcode-v0"><a href="#学习基础的pickle-opcode-v0" class="headerlink" title="学习基础的pickle opcode(v0)"></a>学习基础的pickle opcode(v0)</h2><p>速查：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Pickle opcodes.  See pickletools.py for extensive docs.  The listing</span></span><br><span class="line"><span class="comment"># here is in kind-of alphabetical order of 1-character pickle code.</span></span><br><span class="line"><span class="comment"># pickletools groups them by purpose.</span></span><br><span class="line"></span><br><span class="line">MARK           = <span class="string">b&#x27;(&#x27;</span>   <span class="comment"># push special markobject on stack</span></span><br><span class="line">STOP           = <span class="string">b&#x27;.&#x27;</span>   <span class="comment"># every pickle ends with STOP</span></span><br><span class="line">POP            = <span class="string">b&#x27;0&#x27;</span>   <span class="comment"># discard topmost stack item</span></span><br><span class="line">POP_MARK       = <span class="string">b&#x27;1&#x27;</span>   <span class="comment"># discard stack top through topmost markobject</span></span><br><span class="line">DUP            = <span class="string">b&#x27;2&#x27;</span>   <span class="comment"># duplicate top stack item</span></span><br><span class="line">FLOAT          = <span class="string">b&#x27;F&#x27;</span>   <span class="comment"># push float object; decimal string argument</span></span><br><span class="line">INT            = <span class="string">b&#x27;I&#x27;</span>   <span class="comment"># push integer or bool; decimal string argument</span></span><br><span class="line">BININT         = <span class="string">b&#x27;J&#x27;</span>   <span class="comment"># push four-byte signed int</span></span><br><span class="line">BININT1        = <span class="string">b&#x27;K&#x27;</span>   <span class="comment"># push 1-byte unsigned int</span></span><br><span class="line">LONG           = <span class="string">b&#x27;L&#x27;</span>   <span class="comment"># push long; decimal string argument</span></span><br><span class="line">BININT2        = <span class="string">b&#x27;M&#x27;</span>   <span class="comment"># push 2-byte unsigned int</span></span><br><span class="line">NONE           = <span class="string">b&#x27;N&#x27;</span>   <span class="comment"># push None</span></span><br><span class="line">PERSID         = <span class="string">b&#x27;P&#x27;</span>   <span class="comment"># push persistent object; id is taken from string arg</span></span><br><span class="line">BINPERSID      = <span class="string">b&#x27;Q&#x27;</span>   <span class="comment">#  &quot;       &quot;         &quot;  ;  &quot;  &quot;   &quot;     &quot;  stack</span></span><br><span class="line">REDUCE         = <span class="string">b&#x27;R&#x27;</span>   <span class="comment"># apply callable to argtuple, both on stack</span></span><br><span class="line">STRING         = <span class="string">b&#x27;S&#x27;</span>   <span class="comment"># push string; NL-terminated string argument</span></span><br><span class="line">BINSTRING      = <span class="string">b&#x27;T&#x27;</span>   <span class="comment"># push string; counted binary string argument</span></span><br><span class="line">SHORT_BINSTRING= <span class="string">b&#x27;U&#x27;</span>   <span class="comment">#  &quot;     &quot;   ;    &quot;      &quot;       &quot;      &quot; &lt; 256 bytes</span></span><br><span class="line">UNICODE        = <span class="string">b&#x27;V&#x27;</span>   <span class="comment"># push Unicode string; raw-unicode-escaped&#x27;d argument</span></span><br><span class="line">BINUNICODE     = <span class="string">b&#x27;X&#x27;</span>   <span class="comment">#   &quot;     &quot;       &quot;  ; counted UTF-8 string argument</span></span><br><span class="line">APPEND         = <span class="string">b&#x27;a&#x27;</span>   <span class="comment"># append stack top to list below it</span></span><br><span class="line">BUILD          = <span class="string">b&#x27;b&#x27;</span>   <span class="comment"># call __setstate__ or __dict__.update()</span></span><br><span class="line">GLOBAL         = <span class="string">b&#x27;c&#x27;</span>   <span class="comment"># push self.find_class(modname, name); 2 string args</span></span><br><span class="line">DICT           = <span class="string">b&#x27;d&#x27;</span>   <span class="comment"># build a dict from stack items</span></span><br><span class="line">EMPTY_DICT     = <span class="string">b&#x27;&#125;&#x27;</span>   <span class="comment"># push empty dict</span></span><br><span class="line">APPENDS        = <span class="string">b&#x27;e&#x27;</span>   <span class="comment"># extend list on stack by topmost stack slice</span></span><br><span class="line">GET            = <span class="string">b&#x27;g&#x27;</span>   <span class="comment"># push item from memo on stack; index is string arg</span></span><br><span class="line">BINGET         = <span class="string">b&#x27;h&#x27;</span>   <span class="comment">#   &quot;    &quot;    &quot;    &quot;   &quot;   &quot;  ;   &quot;    &quot; 1-byte arg</span></span><br><span class="line">INST           = <span class="string">b&#x27;i&#x27;</span>   <span class="comment"># build &amp; push class instance</span></span><br><span class="line">LONG_BINGET    = <span class="string">b&#x27;j&#x27;</span>   <span class="comment"># push item from memo on stack; index is 4-byte arg</span></span><br><span class="line">LIST           = <span class="string">b&#x27;l&#x27;</span>   <span class="comment"># build list from topmost stack items</span></span><br><span class="line">EMPTY_LIST     = <span class="string">b&#x27;]&#x27;</span>   <span class="comment"># push empty list</span></span><br><span class="line">OBJ            = <span class="string">b&#x27;o&#x27;</span>   <span class="comment"># build &amp; push class instance</span></span><br><span class="line">PUT            = <span class="string">b&#x27;p&#x27;</span>   <span class="comment"># store stack top in memo; index is string arg</span></span><br><span class="line">BINPUT         = <span class="string">b&#x27;q&#x27;</span>   <span class="comment">#   &quot;     &quot;    &quot;   &quot;   &quot; ;   &quot;    &quot; 1-byte arg</span></span><br><span class="line">LONG_BINPUT    = <span class="string">b&#x27;r&#x27;</span>   <span class="comment">#   &quot;     &quot;    &quot;   &quot;   &quot; ;   &quot;    &quot; 4-byte arg</span></span><br><span class="line">SETITEM        = <span class="string">b&#x27;s&#x27;</span>   <span class="comment"># add key+value pair to dict</span></span><br><span class="line">TUPLE          = <span class="string">b&#x27;t&#x27;</span>   <span class="comment"># build tuple from topmost stack items</span></span><br><span class="line">EMPTY_TUPLE    = <span class="string">b&#x27;)&#x27;</span>   <span class="comment"># push empty tuple</span></span><br><span class="line">SETITEMS       = <span class="string">b&#x27;u&#x27;</span>   <span class="comment"># modify dict by adding topmost key+value pairs</span></span><br><span class="line">BINFLOAT       = <span class="string">b&#x27;G&#x27;</span>   <span class="comment"># push float; arg is 8-byte float encoding</span></span><br><span class="line"></span><br><span class="line">TRUE           = <span class="string">b&#x27;I01\n&#x27;</span>  <span class="comment"># not an opcode; see INT docs in pickletools.py</span></span><br><span class="line">FALSE          = <span class="string">b&#x27;I00\n&#x27;</span>  <span class="comment"># not an opcode; see INT docs in pickletools.py</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Protocol 2</span></span><br><span class="line"></span><br><span class="line">PROTO          = <span class="string">b&#x27;\x80&#x27;</span>  <span class="comment"># identify pickle protocol</span></span><br><span class="line">NEWOBJ         = <span class="string">b&#x27;\x81&#x27;</span>  <span class="comment"># build object by applying cls.__new__ to argtuple</span></span><br><span class="line">EXT1           = <span class="string">b&#x27;\x82&#x27;</span>  <span class="comment"># push object from extension registry; 1-byte index</span></span><br><span class="line">EXT2           = <span class="string">b&#x27;\x83&#x27;</span>  <span class="comment"># ditto, but 2-byte index</span></span><br><span class="line">EXT4           = <span class="string">b&#x27;\x84&#x27;</span>  <span class="comment"># ditto, but 4-byte index</span></span><br><span class="line">TUPLE1         = <span class="string">b&#x27;\x85&#x27;</span>  <span class="comment"># build 1-tuple from stack top</span></span><br><span class="line">TUPLE2         = <span class="string">b&#x27;\x86&#x27;</span>  <span class="comment"># build 2-tuple from two topmost stack items</span></span><br><span class="line">TUPLE3         = <span class="string">b&#x27;\x87&#x27;</span>  <span class="comment"># build 3-tuple from three topmost stack items</span></span><br><span class="line">NEWTRUE        = <span class="string">b&#x27;\x88&#x27;</span>  <span class="comment"># push True</span></span><br><span class="line">NEWFALSE       = <span class="string">b&#x27;\x89&#x27;</span>  <span class="comment"># push False</span></span><br><span class="line">LONG1          = <span class="string">b&#x27;\x8a&#x27;</span>  <span class="comment"># push long from &lt; 256 bytes</span></span><br><span class="line">LONG4          = <span class="string">b&#x27;\x8b&#x27;</span>  <span class="comment"># push really big long</span></span><br><span class="line"></span><br><span class="line">_tuplesize2code = [EMPTY_TUPLE, TUPLE1, TUPLE2, TUPLE3]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Protocol 3 (Python 3.x)</span></span><br><span class="line"></span><br><span class="line">BINBYTES       = <span class="string">b&#x27;B&#x27;</span>   <span class="comment"># push bytes; counted binary string argument</span></span><br><span class="line">SHORT_BINBYTES = <span class="string">b&#x27;C&#x27;</span>   <span class="comment">#  &quot;     &quot;   ;    &quot;      &quot;       &quot;      &quot; &lt; 256 bytes</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Protocol 4</span></span><br><span class="line"></span><br><span class="line">SHORT_BINUNICODE = <span class="string">b&#x27;\x8c&#x27;</span>  <span class="comment"># push short string; UTF-8 length &lt; 256 bytes</span></span><br><span class="line">BINUNICODE8      = <span class="string">b&#x27;\x8d&#x27;</span>  <span class="comment"># push very long string</span></span><br><span class="line">BINBYTES8        = <span class="string">b&#x27;\x8e&#x27;</span>  <span class="comment"># push very long bytes string</span></span><br><span class="line">EMPTY_SET        = <span class="string">b&#x27;\x8f&#x27;</span>  <span class="comment"># push empty set on the stack</span></span><br><span class="line">ADDITEMS         = <span class="string">b&#x27;\x90&#x27;</span>  <span class="comment"># modify set by adding topmost stack items</span></span><br><span class="line">FROZENSET        = <span class="string">b&#x27;\x91&#x27;</span>  <span class="comment"># build frozenset from topmost stack items</span></span><br><span class="line">NEWOBJ_EX        = <span class="string">b&#x27;\x92&#x27;</span>  <span class="comment"># like NEWOBJ but work with keyword only arguments</span></span><br><span class="line">STACK_GLOBAL     = <span class="string">b&#x27;\x93&#x27;</span>  <span class="comment"># same as GLOBAL but using names on the stacks</span></span><br><span class="line">MEMOIZE          = <span class="string">b&#x27;\x94&#x27;</span>  <span class="comment"># store top of the stack in memo</span></span><br><span class="line">FRAME            = <span class="string">b&#x27;\x95&#x27;</span>  <span class="comment"># indicate the beginning of a new frame</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Protocol 5</span></span><br><span class="line"></span><br><span class="line">BYTEARRAY8       = <span class="string">b&#x27;\x96&#x27;</span>  <span class="comment"># push bytearray</span></span><br><span class="line">NEXT_BUFFER      = <span class="string">b&#x27;\x97&#x27;</span>  <span class="comment"># push next out-of-band buffer</span></span><br><span class="line">READONLY_BUFFER  = <span class="string">b&#x27;\x98&#x27;</span>  <span class="comment"># make top of stack readonly</span></span><br></pre></td></tr></table></figure>
@@ -388,445 +383,241 @@ c	push self.find_class(modname, name);
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a target="_blank" rel="noopener" href="https://x5tar.com/posts/python-pickle-unserialize">https://x5tar.com/posts/python-pickle-unserialize</a></p>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/89132768">https://zhuanlan.zhihu.com/p/89132768</a></p>
 <p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7436">https://xz.aliyun.com/t/7436</a></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
 
-    <!-- copyright -->
+  </div>
+  
     
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
+        
+          <a id="newer" class="blog-nav" href="/2022/03/03/JAVAWEB%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">&lt;&nbsp;NEWER</a>
           
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
-          
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
-        </div>
+            
+</div>
+        <div class="footer">
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
       </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
 </div>
 
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://xianbeil.github.io/2022/02/22/pickle/" alt="微信分享二维码">
-    </div>
-</div>
 
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">python反序列化</a></li></ul>
+<script src="/js/backtotop.js"></script>
 
-    </footer>
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2022/03/03/JAVAWEB%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-box">
+        <div class="search-title">
+          <!-- <span class="search-icon-input">
+            <a href="javascript: void(0)">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </span> -->
           
-            JAVAWEB基础知识
+            <input type="text" class="search-input" id="search-input" placeholder="搜索...">
           
+          <span class="search-close-icon" id="search-close-icon">
+            <a href="javascript: void(0)">
+              <i class="iconfont icon-close"></i>
+            </a>
+          </span>
         </div>
-      </a>
-    
-    
-  </nav>
-
-  
-   
-    
-    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
-    <div id="twikoo" class="twikoo"></div>
-    <script>
-        twikoo.init({
-            envId: ""
-        })
-    </script>
- 
-</article>
-
-</section>
-      <footer class="footer">
-  <div class="outer">
-    <ul>
-      <li>
-        Copyrights &copy;
-        2022
-        <i class="ri-heart-fill heart_icon"></i> Liyc
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      <li>
-        <!-- cnzz统计 -->
-        
-        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
-        
-      </li>
-    </ul>
+        <div class="search-result" id="search-result"></div>
+      </div>
+    </div>
   </div>
-</footer>    
-    </main>
-    <div class="float_btns">
-      <div class="totop" id="totop">
-  <i class="ri-arrow-up-line"></i>
-</div>
 
-<div class="todark" id="todark">
-  <i class="ri-moon-line"></i>
-</div>
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
 
-    </div>
-    <aside class="sidebar on">
-      <button class="navbar-toggle"></button>
-<nav class="navbar">
-  
-  <div class="logo">
-    <a href="/"><img src="/images/archlinux.svg" alt="看我博客的杨伟"></a>
-  </div>
-  
-  <ul class="nav nav-main">
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/">主页</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/archives">归档</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/friends">友链</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/about">关于我</a>
-    </li>
-    
-  </ul>
-</nav>
-<nav class="navbar navbar-bottom">
-  <ul class="nav">
-    <li class="nav-item">
-      
-      <a class="nav-item-link nav-item-search"  title="搜索">
-        <i class="ri-search-line"></i>
-      </a>
-      
-      
-      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
-        <i class="ri-rss-line"></i>
-      </a>
-      
-    </li>
-  </ul>
-</nav>
-<div class="search-form-wrap">
-  <div class="local-search local-search-plugin">
-  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
-  <div id="local-search-result" class="local-search-result"></div>
-</div>
-</div>
-    </aside>
-    <div id="mask"></div>
+    // inputArea.onclick = function() {
+    //   getSearchFile()
+    //   this.onclick = null
+    // }
 
-<!-- #reward -->
-<div id="reward">
-  <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
-  <div class="reward-box">
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeba4nlj208c08c3z9.jpg">
-      <span class="reward-type">支付宝</span>
-    </div>
-    
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://tvax4.sinaimg.cn/large/9156bd04ly1gzofeo49ywj208c08cgmz.jpg">
-      <span class="reward-type">微信</span>
-    </div>
-    
-  </div>
-</div>
-    
-<script src="/js/jquery-3.6.0.min.js"></script>
- 
-<script src="/js/lazyload.min.js"></script>
-
-<!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
-
-<script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
-  });
-</script>
-
-<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
-/>
-<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
-
-<script src="/dist/main.js"></script>
-
-<!-- ImageViewer -->
- <!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
-
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
-<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
-<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
-<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
-
-<script>
-    function viewer_init() {
-        let pswpElement = document.querySelectorAll('.pswp')[0];
-        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
-
-        $imgArr.forEach(($em, i) => {
-            $em.onclick = () => {
-                // slider展开状态
-                // todo: 这样不好，后面改成状态
-                if (document.querySelector('.left-col.show')) return
-                let items = []
-                $imgArr.forEach(($em2, i2) => {
-                    let img = $em2.getAttribute('data-idx', i2)
-                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
-                    let title = $em2.getAttribute('alt')
-                    // 获得原图尺寸
-                    const image = new Image()
-                    image.src = src
-                    items.push({
-                        src: src,
-                        w: image.width || $em2.width,
-                        h: image.height || $em2.height,
-                        title: title
-                    })
-                })
-                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
-                    index: parseInt(i)
-                });
-                gallery.init()
-            }
-        })
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
     }
-    viewer_init()
-</script> 
-<!-- MathJax -->
 
-<!-- Katex -->
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        inputArea.focus()
+        getSearchFile()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
 
-<!-- busuanzi  -->
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
 
-<!-- ClickLove -->
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
 
-<!-- ClickBoom1 -->
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'><span></ul>";
+      // $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
 
-<!-- ClickBoom2 -->
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
 
-<!-- CodeCopy -->
- 
-<link rel="stylesheet" href="/css/clipboard.css">
- <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
-<script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  !function (e, t, a) {
-    var initCopyCode = function(){
-      var copyHtml = '';
-      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
-      copyHtml += '</button>';
-      $(".highlight .code pre").before(copyHtml);
-      $(".article pre code").before(copyHtml);
-      var clipboard = new ClipboardJS('.btn-copy', {
-        target: function(trigger) {
-          return trigger.nextElementSibling;
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='/" + data_url + "' class='search-result-title'><h2>" + orig_data_title + "</h2></a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<h3 class=\"search-result-abstract\">" + match_content + "...</h3>"
+                }
+                str += "<hr></li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/leedom92/hexo-theme-leedom#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
         }
       });
-      clipboard.on('success', function(e) {
-        let $btn = $(e.trigger);
-        $btn.addClass('copied');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-checkbox-circle-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPIED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-checkbox-circle-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
-      clipboard.on('error', function(e) {
-        e.clearSelection();
-        let $btn = $(e.trigger);
-        $btn.addClass('copy-failed');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-time-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPY FAILED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-time-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
       });
     }
-    initCopyCode();
-  }(window, document);
-</script>
- 
-<!-- CanvasBackground -->
 
-<script>
-  if (window.mermaid) {
-    mermaid.initialize({ theme: "forest" });
-  }
-</script>
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
 
 
-    
-    
 
-  </div>
-</body>
 
+    </div>
+  </body>
 </html>
