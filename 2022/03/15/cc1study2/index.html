@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="Xi4nb3i" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      CommonsCollections1反序列化链分析 
+      
+      
+    
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.svg">
+    <link rel="icon" href="/images/favicon.svg">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+
+
+  
+
+  
+    
+<link rel="stylesheet" href="/css/post.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <a href="/">Xi4nb3i</a>
+</div>
+
+
+      <p class="links">
+  
+    <a title="archives" target="" href="/archives/">
+      <i class="iconfont icon-bookmark"></i>
+    </a>
+  
+    <a title="github" target="_blank" href="https://github.com/xianbeil">
+      <i class="iconfont icon-github"></i>
+    </a>
+  
+</p>
+
+
+      <div class="main">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+
+<div class="post">
+  <h3 class="date">
+    Mar 15, 2022
+  </h3>
+  <h1>
+    CommonsCollections1反序列化链分析
+  </h1>
+  <div class="content markdown-body">
+    <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>之前其实分析过一次，但经过一段时间调试，打算再做一次。</p>
+<h1 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h1><p>用ysoserial生成payload然后发送，webserver环境就是之前搭建的</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314202817-1qr5nnn.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314202933-vw945je.png" alt="image.png"></p>
+<p>测试成功</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p><a target="_blank" rel="noopener" href="https://xianbei.top/2022/03/08/javacc31study/">之前一开始分析的链子</a>也是CC，但是没有调试，为了进一步学习，再分析一遍Ysoserial中的链子构造原理</p>
+<h2 id="反序列化链总览"><a href="#反序列化链总览" class="headerlink" title="反序列化链总览"></a>反序列化链总览</h2><p>Ysoserial中的利用链，能够发现使用的是LazyMap利用链。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	Gadget chain:</span></span><br><span class="line"><span class="comment">		ObjectInputStream.readObject()</span></span><br><span class="line"><span class="comment">			AnnotationInvocationHandler.readObject()</span></span><br><span class="line"><span class="comment">				Map(Proxy).entrySet()</span></span><br><span class="line"><span class="comment">					AnnotationInvocationHandler.invoke()</span></span><br><span class="line"><span class="comment">						LazyMap.get()</span></span><br><span class="line"><span class="comment">							ChainedTransformer.transform()</span></span><br><span class="line"><span class="comment">								ConstantTransformer.transform()</span></span><br><span class="line"><span class="comment">								InvokerTransformer.transform()</span></span><br><span class="line"><span class="comment">									Method.invoke()</span></span><br><span class="line"><span class="comment">										Class.getMethod()</span></span><br><span class="line"><span class="comment">								InvokerTransformer.transform()</span></span><br><span class="line"><span class="comment">									Method.invoke()</span></span><br><span class="line"><span class="comment">										Runtime.getRuntime()</span></span><br><span class="line"><span class="comment">								InvokerTransformer.transform()</span></span><br><span class="line"><span class="comment">									Method.invoke()</span></span><br><span class="line"><span class="comment">										Runtime.exec()</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">	Requires:</span></span><br><span class="line"><span class="comment">		commons-collections</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="transformerChain"><a href="#transformerChain" class="headerlink" title="transformerChain"></a>transformerChain</h2><p>50行：初始化了一个命令数组，用来获取命令参数</p>
+<p>52行：初始化了一条transformerChain，通过下文看应该是用来存放Transformer对象的链子</p>
+<p>55行：很熟悉，构建的调用反射方法链子，在上一篇文章里讲的很清楚，不同的是最后65行加入了一个<code>new ConstantTransformer(1);</code></p>
+<p>所以最后返回值是一个1。</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314224552-sry5i1x.png" alt="image.png"></p>
+<p>接着开始构建HashMap攻击链</p>
+<p>初始化了一个<code>HashMap</code></p>
+<p>通过<code>LazyMap</code>的<code>decorate</code>方法返回了一个<code>LazyMap</code>实例</p>
+<p>其中第二个参数传入的是一个目前还是空的transformerChain实例对象</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314230043-jz988gm.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314230704-6yt7oor.png" alt="image.png"></p>
+<h2 id="Gadgets-createMemoitizedProxy-lazyMap-Map-class"><a href="#Gadgets-createMemoitizedProxy-lazyMap-Map-class" class="headerlink" title="Gadgets.createMemoitizedProxy(lazyMap, Map.class)"></a>Gadgets.createMemoitizedProxy(lazyMap, Map.class)</h2><p>可以看到接下来Ysoserial调用了Gadgets类的一个方法来初始化代理，Gadgets类是Ysoserial中的核心类，我们跟进代码看这个方法究竟干了啥</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314230222-mc4g3gu.png" alt="image.png"></p>
+<p>要求传入一个Map类型的对象和任意多个接口类型</p>
+<p>这里我们传入了lazyMap实例对象和Map接口类型</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314232105-0trkgio.png" alt="image.png"></p>
+<h3 id="ysoserial-payloads-util-Gadgets-createMemoizedInvocationHandler"><a href="#ysoserial-payloads-util-Gadgets-createMemoizedInvocationHandler" class="headerlink" title="ysoserial.payloads.util.Gadgets.createMemoizedInvocationHandler"></a>ysoserial.payloads.util.Gadgets.createMemoizedInvocationHandler</h3><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314232329-0hggdy6.png" alt="image.png"></p>
+<p>通过反射拿到了<code>sun.reflect.annotation.AnnotationInvocationHandler</code>类的第一个构造器</p>
+<blockquote>
+<p>参数 ANN_INV_HANDLER_CLASS 值为 sun.reflect.annotation.AnnotationInvocationHandler. 该类是 Java 中专门用来处理注解的调用处理器 , 但 Java 中不允许直接获取该类 , 所以必须要通过反射( Reflection ) 才能拿到该类.</p>
+</blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314232953-uoj1926.png" alt="image.png"></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220314232913-i5rb6ox.png" alt="image.png"></p>
+<p>然后通过反射实例化这个控制器并返回到上面的方法中</p>
+<blockquote>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315000429-pu02eik.png" alt="image.png"></p>
+</blockquote>
+<p>这里传入的var1是<code>Override.class</code>，是java 中自带的 Annotation 的实现类之一，此处只要传一个Annotation的实现类就行，对<code>Override.class</code>没有特别要求<img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315000701-u9w0191.png" alt="image.png"></p>
+<blockquote>
+<p>（关于注解的知识会单独写一章学习，这里看别人文章真不如自己看源码。。</p>
+</blockquote>
+<p>继续继续–</p>
+<h3 id="ysoserial-payloads-util-Gadgets-createProxy"><a href="#ysoserial-payloads-util-Gadgets-createProxy" class="headerlink" title="ysoserial.payloads.util.Gadgets.createProxy"></a>ysoserial.payloads.util.Gadgets.createProxy</h3><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315000947-tu71bao.png" alt="image.png"></p>
+<p>通过反射新建了一个Class类型的数组<code>allIfaces</code>存放接口，长度是传入的接口类型数</p>
+<p>然后将传入的接口类型都装到数组里</p>
+<p>最后返回了一个jdk动态代理</p>
+<blockquote>
+<p><strong>java.lang.reflect.Proxy</strong>的newProxyInstance方法来构造一个<strong>指定接口</strong>的代理类的一个新实例，所有方法会调用给定处理器（也就是AnnotationInvocationHandler）的invoke方法</p>
+</blockquote>
+<p>回到，这里mapProxy很明确了，creatMemoitizedProxy方法也明确了</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315001625-t0xjg98.png" alt="image.png"></p>
+<p>他返回了一个动态代理实例，其指定的接口是<code>Map</code>，其处理器是<code>AnnotationInvocationHandler</code></p>
+<h2 id="Gadgets-createMemoizedInvocationHandler-mapProxy"><a href="#Gadgets-createMemoizedInvocationHandler-mapProxy" class="headerlink" title="Gadgets.createMemoizedInvocationHandler(mapProxy)"></a>Gadgets.createMemoizedInvocationHandler(mapProxy)</h2><p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315002139-i5yysn4.png" alt="image.png"></p>
+<p>这个方法就是上面刚刚分析过的方法，传入我们刚刚创建的动态代理</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315002303-1d5v3er.png" alt="image.png"></p>
+<p>把刚刚创建的动态代理赋值到memberValues里</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315003113-6hn0q2t.png" alt="image.png"></p>
+<p>参考Epicccal师傅的说法：</p>
+<blockquote>
+<p><strong>这一步操作是为了目标服务器在反序列化时会调用 <code>AnnotationInvocationHandler.readObject()</code> 方法 , 从而调用动态代理对象的方法( 被代理的方法 ) , 从而触发拦截与转发 , 从而执行 <code>AnnotationInvocationHandler.invoke()</code> 方法.</strong></p>
+</blockquote>
+<p>稍后看readObject方法</p>
+<p>最后</p>
+<p>通过反射赋值，把真正的恶意代码数组加入到<code>transformerChain</code>中</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315002629-odkalvr.png" alt="image.png"></p>
+<p>这条LazyMap调用链和我上一篇文章看的不大一样，但是最后原理都是相同的，那就是调用LazyMap的get方法从而触发transform</p>
+<h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><p>调试是要结合前面的分析看的</p>
+<p>我们传入的对象是<code>AnnotationInvocationHandler</code>对象，他会触发<code>AnnotationInvocationHandler.readObject()</code>方法</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315012506-86htoxo.png" alt="image.png"></p>
+<p>而通过ysoserial中的生成的动态代理</p>
+<p>AnnotationInvocationHandler.invoke()会被调用<br /></p>
+<p>最终完成调用LazyMap.get()，从而完成LazyMap攻击链</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220315015649-2ozypie.png" alt="image.png"></p>
+<h1 id="小总结"><a href="#小总结" class="headerlink" title="小总结"></a>小总结</h1><ul>
+<li><p>进一步学习注解和反射</p>
+</li>
+<li><p>再理解一次JAVA动态代理机制和设计模式</p>
+</li>
+<li><p>反序列化的原理。。</p>
+</li>
+<li><p>再看文章，再看文章</p>
+</li>
+<li><p>明天写一下此文补充点和知识</p>
+</li>
+</ul>
+
+  </div>
+  
+    
+      <a id="older" class="blog-nav" href="/2022/03/14/undefsafeStudy/">OLDER&nbsp;&gt;</a>
+      
+        
+          <a id="newer" class="blog-nav" href="/2022/03/15/java%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">&lt;&nbsp;NEWER</a>
+          
+            
+</div>
+        <div class="footer">
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+
+
+    </div>
+  </body>
+</html>

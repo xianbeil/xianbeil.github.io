@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="Xi4nb3i" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      JAVA反射 
+      
+      
+    
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.svg">
+    <link rel="icon" href="/images/favicon.svg">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+
+
+  
+
+  
+    
+<link rel="stylesheet" href="/css/post.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <a href="/">Xi4nb3i</a>
+</div>
+
+
+      <p class="links">
+  
+    <a title="archives" target="" href="/archives/">
+      <i class="iconfont icon-bookmark"></i>
+    </a>
+  
+    <a title="github" target="_blank" href="https://github.com/xianbeil">
+      <i class="iconfont icon-github"></i>
+    </a>
+  
+</p>
+
+
+      <div class="main">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+
+<div class="post">
+  <h3 class="date">
+    Mar 04, 2022
+  </h3>
+  <h1>
+    JAVA反射
+  </h1>
+  <div class="content markdown-body">
+    <h1 id="反射的概念"><a href="#反射的概念" class="headerlink" title="反射的概念"></a>反射的概念</h1><p>java反射机制不是很陌生的东西，总结一波反射中重要的概念：</p>
+<ol>
+<li>Java 反射机制允许<strong>运行中的</strong>Java程序获取<strong>自身的信息, 操作类和对象的内部属性.</strong></li>
+</ol>
+<p>&#x3D;&#x3D;&gt;<strong>“ 动态获取信息 “ 和 “ 动态调用属性方法 “</strong></p>
+<p>&#x3D;&#x3D;&gt;对象实例可以通过反射机制获取它的类（类类型）</p>
+<p>&#x3D;&#x3D;&gt;类可以通过反射机制获取它的所有方法和属性</p>
+<p>&#x3D;&#x3D;&gt;获取的属性可以设值，获取的方法可以调用</p>
+<p>反射最重要的用途是开发各种通用框架 . 很多框架都是通过XML文件来进行配置的( 例如 struts.xml , spring-*.xml 等 ) , 即所谓的框架核心配置文件 . 为了确保框架的通用性 , 程序<strong>运行时</strong>需要根据配置文件中对应的内容<strong>加载</strong>不同的类或对象 , 调用不同的方法 , 这也依赖于 Java 反射机制 .</p>
+<p>总的来说，通过反射我们可以：：</p>
+<ol>
+<li><strong>获得一个对象所属的类</strong></li>
+<li><strong>获得任意一个类的成员变量和方法</strong></li>
+<li><strong>构造任意一个类的对象</strong></li>
+<li><strong>任意调用一个对象的方法</strong></li>
+</ol>
+<p>纸上得来终觉浅，还是需要多实践来获得更深的理解</p>
+<p>反射的具体应用，在上一篇里面写的很详细</p>
+<h1 id="通过反射RCE"><a href="#通过反射RCE" class="headerlink" title="通过反射RCE"></a>通过反射RCE</h1><h2 id="java-lang-Runtime"><a href="#java-lang-Runtime" class="headerlink" title="java.lang.Runtime"></a>java.lang.Runtime</h2><p>第一个写的详细一点</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304012210-bbgk8za.png" alt="image-20220304012210-bbgk8za.png"></p>
+<p>java.lang.Runtime 类的 exec() 方法是Java中最常见的执行命令的方式</p>
+<p>我们可以通过forName方法来加载任何类，当然也可以加载Runtime。</p>
+<p>调用exec方法的两个条件：</p>
+<ol>
+<li><p>一个实例对象，可以通过newInstance方法拿到</p>
+</li>
+<li><p>获取到具体的exec方法，反射中要获取一个方法需要知道方法名和参数类型</p>
+</li>
+</ol>
+<h3 id="方式1"><a href="#方式1" class="headerlink" title="方式1"></a>方式1</h3><p>1.获取exec方法</p>
+<p>（这里抛出了很多异常，暂时不讨论）</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013024-fncppyt.png" alt="image-20220304013024-fncppyt.png"></p>
+<p>2.获取实例对象然后尝试调用</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013242-v57tfyw.png" alt="image-20220304013242-v57tfyw.png"></p>
+<p>报错了，查看报错信息：</p>
+<p>class com.io.EncodingDemo cannot access a member of class java.lang.Runtime (in module java.base) with modifiers “private”</p>
+<p>跟进到Runtime方法里，发现他的构造方法是private，而newInstance会默认调用无参构造方法，这里牵扯到java的设计模式中的单例设计，比如在学习Servlet的时候遇到的ServletContext。</p>
+<blockquote>
+<p>单例模式有 3 个特点：<br>单例类只有一个实例对象；<br>该单例对象必须由单例类<strong>自行创建；</strong><br>单例类对外提供一个访问该单例的全局访问点。</p>
+<p><a target="_blank" rel="noopener" href="http://c.biancheng.net/view/1338.html">http://c.biancheng.net/view/1338.html</a></p>
+</blockquote>
+<p>因此不能直接调用newInstance，要通过单例模式设计对象中的获取实例的方法，来获取一个runtime实例</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304013856-gl5a5gu.png" alt="image-20220304013856-gl5a5gu.png"></p>
+<p>由于exec返回的是一个Process对象，我们要通过字节流把结果读出来</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/44957705">https://zhuanlan.zhihu.com/p/44957705</a></p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304015412-we3v4tx.png" alt="image-20220304015412-we3v4tx.png"></p>
+<h3 id="方式2"><a href="#方式2" class="headerlink" title="方式2"></a>方式2</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EncodingDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException &#123;</span><br><span class="line">        Class&lt;?&gt; cls = Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>);</span><br><span class="line">        <span class="type">Method</span> <span class="variable">execMethod</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;exec&quot;</span>, String.class);</span><br><span class="line">        <span class="type">Method</span> <span class="variable">getRuntimeMethod</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;getRuntime&quot;</span>);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">runtime</span> <span class="operator">=</span> getRuntimeMethod.invoke(cls);</span><br><span class="line">        execMethod.invoke(runtime,<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看Epicccal师傅的博客中得知</p>
+<p>我们可以通过 <strong><code>对象.方法名</code> 来调用实例方法</strong> , <strong><code>类名.方法名</code> 来调用静态方法</strong> , 那么反过来 , <strong><code>方法名.invoke(对象)</code></strong> 可以映射成 <strong><code>方法名.invoke(类)</code></strong></p>
+<p>接着通过p牛的漫谈，思考下面几个问题</p>
+<h3 id="类没有无参构造方法，没有单例模式里的静态方法"><a href="#类没有无参构造方法，没有单例模式里的静态方法" class="headerlink" title="类没有无参构造方法，没有单例模式里的静态方法"></a>类没有无参构造方法，没有单例模式里的静态方法</h3><p>我们可以使用getConstructor方法，获取构造函数信息，它被封装在java.lang.reflect.Constructor中，当然他也需要特定的函数名和参数列表来获取这个唯一的构造函数</p>
+<p>获取到构造函数之后，用newInstance来执行</p>
+<p>例如ProcessBuilder类</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304111005-qs9ld14.png" alt="image-20220304111005-qs9ld14.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">((ProcessBuilder) clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>))).start();</span><br></pre></td></tr></table></figure>
+
+<p>这里进行了强制类型转换，也就是直接调用了实例之后的ProcessBuilder，我们也可用反射来调用start</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;start&quot;</span>).invoke(clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>)));</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="构造方法是私有方法，如何执行"><a href="#构造方法是私有方法，如何执行" class="headerlink" title="构造方法是私有方法，如何执行"></a>构造方法是私有方法，如何执行</h3><p>例子就是上面的Runtime类</p>
+<p>我们使用getDeclaredMethod方法，它能获取的是当前类中“声明”的方法，包括了私有方法，但不包括从父类继承过来的方法</p>
+<p>getMethod方法只能获取公共方法和从父类继承的方法</p>
+<p>我们在获取到一个私有方法后，必须用setAccessible 修改它的作用域，否则仍然不能调用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>);</span><br><span class="line">Constructor&lt;?&gt; c = clazz.getDeclaredConstructor();</span><br><span class="line">c.setAccessible(<span class="literal">true</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;exec&quot;</span>, String.class).invoke(c.newInstance(),<span class="string">&quot;calc.exe&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="java-lang-ProcessBuilder"><a href="#java-lang-ProcessBuilder" class="headerlink" title="java.lang.ProcessBuilder"></a>java.lang.ProcessBuilder</h2><p>上文的Runtime类的exec方法，实质上就是通过ProcessBuilder来执行命令，通过跟进exec方法我们可以发现：</p>
+<p><img src="https://o.130014.xyz/2022/03/04/image-20220304113001-sz96lzx.png" alt="image-20220304113001-sz96lzx.png"></p>
+<p>我们直接通过ProcessBuilder执行命令：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">clazz.getMethod(<span class="string">&quot;start&quot;</span>).invoke(clazz.getConstructor(List.class).newInstance(Arrays.asList(<span class="string">&quot;calc.exe&quot;</span>)));</span><br></pre></td></tr></table></figure>
+
+<p>可以通过cmdarray，传入数组来执行带参数的数据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Arrays.asList(<span class="string">&quot;ping&quot;</span>,<span class="string">&quot;127.0.0.1&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h1 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h1><p>王哥，我的超人</p>
+<p><a target="_blank" rel="noopener" href="https://forum.butian.net/share/1333">https://forum.butian.net/share/1333</a></p>
+
+  </div>
+  
+    
+      <a id="older" class="blog-nav" href="/2022/03/03/JAVAWEB%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">OLDER&nbsp;&gt;</a>
+      
+        
+          <a id="newer" class="blog-nav" href="/2022/03/05/RMI%E5%8E%9F%E7%90%86%E5%8F%8A%E6%B5%81%E7%A8%8B/">&lt;&nbsp;NEWER</a>
+          
+            
+</div>
+        <div class="footer">
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+
+
+    </div>
+  </body>
+</html>

