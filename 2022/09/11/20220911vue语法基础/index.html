@@ -1,103 +1,156 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="keywords" content="" />
-  <meta name="author" content="Xi4nb3i" />
-  <meta name="description" content="" />
-  
-  
-  <title>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="对 vue2 的从 0 开始学习，本篇了解基础语法即可。  MVVM实现model和view 分开 viewModel实现双向绑定，可以完整描述View层 ​ 创建一个vue 应用双括号将数据渲染进 DOM 中 12345678910111213141516171819202122232425&lt;!DOCTYPE html&gt;&lt;html lang&#x3D;&quot;en&quot;&amp;gt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vue2语法基础">
+<meta property="og:url" content="https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="Xi4nb3i&#39;s blog">
+<meta property="og:description" content="对 vue2 的从 0 开始学习，本篇了解基础语法即可。  MVVM实现model和view 分开 viewModel实现双向绑定，可以完整描述View层 ​ 创建一个vue 应用双括号将数据渲染进 DOM 中 12345678910111213141516171819202122232425&lt;!DOCTYPE html&gt;&lt;html lang&#x3D;&quot;en&quot;&amp;gt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220907205655-ts5tcsb.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220907194803-itggsqy.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220907203422-mte8txb.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220908205330-gllqpxv.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220909165154-7fke64c.png">
+<meta property="article:published_time" content="2022-09-11T12:17:36.000Z">
+<meta property="article:modified_time" content="2022-09-11T12:18:27.759Z">
+<meta property="article:author" content="Xi4nb3i">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220907205655-ts5tcsb.png">
     
-      vue2语法基础 
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
       
       
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
     
-  </title>
-
-  
-    <link rel="apple-touch-icon" href="/images/favicon.svg">
-    <link rel="icon" href="/images/favicon.svg">
-  
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
-
-  <!-- hexo site css -->
-  
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/common.css">
-<link rel="stylesheet" href="/iconfont/iconfont.css">
-
-
-  
-
-  
+    <!-- title -->
+    <title>vue2语法基础</title>
+    <!-- styles -->
     
-<link rel="stylesheet" href="/css/post.css">
+<link rel="stylesheet" href="/css/style.css">
 
-  
-
-  <!-- jquery3.3.1 -->
-  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-
-  <!-- fancybox -->
-  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
-  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
-  
-<script src="/js/fancybox.js"></script>
-
-
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
 <meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
 </head>
 
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/10/15/20221015initial%E9%9D%B6%E6%9C%BA/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/08/30/20220830vulnhub-BILLU/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&text=vue2语法基础"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&is_video=false&description=vue2语法基础"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=vue2语法基础&body=Check out this article: https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&name=vue2语法基础&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&t=vue2语法基础"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
 
-  <body>
-    <div id="app">
-      <div class="header">
-  <a href="/">Xi4nb3i</a>
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MVVM"><span class="toc-number">1.</span> <span class="toc-text">MVVM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAvue-%E5%BA%94%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">创建一个vue 应用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E5%92%8C%E5%BE%AA%E7%8E%AF"><span class="toc-number">2.1.</span> <span class="toc-text">条件和循环</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E7%94%A8%E6%88%B7%E8%BE%93%E5%85%A5"><span class="toc-number">2.2.</span> <span class="toc-text">处理用户输入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC"><span class="toc-number">2.2.1.</span> <span class="toc-text">事件监听</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A"><span class="toc-number">2.2.2.</span> <span class="toc-text">双向绑定</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6%E5%9F%BA%E7%A1%80"><span class="toc-number">2.3.</span> <span class="toc-text">组件基础</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAvue%E5%AE%9E%E4%BE%8B"><span class="toc-number">3.</span> <span class="toc-text">创建一个vue实例</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%92%8C%E6%96%B9%E6%B3%95"><span class="toc-number">3.1.</span> <span class="toc-text">数据和方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E9%92%A9%E5%AD%90"><span class="toc-number">3.2.</span> <span class="toc-text">实例生命周期钩子</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E8%AF%AD%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">模板语法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%92%E5%80%BC"><span class="toc-number">4.1.</span> <span class="toc-text">插值</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E6%9C%AC"><span class="toc-number">4.1.1.</span> <span class="toc-text">文本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%A7%8Bhtml"><span class="toc-number">4.1.2.</span> <span class="toc-text">原始html</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E4%BB%A4"><span class="toc-number">4.2.</span> <span class="toc-text">指令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6"><span class="toc-number">4.3.</span> <span class="toc-text">事件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1"><span class="toc-number">5.</span> <span class="toc-text">网络通信</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#axios"><span class="toc-number">5.1.</span> <span class="toc-text">axios</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vue%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">5.2.</span> <span class="toc-text">vue的生命周期</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E5%B1%9E%E6%80%A7"><span class="toc-number">6.</span> <span class="toc-text">计算属性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8F%92%E6%A7%BDslot"><span class="toc-number">7.</span> <span class="toc-text">插槽slot</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BA%8B%E4%BB%B6%E5%86%85%E5%AE%B9%E5%88%86%E5%8F%91"><span class="toc-number">8.</span> <span class="toc-text">自定义事件内容分发</span></a></li></ol>
+    </div>
+  </span>
 </div>
 
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        vue2语法基础
+    </h1>
 
-      <p class="links">
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Xi4nb3i</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-09-11T12:17:36.000Z" itemprop="datePublished">2022-09-11</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
   
-    <a title="archives" target="" href="/archives/">
-      <i class="iconfont icon-bookmark"></i>
-    </a>
-  
-    <a title="github" target="_blank" href="https://github.com/xianbeil">
-      <i class="iconfont icon-github"></i>
-    </a>
-  
-</p>
 
-
-      <div class="main">
-        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
-<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-<!-- LaTex Display -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
-</script>
-<script>
-  MathJax = {
-    tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']]
-    }
-  };
-</script>
-
-<div class="post">
-  <h3 class="date">
-    Sep 11, 2022
-  </h3>
-  <h1>
-    vue2语法基础
-  </h1>
-  <div class="content markdown-body">
+  <div class="content" itemprop="articleBody">
     <blockquote>
 <p>对 vue2 的从 0 开始学习，本篇了解基础语法即可。</p>
 </blockquote>
@@ -202,47 +255,141 @@
 <p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220909165154-7fke64c.png" alt="image">​</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;./vue.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;https://unpkg.com/axios/dist/axios.min.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;app-1&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">todo</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">todo-title</span> <span class="attr">slot</span>=<span class="string">&quot;todo-title&quot;</span> <span class="attr">:title</span>=<span class="string">&quot;title&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">todo-title</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">todo-lists</span> <span class="attr">slot</span>=<span class="string">&quot;todo-lists&quot;</span> </span></span><br><span class="line"><span class="tag">        <span class="attr">v-for</span>=<span class="string">&quot;(list,index) in lists&quot;</span> </span></span><br><span class="line"><span class="tag">        <span class="attr">:list</span>=<span class="string">&quot;list&quot;</span> </span></span><br><span class="line"><span class="tag">        <span class="attr">:index</span>=<span class="string">&quot;index&quot;</span> </span></span><br><span class="line"><span class="tag">        @<span class="attr">remove</span>=<span class="string">&quot;removeFromList(index)&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">:key</span>=<span class="string">&quot;index&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">todo-lists</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">todo</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="title class_">Vue</span>.<span class="title function_">component</span>(</span></span><br><span class="line"><span class="language-javascript">        <span class="string">&#x27;todo&#x27;</span>, &#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">template</span>:<span class="string">&#x27;&lt;div&gt;\</span></span></span><br><span class="line"><span class="string"><span class="language-javascript">                &lt;slot name=&quot;todo-title&quot;&gt;&lt;/slot&gt;\</span></span></span><br><span class="line"><span class="string"><span class="language-javascript">                &lt;ul&gt;\</span></span></span><br><span class="line"><span class="string"><span class="language-javascript">                    &lt;slot name=&quot;todo-lists&quot;&gt;&lt;/slot&gt;\</span></span></span><br><span class="line"><span class="string"><span class="language-javascript">                &lt;/ul&gt;\</span></span></span><br><span class="line"><span class="string"><span class="language-javascript">                &lt;/div&gt;&#x27;</span></span></span><br><span class="line"><span class="language-javascript">        &#125;);</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="title class_">Vue</span>.<span class="title function_">component</span>(</span></span><br><span class="line"><span class="language-javascript">        <span class="string">&#x27;todo-title&#x27;</span>,&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">props</span>:[<span class="string">&#x27;title&#x27;</span>],</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">template</span>:<span class="string">&#x27;&lt;li&gt;&#123;&#123;title&#125;&#125;&lt;/li&gt;&#x27;</span>,</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">    );</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="title class_">Vue</span>.<span class="title function_">component</span>(</span></span><br><span class="line"><span class="language-javascript">        <span class="string">&#x27;todo-lists&#x27;</span>,&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">props</span>:[<span class="string">&#x27;list&#x27;</span>,<span class="string">&#x27;index&#x27;</span>],</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">template</span>:<span class="string">&#x27;&lt;li&gt;&#123;&#123;list&#125;&#125;&lt;button @click=&quot;remove&quot;&gt;删除&lt;/button&gt;&lt;/li&gt;&#x27;</span>,</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">methods</span>:&#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="attr">remove</span>: <span class="keyword">function</span>(<span class="params">index</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">                    <span class="variable language_">this</span>.$emit(<span class="string">&#x27;remove&#x27;</span>,index)</span></span><br><span class="line"><span class="language-javascript">                &#125;</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">    );</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">var</span> vm = <span class="keyword">new</span> <span class="title class_">Vue</span>(&#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="attr">el</span>:<span class="string">&#x27;#app-1&#x27;</span>,</span></span><br><span class="line"><span class="language-javascript">        <span class="attr">data</span>:&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">title</span>:<span class="string">&#x27;这是一个标题&#x27;</span>,</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">lists</span>:[</span></span><br><span class="line"><span class="language-javascript">                <span class="string">&#x27;item1 in lists&#x27;</span>,</span></span><br><span class="line"><span class="language-javascript">                <span class="string">&#x27;item2 in lists&#x27;</span>,</span></span><br><span class="line"><span class="language-javascript">                <span class="string">&#x27;item3 in lists&#x27;</span></span></span><br><span class="line"><span class="language-javascript">            ]</span></span><br><span class="line"><span class="language-javascript">        &#125;,</span></span><br><span class="line"><span class="language-javascript">        <span class="attr">methods</span>: &#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">removeFromList</span>: <span class="keyword">function</span>(<span class="params">index</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="variable language_">this</span>.<span class="property">lists</span>.<span class="title function_">splice</span>(index,<span class="number">1</span>);</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125;,</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    &#125;);</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
   </div>
-  
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MVVM"><span class="toc-number">1.</span> <span class="toc-text">MVVM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAvue-%E5%BA%94%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">创建一个vue 应用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E5%92%8C%E5%BE%AA%E7%8E%AF"><span class="toc-number">2.1.</span> <span class="toc-text">条件和循环</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E7%94%A8%E6%88%B7%E8%BE%93%E5%85%A5"><span class="toc-number">2.2.</span> <span class="toc-text">处理用户输入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC"><span class="toc-number">2.2.1.</span> <span class="toc-text">事件监听</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A"><span class="toc-number">2.2.2.</span> <span class="toc-text">双向绑定</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6%E5%9F%BA%E7%A1%80"><span class="toc-number">2.3.</span> <span class="toc-text">组件基础</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAvue%E5%AE%9E%E4%BE%8B"><span class="toc-number">3.</span> <span class="toc-text">创建一个vue实例</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%92%8C%E6%96%B9%E6%B3%95"><span class="toc-number">3.1.</span> <span class="toc-text">数据和方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E9%92%A9%E5%AD%90"><span class="toc-number">3.2.</span> <span class="toc-text">实例生命周期钩子</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E8%AF%AD%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">模板语法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%92%E5%80%BC"><span class="toc-number">4.1.</span> <span class="toc-text">插值</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E6%9C%AC"><span class="toc-number">4.1.1.</span> <span class="toc-text">文本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%A7%8Bhtml"><span class="toc-number">4.1.2.</span> <span class="toc-text">原始html</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E4%BB%A4"><span class="toc-number">4.2.</span> <span class="toc-text">指令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6"><span class="toc-number">4.3.</span> <span class="toc-text">事件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1"><span class="toc-number">5.</span> <span class="toc-text">网络通信</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#axios"><span class="toc-number">5.1.</span> <span class="toc-text">axios</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vue%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">5.2.</span> <span class="toc-text">vue的生命周期</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E5%B1%9E%E6%80%A7"><span class="toc-number">6.</span> <span class="toc-text">计算属性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8F%92%E6%A7%BDslot"><span class="toc-number">7.</span> <span class="toc-text">插槽slot</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BA%8B%E4%BB%B6%E5%86%85%E5%AE%B9%E5%88%86%E5%8F%91"><span class="toc-number">8.</span> <span class="toc-text">自定义事件内容分发</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&text=vue2语法基础"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&is_video=false&description=vue2语法基础"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=vue2语法基础&body=Check out this article: https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&title=vue2语法基础"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&name=vue2语法基础&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/09/11/20220911vue%E8%AF%AD%E6%B3%95%E5%9F%BA%E7%A1%80/&t=vue2语法基础"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
     
-      <a id="older" class="blog-nav" href="/2022/08/30/20220830vulnhub-BILLU/">OLDER&nbsp;&gt;</a>
-      
-        
-          <a id="newer" class="blog-nav" href="/2022/10/15/20221015initial%E9%9D%B6%E6%9C%BA/">&lt;&nbsp;NEWER</a>
-          
-            
-</div>
-        <div class="footer">
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
-        
-    </div>
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
-        
-    </div>
-  
-</div>
-
-      </div>
-
-      <div class="back-to-top hidden">
-  <a href="javascript: void(0)">
-    <i class="iconfont icon-chevronup"></i>
-  </a>
-</div>
-
-
-<script src="/js/backtotop.js"></script>
-
-
-
-      
-
+    
+    2021-2022
+    Xi4nb3i
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
 
     </div>
-  </body>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
 </html>

@@ -1,103 +1,175 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="keywords" content="" />
-  <meta name="author" content="Xi4nb3i" />
-  <meta name="description" content="" />
-  
-  
-  <title>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="对于ysoserial中的CC3分析调试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CommonsCollections3反序列化链分析">
+<meta property="og:url" content="https://xianbeil.github.io/2022/03/20/cc3study/index.html">
+<meta property="og:site_name" content="Xi4nb3i&#39;s blog">
+<meta property="og:description" content="对于ysoserial中的CC3分析调试">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320132820-4tpc4xo.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320133246-v9pwg8q.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320133610-8jf5xlw.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320134613-qrjnqsr.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320134852-7m5urdz.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320135407-bq8jy27.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320135811-mlmbv31.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320135934-zyngloh.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320140547-5bmu12l.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320141808-q7xsv5j.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320142012-sfhhy48.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320145254-1a0lbfh.png">
+<meta property="og:image" content="https://o.130014.xyz/2022/03/20/image-20220320145346-rg5aw3v.png">
+<meta property="article:published_time" content="2022-03-20T06:57:13.000Z">
+<meta property="article:modified_time" content="2022-04-22T10:40:02.475Z">
+<meta property="article:author" content="Xi4nb3i">
+<meta property="article:tag" content="java反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://o.130014.xyz/2022/03/20/image-20220320132820-4tpc4xo.png">
     
-      CommonsCollections3反序列化链分析 
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
       
       
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
     
-  </title>
-
-  
-    <link rel="apple-touch-icon" href="/images/favicon.svg">
-    <link rel="icon" href="/images/favicon.svg">
-  
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
-
-  <!-- hexo site css -->
-  
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/common.css">
-<link rel="stylesheet" href="/iconfont/iconfont.css">
-
-
-  
-
-  
+    <!-- title -->
+    <title>CommonsCollections3反序列化链分析</title>
+    <!-- styles -->
     
-<link rel="stylesheet" href="/css/post.css">
+<link rel="stylesheet" href="/css/style.css">
 
-  
-
-  <!-- jquery3.3.1 -->
-  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-
-  <!-- fancybox -->
-  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
-  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
-  
-<script src="/js/fancybox.js"></script>
-
-
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
 <meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
 </head>
 
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/03/31/%E5%88%9D%E8%AF%86%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%B3%A8%E5%85%A5/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/03/18/JAVA%E7%B1%BB%E5%8A%A0%E8%BD%BD/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/03/20/cc3study/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/03/20/cc3study/&text=CommonsCollections3反序列化链分析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/03/20/cc3study/&is_video=false&description=CommonsCollections3反序列化链分析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CommonsCollections3反序列化链分析&body=Check out this article: https://xianbeil.github.io/2022/03/20/cc3study/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/03/20/cc3study/&name=CommonsCollections3反序列化链分析&description=对于ysoserial中的CC3分析调试"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/03/20/cc3study/&t=CommonsCollections3反序列化链分析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
 
-  <body>
-    <div id="app">
-      <div class="header">
-  <a href="/">Xi4nb3i</a>
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A4%8D%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">复现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Gadgets-createTemplatesImpl-command"><span class="toc-number">3.1.</span> <span class="toc-text">Gadgets.createTemplatesImpl(command)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#new-ChainedTransformer"><span class="toc-number">3.2.</span> <span class="toc-text">new ChainedTransformer</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#new-ConstantTransformer"><span class="toc-number">3.2.1.</span> <span class="toc-text">new ConstantTransformer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#new-InstantiateTransformer"><span class="toc-number">3.2.2.</span> <span class="toc-text">new InstantiateTransformer</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0-LazyMap-%E6%94%BB%E5%87%BB%E9%93%BE"><span class="toc-number">3.3.</span> <span class="toc-text">构造 LazyMap 攻击链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E8%B5%8B%E5%80%BC"><span class="toc-number">3.4.</span> <span class="toc-text">反射赋值</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B0%83%E8%AF%95"><span class="toc-number">4.</span> <span class="toc-text">调试</span></a></li></ol>
+    </div>
+  </span>
 </div>
 
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        CommonsCollections3反序列化链分析
+    </h1>
 
-      <p class="links">
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Xi4nb3i</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-03-20T06:57:13.000Z" itemprop="datePublished">2022-03-20</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/javaSec/">javaSec</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">java反序列化</a>
+    </div>
+
+
+    </div>
+  </header>
   
-    <a title="archives" target="" href="/archives/">
-      <i class="iconfont icon-bookmark"></i>
-    </a>
-  
-    <a title="github" target="_blank" href="https://github.com/xianbeil">
-      <i class="iconfont icon-github"></i>
-    </a>
-  
-</p>
 
-
-      <div class="main">
-        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
-<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-<!-- LaTex Display -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
-</script>
-<script>
-  MathJax = {
-    tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']]
-    }
-  };
-</script>
-
-<div class="post">
-  <h3 class="date">
-    Mar 20, 2022
-  </h3>
-  <h1>
-    CommonsCollections3反序列化链分析
-  </h1>
-  <div class="content markdown-body">
+  <div class="content" itemprop="articleBody">
     <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>调试分析 ysoserial 种的 Apache Commons Collections 系列第三条链子。</p>
 <p>这篇开始算是脱离了萌新期，有重点地针对核心部分进行分析，篇幅也开始</p>
 <h1 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h1><p>jdk1.7+tomcat8+Apache Commons Collections3.1</p>
@@ -151,47 +223,141 @@
 <p><a target="_blank" rel="noopener" href="https://www.wailian.work/image/QUPWJ4"><img src="https://o.130014.xyz/2022/03/20/image-20220320145346-rg5aw3v.png" alt="image-20220320145346-rg5aw3v.png"></a></p>
 
   </div>
-  
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A4%8D%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">复现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Gadgets-createTemplatesImpl-command"><span class="toc-number">3.1.</span> <span class="toc-text">Gadgets.createTemplatesImpl(command)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#new-ChainedTransformer"><span class="toc-number">3.2.</span> <span class="toc-text">new ChainedTransformer</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#new-ConstantTransformer"><span class="toc-number">3.2.1.</span> <span class="toc-text">new ConstantTransformer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#new-InstantiateTransformer"><span class="toc-number">3.2.2.</span> <span class="toc-text">new InstantiateTransformer</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0-LazyMap-%E6%94%BB%E5%87%BB%E9%93%BE"><span class="toc-number">3.3.</span> <span class="toc-text">构造 LazyMap 攻击链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E8%B5%8B%E5%80%BC"><span class="toc-number">3.4.</span> <span class="toc-text">反射赋值</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B0%83%E8%AF%95"><span class="toc-number">4.</span> <span class="toc-text">调试</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/03/20/cc3study/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/03/20/cc3study/&text=CommonsCollections3反序列化链分析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/03/20/cc3study/&is_video=false&description=CommonsCollections3反序列化链分析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CommonsCollections3反序列化链分析&body=Check out this article: https://xianbeil.github.io/2022/03/20/cc3study/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/03/20/cc3study/&title=CommonsCollections3反序列化链分析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/03/20/cc3study/&name=CommonsCollections3反序列化链分析&description=对于ysoserial中的CC3分析调试"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/03/20/cc3study/&t=CommonsCollections3反序列化链分析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
     
-      <a id="older" class="blog-nav" href="/2022/03/18/JAVA%E7%B1%BB%E5%8A%A0%E8%BD%BD/">OLDER&nbsp;&gt;</a>
-      
-        
-          <a id="newer" class="blog-nav" href="/2022/03/31/%E5%88%9D%E8%AF%86%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%B3%A8%E5%85%A5/">&lt;&nbsp;NEWER</a>
-          
-            
-</div>
-        <div class="footer">
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
-        
-    </div>
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
-        
-    </div>
-  
-</div>
-
-      </div>
-
-      <div class="back-to-top hidden">
-  <a href="javascript: void(0)">
-    <i class="iconfont icon-chevronup"></i>
-  </a>
-</div>
-
-
-<script src="/js/backtotop.js"></script>
-
-
-
-      
-
+    
+    2021-2022
+    Xi4nb3i
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
 
     </div>
-  </body>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
 </html>

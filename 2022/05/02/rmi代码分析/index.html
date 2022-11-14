@@ -1,103 +1,214 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="keywords" content="" />
-  <meta name="author" content="Xi4nb3i" />
-  <meta name="description" content="" />
-  
-  
-  <title>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="在处理rmi的时候发现当时学的比较早导致一些东西没有分析的很清楚，今天把他其中的一些过程重新分析一下，rmi还是很重要的一部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rmi代码分析">
+<meta property="og:url" content="https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Xi4nb3i&#39;s blog">
+<meta property="og:description" content="在处理rmi的时候发现当时学的比较早导致一些东西没有分析的很清楚，今天把他其中的一些过程重新分析一下，rmi还是很重要的一部分。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430094406-ku9mt1b.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115251-c5b84n3.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115509-aev0l0d.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115710-j5yzzyy.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115835-oq6cuos.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430115939-1c3x3vb.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501232936-sihubqs.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501233118-qdzrbvb.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501233256-skki01h.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430221912-74xoh8s.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501233821-g4uvmgu.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501235123-nrespux.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501235230-gcj2jfi.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501235538-uyrd9be.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501235855-e4tx6on.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502000100-2r10ra9.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501154724-2c6h00x.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501154757-z6sxyy5.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502000458-yjwv6vo.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502000701-3zyzueu.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502000834-bipeju0.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501155207-0ldmwfw.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160056-0ww1bzu.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160253-ih82ny6.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160343-xnzpcbm.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160423-3kbzmw2.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160554-dh8g271.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160652-5o58gzz.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501160903-459f9if.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501161058-si3jzgl.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501162044-z7izfgz.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502010214-ppg0qgx.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501162342-he8el2h.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501162405-yfa99q0.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501183232-uz4rh5e.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501194145-mayrxs7.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501194221-vfdvky0.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501194919-s6b9di5.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501195240-oqvfrmb.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501195429-rkco705.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501195911-qumij3j.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501200834-nyhcu1a.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501201220-dnkf9y3.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501201542-ngvl28l.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501201937-eief2vw.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202434-haixi7n.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202704-t2kqyd0.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501203015-frla00p.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202615-nkk2aoo.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202903-yeujj15.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220501202930-tierni1.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220502010732-6uc4aqf.png">
+<meta property="article:published_time" content="2022-05-01T17:50:20.000Z">
+<meta property="article:modified_time" content="2022-05-01T17:52:35.810Z">
+<meta property="article:author" content="Xi4nb3i">
+<meta property="article:tag" content="rmi">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220430094406-ku9mt1b.png">
     
-      rmi代码分析 
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
       
       
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
     
-  </title>
-
-  
-    <link rel="apple-touch-icon" href="/images/favicon.svg">
-    <link rel="icon" href="/images/favicon.svg">
-  
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
-
-  <!-- hexo site css -->
-  
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/common.css">
-<link rel="stylesheet" href="/iconfont/iconfont.css">
-
-
-  
-
-  
+    <!-- title -->
+    <title>rmi代码分析</title>
+    <!-- styles -->
     
-<link rel="stylesheet" href="/css/post.css">
+<link rel="stylesheet" href="/css/style.css">
 
-  
-
-  <!-- jquery3.3.1 -->
-  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-
-  <!-- fancybox -->
-  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
-  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
-  
-<script src="/js/fancybox.js"></script>
-
-
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
 <meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
 </head>
 
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/05/03/rmi%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/04/27/pwnhub2022%E6%98%A5%E5%AD%A3%E8%B5%9B/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&text=rmi代码分析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&is_video=false&description=rmi代码分析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=rmi代码分析&body=Check out this article: https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&name=rmi代码分析&description=在处理rmi的时候发现当时学的比较早导致一些东西没有分析的很清楚，今天把他其中的一些过程重新分析一下，rmi还是很重要的一部分。"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&t=rmi代码分析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
 
-  <body>
-    <div id="app">
-      <div class="header">
-  <a href="/">Xi4nb3i</a>
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B%E5%89%8D%E7%9A%84%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介前的简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">2.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-number">3.</span> <span class="toc-text">服务端</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%88%9B%E5%BB%BA%E8%BF%9C%E7%A8%8B%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.1.</span> <span class="toc-text">服务端创建远程对象</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UnicastRemoteObject-exportObject"><span class="toc-number">3.1.1.</span> <span class="toc-text">UnicastRemoteObject.exportObject</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#LiveRef"><span class="toc-number">3.1.1.1.</span> <span class="toc-text">LiveRef</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UnicastServerRef"><span class="toc-number">3.1.1.2.</span> <span class="toc-text">UnicastServerRef</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UnicastServerRef-exportObject"><span class="toc-number">3.1.1.3.</span> <span class="toc-text">UnicastServerRef.exportObject</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Util-createProxy"><span class="toc-number">3.1.1.3.1.</span> <span class="toc-text">Util.createProxy</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91"><span class="toc-number">3.2.</span> <span class="toc-text">注册中心创建逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E7%BB%91%E5%AE%9A%E9%80%BB%E8%BE%91"><span class="toc-number">3.3.</span> <span class="toc-text">注册中心绑定逻辑</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">4.</span> <span class="toc-text">客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#UnicastRef-invoke"><span class="toc-number">4.1.</span> <span class="toc-text">UnicastRef.invoke</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RegistryImpl-Stub-lookup"><span class="toc-number">4.2.</span> <span class="toc-text">RegistryImpl_Stub.lookup</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">远程方法调用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
 </div>
 
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        rmi代码分析
+    </h1>
 
-      <p class="links">
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Xi4nb3i</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-05-01T17:50:20.000Z" itemprop="datePublished">2022-05-02</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/javaSec/">javaSec</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/rmi/" rel="tag">rmi</a>
+    </div>
+
+
+    </div>
+  </header>
   
-    <a title="archives" target="" href="/archives/">
-      <i class="iconfont icon-bookmark"></i>
-    </a>
-  
-    <a title="github" target="_blank" href="https://github.com/xianbeil">
-      <i class="iconfont icon-github"></i>
-    </a>
-  
-</p>
 
-
-      <div class="main">
-        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
-<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-<!-- LaTex Display -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
-</script>
-<script>
-  MathJax = {
-    tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']]
-    }
-  };
-</script>
-
-<div class="post">
-  <h3 class="date">
-    May 02, 2022
-  </h3>
-  <h1>
-    rmi代码分析
-  </h1>
-  <div class="content markdown-body">
+  <div class="content" itemprop="articleBody">
     <h1 id="简介前的简介"><a href="#简介前的简介" class="headerlink" title="简介前的简介"></a>简介前的简介</h1><p>额，一直以来貌似养成了不好的习惯，在写完这一篇之后发现，我为什么要写文章啊。。</p>
 <p>博客是放笔记的，对吧，写的自己看懂就行了。还指望给别人看呢。</p>
 <p>所以这是本博客最后一篇可能有可能别人能看懂的文章。</p>
@@ -252,47 +363,141 @@
 </ol>
 
   </div>
-  
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B%E5%89%8D%E7%9A%84%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介前的简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">2.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-number">3.</span> <span class="toc-text">服务端</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%88%9B%E5%BB%BA%E8%BF%9C%E7%A8%8B%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.1.</span> <span class="toc-text">服务端创建远程对象</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UnicastRemoteObject-exportObject"><span class="toc-number">3.1.1.</span> <span class="toc-text">UnicastRemoteObject.exportObject</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#LiveRef"><span class="toc-number">3.1.1.1.</span> <span class="toc-text">LiveRef</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UnicastServerRef"><span class="toc-number">3.1.1.2.</span> <span class="toc-text">UnicastServerRef</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UnicastServerRef-exportObject"><span class="toc-number">3.1.1.3.</span> <span class="toc-text">UnicastServerRef.exportObject</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Util-createProxy"><span class="toc-number">3.1.1.3.1.</span> <span class="toc-text">Util.createProxy</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91"><span class="toc-number">3.2.</span> <span class="toc-text">注册中心创建逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E7%BB%91%E5%AE%9A%E9%80%BB%E8%BE%91"><span class="toc-number">3.3.</span> <span class="toc-text">注册中心绑定逻辑</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">4.</span> <span class="toc-text">客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#UnicastRef-invoke"><span class="toc-number">4.1.</span> <span class="toc-text">UnicastRef.invoke</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RegistryImpl-Stub-lookup"><span class="toc-number">4.2.</span> <span class="toc-text">RegistryImpl_Stub.lookup</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">远程方法调用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&text=rmi代码分析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&is_video=false&description=rmi代码分析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=rmi代码分析&body=Check out this article: https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&title=rmi代码分析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&name=rmi代码分析&description=在处理rmi的时候发现当时学的比较早导致一些东西没有分析的很清楚，今天把他其中的一些过程重新分析一下，rmi还是很重要的一部分。"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/05/02/rmi%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/&t=rmi代码分析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
     
-      <a id="older" class="blog-nav" href="/2022/04/27/pwnhub2022%E6%98%A5%E5%AD%A3%E8%B5%9B/">OLDER&nbsp;&gt;</a>
-      
-        
-          <a id="newer" class="blog-nav" href="/2022/05/03/rmi%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961/">&lt;&nbsp;NEWER</a>
-          
-            
-</div>
-        <div class="footer">
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
-        
-    </div>
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
-        
-    </div>
-  
-</div>
-
-      </div>
-
-      <div class="back-to-top hidden">
-  <a href="javascript: void(0)">
-    <i class="iconfont icon-chevronup"></i>
-  </a>
-</div>
-
-
-<script src="/js/backtotop.js"></script>
-
-
-
-      
-
+    
+    2021-2022
+    Xi4nb3i
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
 
     </div>
-  </body>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
 </html>

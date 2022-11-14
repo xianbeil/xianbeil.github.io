@@ -1,103 +1,209 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="keywords" content="" />
-  <meta name="author" content="Xi4nb3i" />
-  <meta name="description" content="" />
-  
-  
-  <title>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Ysoserial初使用+调试和分析URLDNS链">
+<meta property="og:type" content="article">
+<meta property="og:title" content="URLDNS链分析">
+<meta property="og:url" content="https://xianbeil.github.io/2022/03/12/ysoAndUrldns/index.html">
+<meta property="og:site_name" content="Xi4nb3i&#39;s blog">
+<meta property="og:description" content="Ysoserial初使用+调试和分析URLDNS链">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220310174742-c9fnavr.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220310180352-zvydk4e.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220311191241-upfalib.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220311222625-bg86lvl.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220311224029-yhcjuwb.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312064105-2i424nu.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312091551-lfbq6gm.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312091918-o7vlp4z.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312110057-4db9nk8.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312163043-16y0mo6.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312163142-nmjrjtb.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312163248-m1v4jn1.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312163707-ov12gsk.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312163754-i535zpc.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312163935-ynpisge.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312164237-qlhmnmg.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312164405-lk6bgzi.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312165450-3lrg6fo.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312170053-qqhi6pa.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312203357-h2m0w54.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312170440-glwq0e4.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312170645-lg4eim2.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312170846-zvpzdq6.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312170952-ql6vn1r.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312171047-gq3qkzd.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312171214-d34nvm2.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312171258-qkpcdxx.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312171402-0032f1y.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312171519-h0hgx3v.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312172113-1squv8q.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312205132-6ak10uy.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312205425-rnqdcn2.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312172320-p3wfvxk.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312172546-4jjow4r.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312205912-c1zr83z.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312210114-m9nk487.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312174123-fmzl0c2.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312174251-rkc74bn.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312174332-othrj9k.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312174425-bb0w2p4.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312174528-lr6rbx8.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312212429-2hxi1l7.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312212520-kaik0az.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312212644-1ugkj8i.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312213316-7s0aoxx.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312213227-vu4uvxg.png">
+<meta property="og:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220312213751-b1rhx5s.png">
+<meta property="article:published_time" content="2022-03-12T14:15:29.000Z">
+<meta property="article:modified_time" content="2022-08-25T07:06:58.212Z">
+<meta property="article:author" content="Xi4nb3i">
+<meta property="article:tag" content="java反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://b3logfile.com/siyuan/1642857713240/assets/image-20220310174742-c9fnavr.png">
     
-      URLDNS链分析 
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
       
       
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
     
-  </title>
-
-  
-    <link rel="apple-touch-icon" href="/images/favicon.svg">
-    <link rel="icon" href="/images/favicon.svg">
-  
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
-
-  <!-- hexo site css -->
-  
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/common.css">
-<link rel="stylesheet" href="/iconfont/iconfont.css">
-
-
-  
-
-  
+    <!-- title -->
+    <title>URLDNS链分析</title>
+    <!-- styles -->
     
-<link rel="stylesheet" href="/css/post.css">
+<link rel="stylesheet" href="/css/style.css">
 
-  
-
-  <!-- jquery3.3.1 -->
-  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-
-  <!-- fancybox -->
-  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
-  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
-  
-<script src="/js/fancybox.js"></script>
-
-
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
 <meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
 </head>
 
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/03/14/undefsafeStudy/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/03/08/javacc31study/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&text=URLDNS链分析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&is_video=false&description=URLDNS链分析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=URLDNS链分析&body=Check out this article: https://xianbeil.github.io/2022/03/12/ysoAndUrldns/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&name=URLDNS链分析&description=Ysoserial初使用+调试和分析URLDNS链"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&t=URLDNS链分析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
 
-  <body>
-    <div id="app">
-      <div class="header">
-  <a href="/">Xi4nb3i</a>
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Ysoserial%E5%88%9D%E4%BD%BF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">Ysoserial初使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">1.1.</span> <span class="toc-text">环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E4%BA%86%E4%B8%80%E4%B8%AA%E6%8A%A5%E9%94%99"><span class="toc-number">1.1.1.</span> <span class="toc-text">处理了一个报错</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">1.2.</span> <span class="toc-text">使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%951-IDEA%E6%B7%BB%E5%8A%A0%E5%8F%82%E6%95%B0-amp-%E5%86%99%E5%85%A5%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.1.</span> <span class="toc-text">方法1 IDEA添加参数&amp;写入文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%952-%E6%89%93%E5%8C%85%E6%88%90jar"><span class="toc-number">1.3.</span> <span class="toc-text">方法2 打包成jar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#payload%E6%B5%8B%E8%AF%95-amp-%E4%BC%A0%E5%80%BC"><span class="toc-number">1.4.</span> <span class="toc-text">payload测试&amp;传值</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E5%87%86%E5%A4%87"><span class="toc-number">2.</span> <span class="toc-text">前置准备</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8ysoserial%E7%94%9F%E6%88%90urldns-payload"><span class="toc-number">2.1.</span> <span class="toc-text">利用ysoserial生成urldns payload</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap%E7%B1%BB"><span class="toc-number">2.2.</span> <span class="toc-text">HashMap类</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B0%83%E8%AF%95URLDNS%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text">调试URLDNS利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap-readObject"><span class="toc-number">3.1.</span> <span class="toc-text">HashMap.readObject()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap-putForCreate"><span class="toc-number">3.2.</span> <span class="toc-text">HashMap.putForCreate()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap-hash"><span class="toc-number">3.3.</span> <span class="toc-text">HashMap.hash()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-URL-hashCode"><span class="toc-number">3.4.</span> <span class="toc-text">java.net.URL.hashCode()</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hashCode-x3D-1"><span class="toc-number">3.4.1.</span> <span class="toc-text">hashCode !&#x3D; -1</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-URLStreamHandler-hashCode"><span class="toc-number">3.5.</span> <span class="toc-text">java.net.URLStreamHandler.hashCode</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-URLStreamHandler-getHostAddress"><span class="toc-number">3.6.</span> <span class="toc-text">java.net.URLStreamHandler.getHostAddress</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-InetAddress-getByName-java-lang-String"><span class="toc-number">3.7.</span> <span class="toc-text">java.net.InetAddress.getByName(java.lang.String)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-InetAddress-getAllByName"><span class="toc-number">3.8.</span> <span class="toc-text">java.net.InetAddress.getAllByName()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-InetAddress-getAllByName0-java-lang-String-java-net-InetAddress-boolean"><span class="toc-number">3.9.</span> <span class="toc-text">java.net.InetAddress.getAllByName0(java.lang.String, java.net.InetAddress, boolean)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-InetAddress-getAddressesFromNameService"><span class="toc-number">3.10.</span> <span class="toc-text">java.net.InetAddress.getAddressesFromNameService</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E6%9E%90URLDNS%E6%9E%84%E9%80%A0%E9%93%BE"><span class="toc-number">4.</span> <span class="toc-text">分析URLDNS构造链</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SilentURLStreamHandler"><span class="toc-number">4.1.</span> <span class="toc-text">SilentURLStreamHandler</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A9hashCode-x3D-1"><span class="toc-number">4.2.</span> <span class="toc-text">让hashCode &#x3D; -1</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
 </div>
 
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        URLDNS链分析
+    </h1>
 
-      <p class="links">
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Xi4nb3i</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-03-12T14:15:29.000Z" itemprop="datePublished">2022-03-12</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/javaSec/">javaSec</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">java反序列化</a>
+    </div>
+
+
+    </div>
+  </header>
   
-    <a title="archives" target="" href="/archives/">
-      <i class="iconfont icon-bookmark"></i>
-    </a>
-  
-    <a title="github" target="_blank" href="https://github.com/xianbeil">
-      <i class="iconfont icon-github"></i>
-    </a>
-  
-</p>
 
-
-      <div class="main">
-        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
-<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-<!-- LaTex Display -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
-</script>
-<script>
-  MathJax = {
-    tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']]
-    }
-  };
-</script>
-
-<div class="post">
-  <h3 class="date">
-    Mar 12, 2022
-  </h3>
-  <h1>
-    URLDNS链分析
-  </h1>
-  <div class="content markdown-body">
+  <div class="content" itemprop="articleBody">
     <h1 id="Ysoserial初使用"><a href="#Ysoserial初使用" class="headerlink" title="Ysoserial初使用"></a>Ysoserial初使用</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>项目地址：<a target="_blank" rel="noopener" href="https://github.com/frohoff/ysoserial">https://github.com/frohoff/ysoserial</a></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:<span class="comment">//github.com/frohoff/ysoserial.git</span></span><br></pre></td></tr></table></figure>
 
@@ -251,47 +357,141 @@
 <p>分析的时候看着前人挖出来的链子才能知道他为什么找这些类。</p>
 
   </div>
-  
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Ysoserial%E5%88%9D%E4%BD%BF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">Ysoserial初使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">1.1.</span> <span class="toc-text">环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E4%BA%86%E4%B8%80%E4%B8%AA%E6%8A%A5%E9%94%99"><span class="toc-number">1.1.1.</span> <span class="toc-text">处理了一个报错</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">1.2.</span> <span class="toc-text">使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%951-IDEA%E6%B7%BB%E5%8A%A0%E5%8F%82%E6%95%B0-amp-%E5%86%99%E5%85%A5%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.1.</span> <span class="toc-text">方法1 IDEA添加参数&amp;写入文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%952-%E6%89%93%E5%8C%85%E6%88%90jar"><span class="toc-number">1.3.</span> <span class="toc-text">方法2 打包成jar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#payload%E6%B5%8B%E8%AF%95-amp-%E4%BC%A0%E5%80%BC"><span class="toc-number">1.4.</span> <span class="toc-text">payload测试&amp;传值</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E5%87%86%E5%A4%87"><span class="toc-number">2.</span> <span class="toc-text">前置准备</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8ysoserial%E7%94%9F%E6%88%90urldns-payload"><span class="toc-number">2.1.</span> <span class="toc-text">利用ysoserial生成urldns payload</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap%E7%B1%BB"><span class="toc-number">2.2.</span> <span class="toc-text">HashMap类</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B0%83%E8%AF%95URLDNS%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text">调试URLDNS利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap-readObject"><span class="toc-number">3.1.</span> <span class="toc-text">HashMap.readObject()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap-putForCreate"><span class="toc-number">3.2.</span> <span class="toc-text">HashMap.putForCreate()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap-hash"><span class="toc-number">3.3.</span> <span class="toc-text">HashMap.hash()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-URL-hashCode"><span class="toc-number">3.4.</span> <span class="toc-text">java.net.URL.hashCode()</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hashCode-x3D-1"><span class="toc-number">3.4.1.</span> <span class="toc-text">hashCode !&#x3D; -1</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-URLStreamHandler-hashCode"><span class="toc-number">3.5.</span> <span class="toc-text">java.net.URLStreamHandler.hashCode</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-URLStreamHandler-getHostAddress"><span class="toc-number">3.6.</span> <span class="toc-text">java.net.URLStreamHandler.getHostAddress</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-InetAddress-getByName-java-lang-String"><span class="toc-number">3.7.</span> <span class="toc-text">java.net.InetAddress.getByName(java.lang.String)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-InetAddress-getAllByName"><span class="toc-number">3.8.</span> <span class="toc-text">java.net.InetAddress.getAllByName()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-InetAddress-getAllByName0-java-lang-String-java-net-InetAddress-boolean"><span class="toc-number">3.9.</span> <span class="toc-text">java.net.InetAddress.getAllByName0(java.lang.String, java.net.InetAddress, boolean)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java-net-InetAddress-getAddressesFromNameService"><span class="toc-number">3.10.</span> <span class="toc-text">java.net.InetAddress.getAddressesFromNameService</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E6%9E%90URLDNS%E6%9E%84%E9%80%A0%E9%93%BE"><span class="toc-number">4.</span> <span class="toc-text">分析URLDNS构造链</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SilentURLStreamHandler"><span class="toc-number">4.1.</span> <span class="toc-text">SilentURLStreamHandler</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A9hashCode-x3D-1"><span class="toc-number">4.2.</span> <span class="toc-text">让hashCode &#x3D; -1</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&text=URLDNS链分析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&is_video=false&description=URLDNS链分析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=URLDNS链分析&body=Check out this article: https://xianbeil.github.io/2022/03/12/ysoAndUrldns/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&title=URLDNS链分析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&name=URLDNS链分析&description=Ysoserial初使用+调试和分析URLDNS链"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/03/12/ysoAndUrldns/&t=URLDNS链分析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
     
-      <a id="older" class="blog-nav" href="/2022/03/08/javacc31study/">OLDER&nbsp;&gt;</a>
-      
-        
-          <a id="newer" class="blog-nav" href="/2022/03/14/undefsafeStudy/">&lt;&nbsp;NEWER</a>
-          
-            
-</div>
-        <div class="footer">
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
-        
-    </div>
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
-        
-    </div>
-  
-</div>
-
-      </div>
-
-      <div class="back-to-top hidden">
-  <a href="javascript: void(0)">
-    <i class="iconfont icon-chevronup"></i>
-  </a>
-</div>
-
-
-<script src="/js/backtotop.js"></script>
-
-
-
-      
-
+    
+    2021-2022
+    Xi4nb3i
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
 
     </div>
-  </body>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
 </html>

@@ -1,103 +1,175 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="keywords" content="" />
-  <meta name="author" content="Xi4nb3i" />
-  <meta name="description" content="" />
-  
-  
-  <title>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="linkgame发现可以lfi的地方，伪协议读取index.php源码 ​ 尝试直接去include session文件，反正可以写入session 后来发现可以读到session文件，并且写入的数据是base64编码保存的，就尝试用解码的过滤器去把他带出来，当然前面要添加垃圾字符来保证是4的倍数 1234567891011POST &#x2F;?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;convert.base">
+<meta property="og:type" content="article">
+<meta property="og:title" content="领航杯2022初赛write up">
+<meta property="og:url" content="https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/index.html">
+<meta property="og:site_name" content="Xi4nb3i&#39;s blog">
+<meta property="og:description" content="linkgame发现可以lfi的地方，伪协议读取index.php源码 ​ 尝试直接去include session文件，反正可以写入session 后来发现可以读到session文件，并且写入的数据是base64编码保存的，就尝试用解码的过滤器去把他带出来，当然前面要添加垃圾字符来保证是4的倍数 1234567891011POST &#x2F;?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;convert.base">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823155748-kyzig1n.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823155943-vk8isi2.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823143954-nirgqse.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823160132-g54kjso.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823160448-eq8p8us.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823145343-4wrmu9x.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153430-rc3mnur.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153410-ohzf5k2.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153537-5jgnujx.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153329-fauzdj3.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153314-6cxdair.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823153551-lycj7rf.png">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image002-20220823174635-mqk6hb8.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image004-20220823174635-ccowszj.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image006-20220823174635-pft4ttd.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image008-20220823174635-ljq5xbj.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image010-20220823174635-hsxz3an.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image012-20220823174635-qz4lhee.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image014-20220823174635-nlj75oa.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image016-20220823174635-m0b7yx5.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image018-20220823174635-latgtyf.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image002-20220823174718-87p2akf.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image004-20220823174718-wgckr46.jpg">
+<meta property="og:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/clip_image006-20220823174718-suxiu0z.jpg">
+<meta property="article:published_time" content="2022-08-25T07:35:54.000Z">
+<meta property="article:modified_time" content="2022-08-25T07:36:52.037Z">
+<meta property="article:author" content="Xi4nb3i">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823155748-kyzig1n.png">
     
-      领航杯2022初赛write up 
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
       
       
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
     
-  </title>
-
-  
-    <link rel="apple-touch-icon" href="/images/favicon.svg">
-    <link rel="icon" href="/images/favicon.svg">
-  
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
-
-  <!-- hexo site css -->
-  
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/common.css">
-<link rel="stylesheet" href="/iconfont/iconfont.css">
-
-
-  
-
-  
+    <!-- title -->
+    <title>领航杯2022初赛write up</title>
+    <!-- styles -->
     
-<link rel="stylesheet" href="/css/post.css">
+<link rel="stylesheet" href="/css/style.css">
 
-  
-
-  <!-- jquery3.3.1 -->
-  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-
-  <!-- fancybox -->
-  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
-  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
-  
-<script src="/js/fancybox.js"></script>
-
-
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
 <meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Xi4nb3i's blog" type="application/atom+xml">
 </head>
 
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/08/28/20220829%E5%86%99%E7%BB%99%E8%87%AA%E5%B7%B1v3/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/08/25/20220825%E5%8D%9A%E5%AE%A2%E6%95%B4%E6%94%B9/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&text=领航杯2022初赛write up"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&is_video=false&description=领航杯2022初赛write up"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=领航杯2022初赛write up&body=Check out this article: https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&name=领航杯2022初赛write up&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&t=领航杯2022初赛write up"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
 
-  <body>
-    <div id="app">
-      <div class="header">
-  <a href="/">Xi4nb3i</a>
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#linkgame"><span class="toc-number">1.</span> <span class="toc-text">linkgame</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#TarSlip"><span class="toc-number">2.</span> <span class="toc-text">TarSlip</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#jwt2"><span class="toc-number">3.</span> <span class="toc-text">jwt2</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B0%8F%E6%98%8E%E7%9A%84%E5%9B%B0%E6%83%91"><span class="toc-number">4.</span> <span class="toc-text">小明的困惑</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SmallIp"><span class="toc-number">5.</span> <span class="toc-text">SmallIp</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rsa"><span class="toc-number">6.</span> <span class="toc-text">rsa</span></a></li></ol>
+    </div>
+  </span>
 </div>
 
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        领航杯2022初赛write up
+    </h1>
 
-      <p class="links">
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Xi4nb3i</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-08-25T07:35:54.000Z" itemprop="datePublished">2022-08-25</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
   
-    <a title="archives" target="" href="/archives/">
-      <i class="iconfont icon-bookmark"></i>
-    </a>
-  
-    <a title="github" target="_blank" href="https://github.com/xianbeil">
-      <i class="iconfont icon-github"></i>
-    </a>
-  
-</p>
 
-
-      <div class="main">
-        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
-<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-<!-- LaTex Display -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
-</script>
-<script>
-  MathJax = {
-    tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']]
-    }
-  };
-</script>
-
-<div class="post">
-  <h3 class="date">
-    Aug 25, 2022
-  </h3>
-  <h1>
-    领航杯2022初赛write up
-  </h1>
-  <div class="content markdown-body">
+  <div class="content" itemprop="articleBody">
     <h1 id="linkgame"><a href="#linkgame" class="headerlink" title="linkgame"></a>linkgame</h1><p>发现可以lfi的地方，伪协议读取index.php源码</p>
 <p><img src="https://assets.b3logfile.com/siyuan/1642857713240/assets/image-20220823155748-kyzig1n.png" alt="image">​</p>
 <p>尝试直接去include session文件，反正可以写入session</p>
@@ -177,47 +249,141 @@
 <p>CnHongKe{Th1s_i5_vEry_e45y}</p>
 
   </div>
-  
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#linkgame"><span class="toc-number">1.</span> <span class="toc-text">linkgame</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#TarSlip"><span class="toc-number">2.</span> <span class="toc-text">TarSlip</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#jwt2"><span class="toc-number">3.</span> <span class="toc-text">jwt2</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B0%8F%E6%98%8E%E7%9A%84%E5%9B%B0%E6%83%91"><span class="toc-number">4.</span> <span class="toc-text">小明的困惑</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SmallIp"><span class="toc-number">5.</span> <span class="toc-text">SmallIp</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rsa"><span class="toc-number">6.</span> <span class="toc-text">rsa</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&text=领航杯2022初赛write up"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&is_video=false&description=领航杯2022初赛write up"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=领航杯2022初赛write up&body=Check out this article: https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&title=领航杯2022初赛write up"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&name=领航杯2022初赛write up&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xianbeil.github.io/2022/08/25/20220825%E9%A2%86%E8%88%AA%E6%9D%AFwp/&t=领航杯2022初赛write up"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
     
-      <a id="older" class="blog-nav" href="/2022/08/25/20220825%E5%8D%9A%E5%AE%A2%E6%95%B4%E6%94%B9/">OLDER&nbsp;&gt;</a>
-      
-        
-          <a id="newer" class="blog-nav" href="/2022/08/28/20220829%E5%86%99%E7%BB%99%E8%87%AA%E5%B7%B1v3/">&lt;&nbsp;NEWER</a>
-          
-            
-</div>
-        <div class="footer">
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Copyright © Leedom 2021</a>
-        
-    </div>
-  
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/leedom92/hexo-theme-leedom">Theme by Leedom | Powered by Hexo</a>
-        
-    </div>
-  
-</div>
-
-      </div>
-
-      <div class="back-to-top hidden">
-  <a href="javascript: void(0)">
-    <i class="iconfont icon-chevronup"></i>
-  </a>
-</div>
-
-
-<script src="/js/backtotop.js"></script>
-
-
-
-      
-
+    
+    2021-2022
+    Xi4nb3i
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
 
     </div>
-  </body>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
 </html>
