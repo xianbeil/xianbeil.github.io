@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Neko Logo</title>
+  <desc id="desc">A cute minimalist cat doodle logo.</desc>
+  <rect width="128" height="128" rx="28" fill="#fff7ef"/>
+  <path d="M34 52 44 27l17 20" fill="none" stroke="#2f241f" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+  <path d="M94 52 84 27 67 47" fill="none" stroke="#2f241f" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+  <circle cx="64" cy="68" r="29" fill="none" stroke="#2f241f" stroke-width="8"/>
+  <circle cx="53" cy="66" r="4.5" fill="#2f241f"/>
+  <circle cx="75" cy="66" r="4.5" fill="#2f241f"/>
+  <path d="M64 73 60 79h8Z" fill="#ff9aa2"/>
+  <path d="M56 86c3 3 6 4 8 4s5-1 8-4" fill="none" stroke="#2f241f" stroke-linecap="round" stroke-width="7"/>
+  <path d="M48 77H31" fill="none" stroke="#2f241f" stroke-linecap="round" stroke-width="5"/>
+  <path d="M47 84H28" fill="none" stroke="#2f241f" stroke-linecap="round" stroke-width="5"/>
+  <path d="M80 77h17" fill="none" stroke="#2f241f" stroke-linecap="round" stroke-width="5"/>
+  <path d="M81 84h19" fill="none" stroke="#2f241f" stroke-linecap="round" stroke-width="5"/>
+</svg>
