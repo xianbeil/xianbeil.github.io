@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+const moments = (await getCollection('moments'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title="动态 - Blog" description="生活动态">
+  <h1 class="page-title">动态</h1>
+  <div class="moment-list">
+    {moments.map(async (moment) => {
+      const { Content } = await render(moment);
+      return (
+        <div class="moment-item">
+          <time datetime={moment.data.pubDate.toISOString()}>
+            {moment.data.pubDate.toLocaleDateString('zh-CN')}
+          </time>
+          <div class="moment-content prose">
+            <Content />
+          </div>
+        </div>
+      );
+    })}
+  </div>
+  {moments.length === 0 && <p>还没有动态。</p>}
+</BaseLayout>

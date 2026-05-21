@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles'))
+  .filter((a) => !a.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title="Blog" description="个人博客">
+  <h1 class="page-title">文章</h1>
+  <ul class="article-list">
+    {articles.map((article) => (
+      <li class="article-item">
+        <a href={`/articles/${article.id}`}>{article.data.title}</a>
+        <time datetime={article.data.pubDate.toISOString()}>
+          {article.data.pubDate.toLocaleDateString('zh-CN')}
+        </time>
+      </li>
+    ))}
+  </ul>
+  {articles.length === 0 && <p>还没有文章，敬请期待。</p>}
+</BaseLayout>
